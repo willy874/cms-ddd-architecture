@@ -1,24 +1,52 @@
 version: '3.7'
 
 services:
-  web:
-    build: .
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cms-ddd-architecture
+    networks:
+      - default
+    container_name: frontend-service
     ports:
-      - "5000:5000"
+      - "8124:3000"
     volumes:
       - .:/app
     environment:
-      FLASK_ENV: development
-      FLASK_APP: app.py
+      PORT: 3000
     depends_on:
-      - db
-    command: npm run start
-  db:
-    image: postgres:12
+      - backend
+    command: pnpm --filter web-next-app start
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cms-ddd-architecture
+    networks:
+      - default
+    container_name: backend-service
+    ports:
+      - "8123:4000"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - .:/app
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-      
+      PORT: 4000
+    depends_on:
+      - database
+    command: pnpm --filter api-nest-app start
+  database:
+    ports:
+      - "3308:3306"
+    image: mysql:8
+    networks:
+      - default
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cms_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+
+networks:
+  default:
+    driver: bridge
