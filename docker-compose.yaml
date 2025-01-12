@@ -1,52 +1,59 @@
 version: '3.7'
 
 services:
-  frontend:
+  frontend-service:
     build:
       context: .
       dockerfile: Dockerfile
     image: cms-ddd-architecture
     networks:
-      - default
+      - app-network
     container_name: frontend-service
-    ports:
-      - "8124:3000"
     volumes:
       - .:/app
     environment:
       PORT: 3000
     depends_on:
-      - backend
+      - backend-service
     command: pnpm --filter web-next-app start
-  backend:
+  backend-service:
     build:
       context: .
       dockerfile: Dockerfile
     image: cms-ddd-architecture
     networks:
-      - default
+      - app-network
     container_name: backend-service
-    ports:
-      - "8123:4000"
     volumes:
       - .:/app
     environment:
       PORT: 4000
     depends_on:
-      - database
+      - database-service
     command: pnpm --filter api-nest-app start
-  database:
-    ports:
-      - "3308:3306"
+  database-service:
     image: mysql:8
     networks:
-      - default
+      - app-network
+    container_name: database-service
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: cms_db
       MYSQL_USER: root
       MYSQL_PASSWORD: password
+  web-service:
+    container_name: app-web-service
+    image: nginx:latest
+    depends_on:
+      - frontend-service
+    ports:
+      - "8765:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    command: ["nginx", "-c", "/etc/nginx/nginx.conf", "-g", "daemon off;"]
+    networks:
+      - app-network
 
 networks:
-  default:
+  app-network:
     driver: bridge
