@@ -28,6 +28,11 @@ services:
       - .:/app
     environment:
       PORT: 4000
+      DATABASE_HOST: database-service
+      DATABASE_PORT: 3306
+      DATABASE_USER: root
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: cms_db
     depends_on:
       - database-service
     command: pnpm --filter api-nest-app start
