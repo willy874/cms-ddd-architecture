@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { INJECT_DATABASE, Database } from '../../core/inject'
+import { Database, INJECT_DATABASE } from '@/shared/database'
 import { INJECT_PRODUCT_REPOSITORY, ProductRepository } from '../providers'
 
 @Injectable()

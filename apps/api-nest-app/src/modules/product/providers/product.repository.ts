@@ -1,5 +1,5 @@
 import { Product } from '../product.entity'
-import { Database, INJECT_DATABASE } from '../../core/inject'
+import { Database, INJECT_DATABASE } from '@/shared/database'
 
 export const INJECT_KEY = 'PRODUCT_REPOSITORY'
 

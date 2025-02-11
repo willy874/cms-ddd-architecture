@@ -1,10 +1,15 @@
-import { FactoryProvider, Module } from '@nestjs/common'
 import { DataSource } from 'typeorm'
-import { entities } from '../entities'
-import { env } from '../env'
-import { Database, INJECT_DATABASE } from '../core/inject'
+import { entities } from '@/entities'
+import { env } from '@/env'
 
-const databaseProvider: FactoryProvider<Database> = {
+export const INJECT_DATABASE = 'DATA_SOURCE'
+
+ type UseDatabase = {
+   query: DataSource['query']
+   getRepository: DataSource['getRepository']
+ }
+
+export const databaseProvider = {
   provide: INJECT_DATABASE,
   useFactory: async () => {
     const dataSource = new DataSource({
@@ -21,12 +26,6 @@ const databaseProvider: FactoryProvider<Database> = {
       // ],
     })
     await dataSource.initialize()
-    return dataSource
+    return dataSource as UseDatabase
   },
 }
-
-@Module({
-  providers: [databaseProvider],
-  exports: [databaseProvider],
-})
-export class DatabaseModule {}
