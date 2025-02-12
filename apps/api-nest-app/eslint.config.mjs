@@ -1,4 +1,4 @@
-import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin'
+import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin'
 import globals from 'globals'
 import tsParser from '@typescript-eslint/parser'
 import path from 'node:path'
@@ -23,7 +23,7 @@ export default [
   stylistic.configs.customize(),
   {
     plugins: {
-      '@typescript-eslint': typescriptEslintEslintPlugin,
+      '@typescript-eslint': typescriptEslintPlugin,
     },
 
     languageOptions: {

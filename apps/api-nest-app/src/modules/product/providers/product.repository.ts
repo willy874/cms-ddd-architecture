@@ -1,4 +1,4 @@
-import { Product } from '../product.entity'
+import { Product } from '../entities'
 import { Database, INJECT_DATABASE } from '@/shared/database'
 
 export const INJECT_KEY = 'PRODUCT_REPOSITORY'
