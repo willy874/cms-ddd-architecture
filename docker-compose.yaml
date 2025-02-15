@@ -55,8 +55,7 @@ services:
     ports:
       - "8765:80"
     volumes:
-      - ./nginx.conf:/app/nginx.conf:ro
-    command: ["nginx", "-c", "/app/nginx.conf", "-g", "daemon off;"]
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - app-network
 networks:
