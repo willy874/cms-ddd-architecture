@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { GetProviderType } from '@/utils/types'
-import { redisProvider, REDIS_PROVIDER } from './redis.module'
+import { redisProvider, REDIS_PROVIDER, RedisModule } from './redis.module'
 
 export const CACHE_PROVIDER = 'CACHE_PROVIDER'
 export type CacheRepository = GetProviderType<typeof redisProvider>
@@ -14,6 +14,7 @@ export const cacheProvider = {
 }
 
 @Module({
+  imports: [RedisModule],
   providers: [cacheProvider],
   exports: [cacheProvider],
 })
