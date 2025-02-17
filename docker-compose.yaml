@@ -9,6 +9,14 @@ services:
     environment:
       MYSQL_DATABASE: cms_db
       MYSQL_ROOT_PASSWORD: password
+  redis-service:
+    image: redis:7
+    networks:
+      - app-network
+    container_name: redis-service
+    environment:
+      REDIS_PORT: 6379
+      REDIS_HOST: redis-service
   backend-service:
     build:
       context: .
@@ -27,8 +35,11 @@ services:
       DATABASE_USER: root
       DATABASE_PASSWORD: password
       DATABASE_NAME: cms_db
+      REDIS_HOST: redis-service
+      REDIS_PORT: 6379
     depends_on:
       - database-service
+      - redis-service
     command: pnpm --filter api-nest-app start:dev
   frontend-service:
     build:
