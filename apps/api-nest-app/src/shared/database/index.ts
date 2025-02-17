@@ -1,2 +1,1 @@
-export { DatabaseModule } from './database.module'
-export { Database, DATABASE_PROVIDER } from './database.provider'
+export { DatabaseModule, DatabaseOperator, DATABASE_PROVIDER } from './database.module'

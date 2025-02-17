@@ -1,3 +1,4 @@
+import { Module } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { entities } from '@/entities'
 import { env } from '@/env'
@@ -20,3 +21,9 @@ export const mysqlProvider = {
     return await dataSource.initialize()
   },
 }
+
+@Module({
+  providers: [mysqlProvider],
+  exports: [mysqlProvider],
+})
+export class MysqlModule {}
