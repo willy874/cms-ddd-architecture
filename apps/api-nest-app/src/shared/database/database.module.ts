@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
 import { MysqlModule, MYSQL_PROVIDER, MysqlProvider } from './mysql.module'
 import { Repository } from './Repository'
-import type { ObjectLiteral, EntityTarget } from './Repository'
+import type { ObjectLiteral, EntityTarget, IRepository } from './Repository'
 
 export const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
 
 export type DatabaseOperator = {
-  getRepository: <Entity extends ObjectLiteral>(entity: EntityTarget<Entity>) => Repository<Entity>
+  getRepository: <Entity extends ObjectLiteral>(entity: EntityTarget<Entity>) => IRepository<Entity>
 }
 
 export const databaseProvider = {

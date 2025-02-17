@@ -1,27 +1,33 @@
+import { MockModule } from '@/utils/types'
+import { CACHE_PROVIDER, cacheProvider, CacheRepository } from './cache.module'
 import { Module } from '@nestjs/common'
-import { CACHE_PROVIDER, cacheProvider } from './cache.module'
 
-const mockCacheProvider: typeof cacheProvider = {
-  provide: CACHE_PROVIDER,
-  inject: [],
-  useFactory: () => {
-    return {
-      set: async (key, value) => {
-        console.log(`Mock set: ${key} ${value}`)
-      },
-      get: async (key) => {
-        console.log(`Mock get: ${key}`)
-        return null
-      },
-      del: async (key) => {
-        console.log(`Mock del: ${key}`)
-      },
-    }
-  },
+export const createMockCacheModule = () => {
+  const mockInstance: CacheRepository = {
+    set: jest.fn(() => {
+      throw new Error('Method not implemented.')
+    }),
+    get: jest.fn(() => {
+      throw new Error('Method not implemented.')
+    }),
+    del: jest.fn(() => {
+      throw new Error('Method not implemented.')
+    }),
+  }
+
+  const provider: typeof cacheProvider = {
+    provide: CACHE_PROVIDER,
+    inject: [],
+    useFactory: () => mockInstance,
+  }
+
+  @Module({
+    providers: [provider],
+    exports: [provider],
+  })
+  class MockCacheModule {}
+  return {
+    getMockInstance: (): MockModule<CacheRepository> => mockInstance as any,
+    getModule: () => MockCacheModule,
+  }
 }
-@Module({
-  imports: [],
-  providers: [mockCacheProvider],
-  exports: [mockCacheProvider],
-})
-export class MockCacheModule {}

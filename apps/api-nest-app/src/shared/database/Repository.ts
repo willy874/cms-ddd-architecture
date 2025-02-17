@@ -4,11 +4,15 @@ export type ObjectLiteral = {
   [key: string]: any
 }
 
-type IRepository<Entity extends ObjectLiteral> = Pick<OrmRepository<Entity>, 'find'>
-
 export type EntityTarget<Entity> = ObjectType<Entity> | EntitySchema<Entity>
 
-export class Repository<Entity extends ObjectLiteral> implements IRepository<Entity> {
+export interface IRepository<Entity extends ObjectLiteral> {
+  find(options?: FindManyOptions<Entity>): Promise<Entity[]>
+  findOne(options: FindOneOptions<Entity>): Promise<Entity | null>
+  save(entity: DeepPartial<Entity>, options?: SaveOptions): Promise<Entity>
+}
+
+export class Repository<Entity extends ObjectLiteral> {
   constructor(private readonly repository: OrmRepository<Entity>) {}
 
   async find(options?: FindManyOptions<Entity>): Promise<Entity[]> {
