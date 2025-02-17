@@ -12,11 +12,17 @@ export class AuthService {
   ) {}
 
   async setToken(jwt: string, value: UserMe) {
+    await this.removeToken(jwt)
+    await this.cacheRepository.set(jwt, JSON.stringify(value))
+  }
+
+  async removeToken(jwt: string) {
     const userPayload = await this.cacheRepository.get(jwt)
     if (userPayload) {
       await this.cacheRepository.del(jwt)
+      return true
     }
-    await this.cacheRepository.set(jwt, JSON.stringify(value))
+    return false
   }
 
   async getUserByToken(jwt: string) {
