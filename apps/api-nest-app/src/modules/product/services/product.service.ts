@@ -12,7 +12,6 @@ export class ProductService {
   ) {}
 
   async all() {
-    console.log(await this.database.query('SELECT * FROM products'))
     return await this.productRepository.find()
   }
 }
