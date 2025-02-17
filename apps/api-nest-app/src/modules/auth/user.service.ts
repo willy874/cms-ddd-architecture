@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { INJECT_KEY as USER_REPOSITORY, userRepositoryProvider } from './user.repository'
 import { GetProviderType } from '@/utils/types'
+import { AuthRegisterRequestDto } from './auth.dto'
 
 export type ProductRepository = GetProviderType<typeof userRepositoryProvider>
 
@@ -15,7 +16,11 @@ export class UserService {
     return this.userRepository.findOne({ where: { username } })
   }
 
-  createUser(payload: { username: string, password: string }) {
+  getUserById(id: number) {
+    return this.userRepository.findOne({ where: { id } })
+  }
+
+  createUser(payload: AuthRegisterRequestDto) {
     return this.userRepository.save({ ...payload })
   }
 }

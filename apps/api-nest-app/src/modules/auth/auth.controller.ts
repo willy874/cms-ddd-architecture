@@ -1,14 +1,17 @@
+import crypto from 'node:crypto'
 import { Body, Controller, Post, HttpException, HttpStatus, Get, Req, HttpCode, Query } from '@nestjs/common'
 import type { Request } from 'express'
 import { JwtService } from '@nestjs/jwt'
 import { TokenService } from './token.service'
 import type { UserMe } from './token.service'
 import { UserService } from './user.service'
+import { AuthRegisterRequestDto, AuthUserMeResponseDto } from './auth.dto'
 
-const TOKEN_TYPE = 'Bearer'
+export const TOKEN_TYPE = 'Bearer'
 
 function hash(password: string) {
-  return password
+  const storedSalt = 'a1b2c3d4e5f6g7h8i9j0'
+  return crypto.pbkdf2Sync(password, storedSalt, 100000, 64, 'sha512').toString('hex')
 }
 
 @Controller('auth')
@@ -60,10 +63,12 @@ export class AuthController {
     if (user) {
       throw new HttpException('User already exists.', HttpStatus.BAD_REQUEST)
     }
-    await this.userService.createUser({
-      username,
-      password: hash(password),
-    })
+    await this.userService.createUser(
+      new AuthRegisterRequestDto({
+        username,
+        password: hash(password),
+      })
+    )
     return {
       code: 201,
       message: 'User created successfully.',
@@ -91,9 +96,13 @@ export class AuthController {
     if (!payload) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED)
     }
+    const user = await this.userService.getUserById(payload.uid)
+    if (!user) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED)
+    }
     return {
       code: 200,
-      data: payload,
+      data: new AuthUserMeResponseDto(user),
     }
   }
 }

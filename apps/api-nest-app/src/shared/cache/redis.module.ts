@@ -1,6 +1,7 @@
 import { env } from '@/env'
 import Redis from 'ioredis'
 import { Module } from '@nestjs/common'
+import { GetProviderType } from '@/utils/types'
 
 export const REDIS_PROVIDER = 'REDIS_PROVIDER'
 
@@ -13,6 +14,8 @@ export const redisProvider = {
     })
   },
 }
+
+export type RedisRepository = GetProviderType<typeof redisProvider>
 
 @Module({
   providers: [redisProvider],

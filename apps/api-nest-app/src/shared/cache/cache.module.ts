@@ -1,15 +1,29 @@
 import { Module } from '@nestjs/common'
-import { GetProviderType } from '@/utils/types'
-import { redisProvider, REDIS_PROVIDER, RedisModule } from './redis.module'
+import { REDIS_PROVIDER, RedisModule, RedisRepository } from './redis.module'
 
 export const CACHE_PROVIDER = 'CACHE_PROVIDER'
-export type CacheRepository = GetProviderType<typeof redisProvider>
+
+export type CacheRepository = {
+  set: (key: string, value: string) => Promise<void>
+  get: (key: string) => Promise<string | null>
+  del: (key: string) => Promise<void>
+}
 
 export const cacheProvider = {
   provide: CACHE_PROVIDER,
   inject: [REDIS_PROVIDER],
-  useFactory: async (cache: CacheRepository) => {
-    return cache
+  useFactory: (cache: RedisRepository): CacheRepository => {
+    return {
+      set: async (key, value) => {
+        await cache.set(key, value)
+      },
+      get: async (key) => {
+        return await cache.get(key)
+      },
+      del: async (key) => {
+        await cache.del(key)
+      },
+    }
   },
 }
 
