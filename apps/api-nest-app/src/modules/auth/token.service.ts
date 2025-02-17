@@ -6,7 +6,7 @@ export interface UserMe {
 }
 
 @Injectable()
-export class AuthService {
+export class TokenService {
   constructor(
     @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
   ) {}
@@ -25,7 +25,7 @@ export class AuthService {
     return false
   }
 
-  async getUserByToken(jwt: string) {
+  async getUserPayloadByToken(jwt: string) {
     const value = await this.cacheRepository.get(jwt)
     if (!value) {
       return null

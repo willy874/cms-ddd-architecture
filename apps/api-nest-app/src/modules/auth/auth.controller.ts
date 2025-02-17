@@ -1,7 +1,8 @@
 import { Body, Controller, Post, HttpException, HttpStatus, Get, Req, HttpCode, Query } from '@nestjs/common'
 import type { Request } from 'express'
 import { JwtService } from '@nestjs/jwt'
-import { AuthService, UserMe } from './auth.service'
+import { TokenService } from './token.service'
+import type { UserMe } from './token.service'
 import { UserService } from './user.service'
 
 const TOKEN_TYPE = 'Bearer'
@@ -14,7 +15,7 @@ function hash(password: string) {
 export class AuthController {
   constructor(
     private jwtService: JwtService,
-    private authService: AuthService,
+    private tokenService: TokenService,
     private userService: UserService,
   ) {}
 
@@ -36,7 +37,7 @@ export class AuthController {
     }
     const payload = { uid: user.id } satisfies UserMe
     const jwt = this.jwtService.sign(payload)
-    await this.authService.setToken(`${TOKEN_TYPE} ${jwt}`, payload)
+    await this.tokenService.setToken(`${TOKEN_TYPE} ${jwt}`, payload)
     return {
       code: 200,
       data: {
@@ -86,7 +87,7 @@ export class AuthController {
     if (!authorization) {
       throw new HttpException('Authorization header is required', HttpStatus.UNAUTHORIZED)
     }
-    const payload = await this.authService.getUserByToken(authorization)
+    const payload = await this.tokenService.getUserPayloadByToken(authorization)
     if (!payload) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED)
     }
