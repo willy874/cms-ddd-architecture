@@ -4,13 +4,12 @@ import { Product } from './product.entity'
 
 export const PRODUCT_REPOSITORY = 'PRODUCT_REPOSITORY'
 
-export type ProductRepository = GetProviderType<typeof productRepositoryProvider>
-
-export const productRepositoryProvider = {
+export const ProductRepositoryService = {
   provide: PRODUCT_REPOSITORY,
   inject: [DATABASE_PROVIDER],
   useFactory: async (database: DatabaseOperator) => {
     return database.getRepository(Product)
   },
-
 }
+
+export type ProductRepository = GetProviderType<typeof ProductRepositoryService>
