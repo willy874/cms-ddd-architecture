@@ -8,11 +8,12 @@ import { TokenService } from './token.service'
 import { UserService } from './user.service'
 import { userRepositoryProvider } from './user.repository'
 import { User } from './user.entity'
+import { SHA256 } from 'crypto-js'
 
 const MOCK_USER: User = {
   id: 1,
   username: 'admin',
-  password: 'password',
+  password: SHA256('password').toString(),
 }
 
 describe('AuthController', () => {

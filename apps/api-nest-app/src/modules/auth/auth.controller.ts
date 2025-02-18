@@ -1,16 +1,14 @@
-import { Body, Controller, Post, HttpException, HttpStatus, Get, Req, HttpCode, Query } from '@nestjs/common'
+import { Body, Controller, Post, Get, Req, HttpCode, Query } from '@nestjs/common'
 import type { Request } from 'express'
+import { SHA256 } from 'crypto-js'
 import { JwtService } from '@nestjs/jwt'
 import { TokenService } from './token.service'
 import type { UserMe } from './token.service'
 import { UserService } from './user.service'
 import { AuthRegisterRequestDto, AuthUserMeResponseDto } from './auth.dto'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
 
 export const TOKEN_TYPE = 'Bearer'
-
-function hash(password: string) {
-  return password
-}
 
 @Controller('auth')
 export class AuthController {
@@ -26,15 +24,15 @@ export class AuthController {
     @Body('password') password?: string,
   ) {
     if (!username || !password) {
-      throw new HttpException('Username and password are required.', HttpStatus.BAD_REQUEST)
+      throw new LoginValidationException()
     }
     const user = await this.userService.getUserByName(username)
     if (!user) {
-      throw new HttpException('Incorrect name or password.', HttpStatus.BAD_REQUEST)
+      throw new LoginFailException()
     }
-    const hashPassword = hash(password)
+    const hashPassword = SHA256(password).toString()
     if (user.password !== hashPassword) {
-      throw new HttpException('Incorrect name or password.', HttpStatus.BAD_REQUEST)
+      throw new LoginFailException()
     }
     const payload = { uid: user.id } satisfies UserMe
     const jwt = this.jwtService.sign(payload)
@@ -51,20 +49,20 @@ export class AuthController {
   @Post('/register')
   @HttpCode(201)
   async register(
-  @Body('username') username?: string,
-  @Body('password') password?: string,
+    @Body('username') username?: string,
+    @Body('password') password?: string,
   ) {
     if (!username || !password) {
-      throw new HttpException('Username and password are required.', HttpStatus.BAD_REQUEST)
+      throw new LoginValidationException()
     }
     const user = await this.userService.getUserByName(username)
     if (user) {
-      throw new HttpException('User already exists.', HttpStatus.BAD_REQUEST)
+      throw new UserAlreadyExistsException()
     }
     await this.userService.createUser(
       new AuthRegisterRequestDto({
         username,
-        password: hash(password),
+        password: SHA256(password).toString(),
       })
     )
     return {
@@ -79,7 +77,7 @@ export class AuthController {
     if (user) {
       return true
     }
-    throw new HttpException('User not found.', HttpStatus.NOT_FOUND)
+    throw new UserNotFoundException()
   }
 
   @Get('/me')
@@ -88,15 +86,15 @@ export class AuthController {
   ) {
     const authorization = request.headers['authorization']
     if (!authorization) {
-      throw new HttpException('Authorization header is required', HttpStatus.UNAUTHORIZED)
+      throw new AuthorizationHeaderRequiredException()
     }
     const payload = await this.tokenService.getUserPayloadByToken(authorization)
     if (!payload) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED)
+      throw new InvalidTokenException()
     }
     const user = await this.userService.getUserById(payload.uid)
     if (!user) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED)
+      throw new InvalidTokenException()
     }
     return {
       code: 200,
