@@ -28,7 +28,7 @@ services:
     volumes:
       - .:/app
     environment:
-      PORT: 4000
+      APP_PORT: 4000
       API_PREFIX: apis
       DATABASE_HOST: database-service
       DATABASE_PORT: 3306

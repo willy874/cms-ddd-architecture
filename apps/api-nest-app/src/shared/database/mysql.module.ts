@@ -1,23 +1,24 @@
 import { Module } from '@nestjs/common'
+import { ConfigType } from '@nestjs/config'
 import { DataSource } from 'typeorm'
-import { entities } from '@/entities'
-import { env } from '@/env'
 import { GetProviderType } from '@/utils/types'
+import databaseConfigProvider from '../config/database'
 
 export const MYSQL_PROVIDER = 'MYSQL_PROVIDER'
 
 export const mysqlProvider = {
   provide: MYSQL_PROVIDER,
-  useFactory: async () => {
+  inject: [databaseConfigProvider.KEY],
+  useFactory: async (config: ConfigType<typeof databaseConfigProvider>) => {
     const dataSource = new DataSource({
       type: 'mysql',
-      host: env.DATABASE_HOST,
-      port: parseInt(env.DATABASE_PORT, 10),
-      username: env.DATABASE_USER,
-      password: env.DATABASE_PASSWORD,
-      database: env.DATABASE_NAME,
-      synchronize: true,
-      entities: [...entities],
+      host: config.host,
+      port: config.port,
+      username: config.username,
+      password: config.password,
+      database: config.name,
+      synchronize: config.synchronize,
+      entities: config.entities,
     })
     return await dataSource.initialize()
   },
@@ -26,6 +27,7 @@ export const mysqlProvider = {
 export type MysqlProvider = GetProviderType<typeof mysqlProvider>
 
 @Module({
+  imports: [],
   providers: [mysqlProvider],
   exports: [mysqlProvider],
 })

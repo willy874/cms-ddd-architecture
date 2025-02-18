@@ -1,19 +1,26 @@
 import { User } from './user.entity'
 
 export class AuthRegisterRequestDto {
-  public username: string
-  public password: string
+  public username?: string
+  public password?: string
 
   constructor({ username, password }: Partial<User>) {
-    this.username = username
-    this.password = password
+    Object.assign(this, { username, password })
+  }
+
+  clone() {
+    return JSON.parse(JSON.stringify(this))
   }
 }
 
 export class AuthUserMeResponseDto {
   public username: string
 
-  constructor(user: User) {
-    this.username = user.username
+  constructor({ username }: User) {
+    Object.assign(this, { username })
+  }
+
+  clone() {
+    return JSON.parse(JSON.stringify(this))
   }
 }

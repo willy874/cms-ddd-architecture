@@ -4,3 +4,5 @@ export type GetProviderType<T> = T extends { useFactory: (...args: any[]) => inf
 export type MockModule<T extends Record<string, any>> = {
   [P in keyof T]: T[P] extends (...args: any[]) => any ? jest.Mock<ReturnType<T[P]>, Parameters<T[P]>> : T[P]
 }
+
+export type { DeepPartial } from 'typeorm'

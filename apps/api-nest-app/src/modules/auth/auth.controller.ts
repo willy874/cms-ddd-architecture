@@ -100,7 +100,7 @@ export class AuthController {
     }
     return {
       code: 200,
-      data: new AuthUserMeResponseDto(user),
+      data: new AuthUserMeResponseDto(user).clone(),
     }
   }
 }
