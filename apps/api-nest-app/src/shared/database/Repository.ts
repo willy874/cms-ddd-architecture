@@ -12,7 +12,7 @@ export interface IRepository<Entity extends ObjectLiteral> {
   save(entity: DeepPartial<Entity>, options?: SaveOptions): Promise<Entity>
 }
 
-export class Repository<Entity extends ObjectLiteral> {
+export class Repository<Entity extends ObjectLiteral> implements IRepository<Entity> {
   constructor(private readonly repository: OrmRepository<Entity>) {}
 
   async find(options?: FindManyOptions<Entity>): Promise<Entity[]> {

@@ -5,8 +5,8 @@ import type { ObjectLiteral, EntityTarget, IRepository } from './Repository'
 
 export const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
 
-export type DatabaseOperator = {
-  getRepository: <Entity extends ObjectLiteral>(entity: EntityTarget<Entity>) => IRepository<Entity>
+export type DatabaseOperator<T extends ObjectLiteral = ObjectLiteral> = {
+  getRepository: <Entity extends T>(entity: EntityTarget<Entity>) => IRepository<Entity>
 }
 
 export const databaseProvider = {

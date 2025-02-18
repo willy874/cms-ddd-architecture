@@ -3,17 +3,11 @@ import { CACHE_PROVIDER, cacheProvider, CacheRepository } from './cache.module'
 import { Module } from '@nestjs/common'
 
 export const createMockCacheModule = () => {
-  const mockInstance: CacheRepository = {
-    set: jest.fn(() => {
-      throw new Error('Method not implemented.')
-    }),
-    get: jest.fn(() => {
-      throw new Error('Method not implemented.')
-    }),
-    del: jest.fn(() => {
-      throw new Error('Method not implemented.')
-    }),
-  }
+  const mockInstance = {
+    set: jest.fn(),
+    get: jest.fn(),
+    del: jest.fn(),
+  } satisfies CacheRepository
 
   const provider: typeof cacheProvider = {
     provide: CACHE_PROVIDER,
@@ -27,7 +21,7 @@ export const createMockCacheModule = () => {
   })
   class MockCacheModule {}
   return {
-    getMockInstance: (): MockModule<CacheRepository> => mockInstance as any,
+    getMockInstance: (): MockModule<CacheRepository> => mockInstance,
     getModule: () => MockCacheModule,
   }
 }

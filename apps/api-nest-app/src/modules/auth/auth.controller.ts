@@ -1,4 +1,3 @@
-import crypto from 'node:crypto'
 import { Body, Controller, Post, HttpException, HttpStatus, Get, Req, HttpCode, Query } from '@nestjs/common'
 import type { Request } from 'express'
 import { JwtService } from '@nestjs/jwt'
@@ -10,8 +9,7 @@ import { AuthRegisterRequestDto, AuthUserMeResponseDto } from './auth.dto'
 export const TOKEN_TYPE = 'Bearer'
 
 function hash(password: string) {
-  const storedSalt = 'a1b2c3d4e5f6g7h8i9j0'
-  return crypto.pbkdf2Sync(password, storedSalt, 100000, 64, 'sha512').toString('hex')
+  return password
 }
 
 @Controller('auth')

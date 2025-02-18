@@ -9,5 +9,4 @@ export const userRepositoryProvider = {
   useFactory: async (database: DatabaseOperator) => {
     return database.getRepository(User)
   },
-
 }

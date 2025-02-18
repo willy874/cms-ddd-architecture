@@ -1,24 +1,18 @@
 import { Module } from '@nestjs/common'
 import { MockModule } from '@/utils/types'
 import { DATABASE_PROVIDER, DatabaseOperator, databaseProvider } from './database.module'
-import { IRepository } from './Repository'
+import { IRepository, ObjectLiteral } from './Repository'
 
-export const createMockDatabaseModule = () => {
-  const mockRepositoryInstance: IRepository<any> = {
-    find: jest.fn(() => {
-      throw new Error('Method not implemented.')
-    }),
-    findOne: jest.fn(() => {
-      throw new Error('Method not implemented.')
-    }),
-    save: jest.fn(() => {
-      throw new Error('Method not implemented.')
-    }),
-  }
+export const createMockDatabaseModule = <T extends ObjectLiteral>() => {
+  const mockRepositoryInstance = {
+    find: jest.fn(),
+    findOne: jest.fn(),
+    save: jest.fn(),
+  } satisfies IRepository<ObjectLiteral>
 
-  const mockInstance: DatabaseOperator = {
+  const mockInstance = {
     getRepository: jest.fn(() => mockRepositoryInstance),
-  }
+  } satisfies DatabaseOperator
 
   const provider: typeof databaseProvider = {
     provide: DATABASE_PROVIDER,
@@ -33,8 +27,8 @@ export const createMockDatabaseModule = () => {
   class MockDatabaseModule {}
 
   return {
-    getRepositoryMockInstance: (): MockModule<IRepository<any>> => mockRepositoryInstance as any,
-    getMockInstance: (): MockModule<DatabaseOperator> => mockInstance as any,
+    getRepositoryMockInstance: (): MockModule<IRepository<T>> => mockRepositoryInstance,
+    getMockInstance: (): MockModule<DatabaseOperator<T>> => mockInstance as any,
     getModule: () => MockDatabaseModule,
   }
 }
