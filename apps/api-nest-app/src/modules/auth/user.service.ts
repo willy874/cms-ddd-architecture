@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { INJECT_KEY as USER_REPOSITORY, userRepositoryProvider } from './user.repository'
+import { USER_REPOSITORY, userRepositoryProvider } from './user.repository'
 import { GetProviderType } from '@/utils/types'
 import { AuthRegisterRequestDto } from './auth.dto'
 

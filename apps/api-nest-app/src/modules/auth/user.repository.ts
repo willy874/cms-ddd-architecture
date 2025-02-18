@@ -1,12 +1,12 @@
 import { User } from './user.entity'
 import { DatabaseOperator, DATABASE_PROVIDER } from '@/shared/database'
 
-export const INJECT_KEY = 'USER_REPOSITORY'
+export const USER_REPOSITORY = 'USER_REPOSITORY'
 
 export const userRepositoryProvider = {
-  provide: INJECT_KEY,
+  provide: USER_REPOSITORY,
   inject: [DATABASE_PROVIDER],
-  useFactory: async (database: DatabaseOperator) => {
+  useFactory: (database: DatabaseOperator) => {
     return database.getRepository(User)
   },
 }
