@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { Column, Entity, ManyToMany, PrimaryColumn } from 'typeorm'
+import { Role } from '../role/role.entity'
 
 @Entity({
   name: 'users',
@@ -19,4 +20,7 @@ export class User {
     length: 255,
   })
   password: string
+
+  @ManyToMany(() => Role, role => role.id)
+  roles: Role[]
 }
