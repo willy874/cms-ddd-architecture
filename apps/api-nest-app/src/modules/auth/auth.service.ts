@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService, TokenExpiredError } from '@nestjs/jwt'
 import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
-import { TokenExpiredException } from './errors'
+import { InvalidTokenException, TokenExpiredException } from './errors'
+import { ACCESS_SECRET, REFRESH_SECRET } from './constants'
+import { UserService } from './imports/user'
 
 export interface UserMe {
   uid: number
@@ -12,15 +14,16 @@ export interface UserPayload extends UserMe {
   refreshToken: string
 }
 
-export const ACCESS_SECRET = 'ACCESS_SECRET'
-export const REFRESH_SECRET = 'REFRESH_SECRET'
-export const TOKEN_TYPE = 'Bearer'
+export interface UserInfo {
+  username: string
+}
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
     private jwtService: JwtService,
+    private userService: UserService,
   ) {}
 
   async setToken(jwt: string, value: UserMe) {
@@ -42,13 +45,17 @@ export class AuthService {
     }
   }
 
-  validateToken(token: string, secret: string) {
-    return this.jwtService.verify(token, { secret }).then(() => true).catch((error) => {
+  verifyRefreshToken(token: string) {
+    try {
+      this.jwtService.verify(token, { secret: REFRESH_SECRET })
+      return true
+    }
+    catch (error) {
       if (error instanceof TokenExpiredError) {
-        return Promise.reject(new TokenExpiredException())
+        throw new TokenExpiredException()
       }
-      return Promise.resolve(false)
-    })
+    }
+    return false
   }
 
   async removeToken(jwt: string) {
@@ -64,11 +71,22 @@ export class AuthService {
     return false
   }
 
-  async getUserPayloadByToken(jwt: string) {
-    const value = await this.cacheRepository.get(jwt)
+  async getUserPayloadByToken(token: string) {
+    const value = await this.cacheRepository.get(token)
     if (!value) {
       return null
     }
     return JSON.parse(value) as UserPayload
+  }
+
+  async getUserMe(id: number) {
+    const user = await this.userService.getUserById(id)
+    if (!user) {
+      throw new InvalidTokenException()
+    }
+    return {
+      username: user.username,
+      permissions: [],
+    } as UserInfo
   }
 }

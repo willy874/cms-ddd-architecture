@@ -12,15 +12,3 @@ export class AuthRegisterRequestDto {
     return JSON.parse(JSON.stringify(this))
   }
 }
-
-export class AuthUserMeResponseDto {
-  public username: string
-
-  constructor({ username }: User) {
-    Object.assign(this, { username })
-  }
-
-  clone() {
-    return JSON.parse(JSON.stringify(this))
-  }
-}

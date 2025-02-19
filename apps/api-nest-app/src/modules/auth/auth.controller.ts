@@ -1,9 +1,11 @@
-import { Body, Controller, Post, Get, HttpCode, Query, Headers } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
-import { AuthService, REFRESH_SECRET, TOKEN_TYPE } from './auth.service'
-import { AuthRegisterRequestDto, AuthUserMeResponseDto } from './auth.dto'
+import { AuthService } from './auth.service'
+import { AuthRegisterRequestDto } from './auth.dto'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
 import { UserService } from './imports/user'
+import { TOKEN_TYPE } from './constants'
+import { AuthGuard } from './auth.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -73,23 +75,19 @@ export class AuthController {
   }
 
   @Get('/me')
+  @UseGuards(AuthGuard)
   async me(
-    @Headers('authorization') authorization?: string
+    @Headers('authorization') authorization: string
   ) {
-    if (!authorization) {
-      throw new AuthorizationHeaderRequiredException()
-    }
-    const payload = await this.authService.getUserPayloadByToken(authorization)
+    const [, token] = authorization.split(' ')
+    const payload = await this.authService.getUserPayloadByToken(token)
     if (!payload) {
       throw new InvalidTokenException()
     }
-    const user = await this.userService.getUserById(payload.uid)
-    if (!user) {
-      throw new InvalidTokenException()
-    }
+    const user = await this.authService.getUserMe(payload.uid)
     return {
       code: 200,
-      data: new AuthUserMeResponseDto(user).clone(),
+      data: user,
     }
   }
 
@@ -101,19 +99,18 @@ export class AuthController {
     if (!authorization) {
       throw new AuthorizationHeaderRequiredException()
     }
-    const isPass = await this.authService.validateToken(refreshToken, REFRESH_SECRET)
+    const isPass = await this.authService.verifyRefreshToken(refreshToken)
     if (!isPass) {
       throw new InvalidTokenException()
     }
-    const payload = await this.authService.getUserPayloadByToken(authorization)
+    const [, token] = authorization.split(' ')
+    const payload = await this.authService.getUserPayloadByToken(token)
     if (!payload) {
       throw new InvalidTokenException()
     }
-    const user = await this.userService.getUserById(payload.uid)
-    if (!user) {
-      throw new InvalidTokenException()
-    }
-    const result = this.authService.generateTokens({ uid: user.id })
+    const result = this.authService.generateTokens({
+      uid: payload.uid,
+    })
     return {
       code: 200,
       data: {

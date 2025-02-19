@@ -2,13 +2,14 @@ import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthController } from './auth.controller'
-import { AuthService, TOKEN_TYPE } from './auth.service'
+import { AuthService } from './auth.service'
 import { UserModule, User } from './imports/user'
 import { DatabaseModule } from '@/shared/database'
 import { getRepository, setRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, type CacheRepository } from '@/shared/cache'
 import { setCurrentCache, getCurrentCache } from '@/shared/cache/cacheRef'
+import { TOKEN_TYPE } from './constants'
 
 const MOCK_USER: User = {
   id: 1,
@@ -109,15 +110,18 @@ describe('AuthController', () => {
     })
     it('login', async () => {
       let accessToken = ''
+      let refreshToken = ''
 
       findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
       const res = await authController.login('admin', 'password')
       accessToken = res.data.accessToken
+      refreshToken = res.data.refreshToken
       expect(res).toEqual({
         code: 200,
         data: {
           tokenType: TOKEN_TYPE,
           accessToken,
+          refreshToken,
         },
       })
     })
