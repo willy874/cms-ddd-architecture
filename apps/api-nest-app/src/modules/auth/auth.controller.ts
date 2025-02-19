@@ -1,21 +1,23 @@
-import { Body, Controller, Post, Get, Req, HttpCode, Query } from '@nestjs/common'
+import { Body, Controller, Post, Get, Req, HttpCode, Query, Inject } from '@nestjs/common'
 import type { Request } from 'express'
 import { SHA256 } from 'crypto-js'
 import { JwtService } from '@nestjs/jwt'
 import { TokenService } from './token.service'
 import type { UserMe } from './token.service'
-import { UserService } from './user.service'
 import { AuthRegisterRequestDto, AuthUserMeResponseDto } from './auth.dto'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
+import { USER_SERVICE, UserService } from './imports/user'
 
 export const TOKEN_TYPE = 'Bearer'
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    @Inject(USER_SERVICE)
+    private userService: UserService,
     private jwtService: JwtService,
     private tokenService: TokenService,
-    private userService: UserService,
+    // private userService: UserService,
   ) {}
 
   @Post('/login')

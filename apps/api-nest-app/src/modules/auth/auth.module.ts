@@ -4,14 +4,16 @@ import { DatabaseModule } from '@/shared/database'
 import { CacheModule } from '@/shared/cache'
 import { AuthController } from './auth.controller'
 import { TokenService } from './token.service'
-import { UserService } from './user.service'
-import { userRepositoryProvider } from './user.repository'
+import { UserModule } from './imports/user'
 
 @Module({
-  imports: [DatabaseModule, CacheModule, JwtModule.register({
-    secretOrPrivateKey: 'secretKey',
-  })],
-  providers: [userRepositoryProvider, TokenService, UserService],
+  imports: [
+    DatabaseModule,
+    CacheModule,
+    JwtModule.register({ secretOrPrivateKey: 'secretKey' }),
+    UserModule,
+  ],
+  providers: [TokenService],
   controllers: [AuthController],
 })
 export class AuthModule {}

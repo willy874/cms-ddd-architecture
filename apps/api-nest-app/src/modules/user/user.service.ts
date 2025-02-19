@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { USER_REPOSITORY, userRepositoryProvider } from './user.repository'
+import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
 import { GetProviderType } from '@/utils/types'
-import { AuthRegisterRequestDto } from './auth.dto'
+import { AuthRegisterRequestDto } from '../auth/auth.dto'
 
-export type ProductRepository = GetProviderType<typeof userRepositoryProvider>
+export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(USER_REPOSITORY)
-    private userRepository: ProductRepository,
+    private userRepository: UserRepository,
   ) {}
 
   getUserByName(username: string) {

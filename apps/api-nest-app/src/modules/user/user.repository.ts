@@ -3,7 +3,7 @@ import { DatabaseOperator, DATABASE_PROVIDER } from '@/shared/database'
 
 export const USER_REPOSITORY = 'USER_REPOSITORY'
 
-export const userRepositoryProvider = {
+export const UserRepositoryProvider = {
   provide: USER_REPOSITORY,
   inject: [DATABASE_PROVIDER],
   useFactory: (database: DatabaseOperator) => {

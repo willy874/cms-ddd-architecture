@@ -6,7 +6,7 @@ import databaseConfigProvider from '../config/database'
 
 export const MYSQL_PROVIDER = 'MYSQL_PROVIDER'
 
-export const mysqlProvider = {
+const mysqlProvider = {
   provide: MYSQL_PROVIDER,
   inject: [databaseConfigProvider.KEY],
   useFactory: async (config: ConfigType<typeof databaseConfigProvider>) => {

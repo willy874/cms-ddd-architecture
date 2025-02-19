@@ -1,4 +1,4 @@
-import { User } from './user.entity'
+import { User } from './imports/user'
 
 export class AuthRegisterRequestDto {
   public username?: string

@@ -1,14 +1,15 @@
+import type { Request } from 'express'
+import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
 import { JwtModule } from '@nestjs/jwt'
-import { Request } from 'express'
-import { createMockDatabaseModule } from '@/shared/database/database.module.mock'
-import { createMockCacheModule } from '@/shared/cache/cache.module.mock'
 import { AuthController, TOKEN_TYPE } from './auth.controller'
 import { TokenService } from './token.service'
-import { UserService } from './user.service'
-import { userRepositoryProvider } from './user.repository'
-import { User } from './user.entity'
-import { SHA256 } from 'crypto-js'
+import { UserModule, User } from './imports/user'
+import { DatabaseModule } from '@/shared/database'
+import { getRepository, setRepository } from '@/shared/database/repositoryMap'
+import type { IRepository } from '@/shared/database/Repository'
+import { CacheModule, type CacheRepository } from '@/shared/cache'
+import { setCurrentCache, getCurrentCache } from '@/shared/cache/cacheRef'
 
 const MOCK_USER: User = {
   id: 1,
@@ -16,25 +17,87 @@ const MOCK_USER: User = {
   password: SHA256('password').toString(),
 }
 
+jest.mock('@/shared/cache/cache.module', () => {
+  const CACHE_PROVIDER = 'CACHE_PROVIDER'
+  const cacheProvider = {
+    provide: CACHE_PROVIDER,
+    useFactory: () => {
+      const cache = {
+        get: jest.fn(),
+        set: jest.fn(),
+        del: jest.fn(),
+      } satisfies CacheRepository
+      setCurrentCache(cache)
+      return cache
+    },
+  }
+
+  return {
+    CACHE_PROVIDER,
+    CacheModule: {
+      module: class {},
+      providers: [cacheProvider],
+      exports: [cacheProvider],
+    },
+  }
+})
+
+jest.mock('@/shared/database/database.module', () => {
+  const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
+  const databaseProvider = {
+    provide: DATABASE_PROVIDER,
+    useFactory: () => {
+      return {
+        getRepository: (entity) => {
+          const repository = {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            save: jest.fn(),
+          } as IRepository<any>
+          setRepository(entity, repository)
+          return repository
+        },
+      }
+    },
+  }
+
+  return {
+    DATABASE_PROVIDER,
+    DatabaseModule: {
+      module: class {},
+      providers: [databaseProvider],
+      exports: [databaseProvider],
+    },
+  }
+})
+
 describe('AuthController', () => {
   let authController: AuthController
-  const databaseBuilder = createMockDatabaseModule<User>()
-  const cacheBuilder = createMockCacheModule()
+  let userRepository: IRepository<User>
+  let findOne = jest.fn()
+  let cacheRepository: CacheRepository
+  let cacheGet = jest.fn()
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [
-        databaseBuilder.getModule(),
-        cacheBuilder.getModule(),
+        DatabaseModule,
+        CacheModule,
         JwtModule.register({
           secretOrPrivateKey: 'secretKey',
         }),
+        UserModule,
       ],
-      providers: [userRepositoryProvider, TokenService, UserService],
+      providers: [TokenService],
       controllers: [AuthController],
     }).compile()
-
     authController = app.get(AuthController)
+
+    userRepository = getRepository(User)
+    findOne = userRepository.findOne as jest.Mock
+
+    cacheRepository = getCurrentCache()
+    cacheGet = cacheRepository.get as jest.Mock
   })
 
   describe('Auth', () => {
@@ -47,8 +110,8 @@ describe('AuthController', () => {
     })
     it('login', async () => {
       let accessToken = ''
-      const instance = databaseBuilder.getRepositoryMockInstance()
-      instance.findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
+
+      findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
       const res = await authController.login('admin', 'password')
       accessToken = res.data.accessToken
       expect(res).toEqual({
@@ -64,11 +127,9 @@ describe('AuthController', () => {
       const request = {} as Request
       request.headers = { authorization: token }
 
-      const instance1 = databaseBuilder.getRepositoryMockInstance()
-      instance1.findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
+      findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
 
-      const instance2 = cacheBuilder.getMockInstance()
-      instance2.get.mockImplementationOnce((k) => {
+      cacheGet.mockImplementationOnce((k) => {
         const map = { [k]: JSON.stringify({ uid: 1 }) }
         return Promise.resolve(map[k] || null)
       })
@@ -82,8 +143,7 @@ describe('AuthController', () => {
       })
     })
     it('checkByUsername', async () => {
-      const instance = databaseBuilder.getRepositoryMockInstance()
-      instance.findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
+      findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
 
       const res = await authController.checkByUsername('admin')
       expect(res).toEqual(true)
