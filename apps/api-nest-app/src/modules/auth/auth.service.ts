@@ -5,11 +5,12 @@ import { InvalidTokenException, TokenExpiredException } from './errors'
 import { ACCESS_SECRET, REFRESH_SECRET } from './constants'
 import { UserService } from './imports/user'
 
-export interface UserMe {
+export interface BaseUserPayload {
   uid: number
+  permissions: string[]
 }
 
-export interface UserPayload extends UserMe {
+export interface UserPayload extends BaseUserPayload {
   accessToken: string
   refreshToken: string
 }
@@ -26,12 +27,8 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async setToken(jwt: string, value: UserMe) {
-    await this.removeToken(jwt)
-    await this.cacheRepository.set(jwt, JSON.stringify(value))
-  }
-
-  async generateTokens(me: UserMe) {
+  async generateTokens(uid: number) {
+    const me = { uid, permissions: [] } satisfies BaseUserPayload
     const accessToken = this.jwtService.sign(me, { secret: ACCESS_SECRET, expiresIn: '15m' })
     const refreshToken = this.jwtService.sign(me, { secret: REFRESH_SECRET, expiresIn: '7d' })
     const payload = { ...me, accessToken, refreshToken }
@@ -43,6 +40,19 @@ export class AuthService {
       accessToken,
       refreshToken,
     }
+  }
+
+  verifyAccessToken(token: string) {
+    try {
+      this.jwtService.verify(token, { secret: ACCESS_SECRET })
+      return true
+    }
+    catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new TokenExpiredException()
+      }
+    }
+    return false
   }
 
   verifyRefreshToken(token: string) {
@@ -58,8 +68,8 @@ export class AuthService {
     return false
   }
 
-  async removeToken(jwt: string) {
-    const userPayload = await this.cacheRepository.get(jwt) || 'null'
+  async removeToken(token: string) {
+    const userPayload = await this.cacheRepository.get(token) || 'null'
     const payload = JSON.parse(userPayload) as UserPayload
     if (payload) {
       await Promise.all([
@@ -79,14 +89,13 @@ export class AuthService {
     return JSON.parse(value) as UserPayload
   }
 
-  async getUserMe(id: number) {
+  async getUserMe(id: number): Promise<UserInfo> {
     const user = await this.userService.getUserById(id)
     if (!user) {
       throw new InvalidTokenException()
     }
     return {
       username: user.username,
-      permissions: [],
-    } as UserInfo
+    }
   }
 }

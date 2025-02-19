@@ -4,8 +4,12 @@ import { AuthService } from './auth.service'
 import { AuthRegisterRequestDto } from './auth.dto'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
 import { UserService } from './imports/user'
-import { TOKEN_TYPE } from './constants'
+import { HASH_SECRET, TOKEN_TYPE } from './constants'
 import { AuthGuard } from './auth.guard'
+
+function hash(str: string) {
+  return SHA256(str + HASH_SECRET).toString()
+}
 
 @Controller('auth')
 export class AuthController {
@@ -26,16 +30,17 @@ export class AuthController {
     if (!user) {
       throw new LoginFailException()
     }
-    const hashPassword = SHA256(password).toString()
+    const hashPassword = hash(password)
     if (user.password !== hashPassword) {
       throw new LoginFailException()
     }
-    const result = await this.authService.generateTokens({ uid: user.id })
+    const result = await this.authService.generateTokens(user.id)
     return {
       code: 200,
       data: {
         tokenType: TOKEN_TYPE,
-        ...result,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       },
     }
   }
@@ -56,7 +61,7 @@ export class AuthController {
     await this.userService.createUser(
       new AuthRegisterRequestDto({
         username,
-        password: SHA256(password).toString(),
+        password: hash(password),
       })
     )
     return {
@@ -66,7 +71,9 @@ export class AuthController {
   }
 
   @Get('/check')
-  async checkByUsername(@Query('username') username: string) {
+  async checkByUsername(
+    @Query('username') username: string
+  ) {
     const user = await this.userService.getUserByName(username)
     if (user) {
       return true
@@ -108,15 +115,28 @@ export class AuthController {
     if (!payload) {
       throw new InvalidTokenException()
     }
-    const result = this.authService.generateTokens({
-      uid: payload.uid,
-    })
+    const result = await this.authService.generateTokens(payload.uid)
     return {
       code: 200,
       data: {
-        tokenType: TOKEN_TYPE,
-        result,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       },
+    }
+  }
+
+  @Post('/logout')
+  async logout(
+    @Headers('authorization') authorization?: string
+  ) {
+    if (!authorization) {
+      throw new AuthorizationHeaderRequiredException()
+    }
+    const [, token] = authorization.split(' ')
+    await this.authService.removeToken(token)
+    return {
+      code: 200,
+      message: 'Logout successfully.',
     }
   }
 }

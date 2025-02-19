@@ -9,12 +9,12 @@ import { getRepository, setRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, type CacheRepository } from '@/shared/cache'
 import { setCurrentCache, getCurrentCache } from '@/shared/cache/cacheRef'
-import { TOKEN_TYPE } from './constants'
+import { HASH_SECRET, TOKEN_TYPE } from './constants'
 
 const MOCK_USER: User = {
   id: 1,
   username: 'admin',
-  password: SHA256('password').toString(),
+  password: SHA256('password' + HASH_SECRET).toString(),
 }
 
 jest.mock('@/shared/cache/cache.module', () => {
