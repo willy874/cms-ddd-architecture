@@ -3,8 +3,8 @@ import { JwtModule } from '@nestjs/jwt'
 import { DatabaseModule } from '@/shared/database'
 import { CacheModule } from '@/shared/cache'
 import { AuthController } from './auth.controller'
-import { TokenService } from './token.service'
-import { UserModule } from './imports/user'
+import { AuthService } from './auth.service'
+import { UserModule, UserService } from './imports/user'
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { UserModule } from './imports/user'
     JwtModule.register({ secretOrPrivateKey: 'secretKey' }),
     UserModule,
   ],
-  providers: [TokenService],
+  providers: [UserService, AuthService],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -1,9 +1,8 @@
-import type { Request } from 'express'
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
 import { JwtModule } from '@nestjs/jwt'
-import { AuthController, TOKEN_TYPE } from './auth.controller'
-import { TokenService } from './token.service'
+import { AuthController } from './auth.controller'
+import { AuthService, TOKEN_TYPE } from './auth.service'
 import { UserModule, User } from './imports/user'
 import { DatabaseModule } from '@/shared/database'
 import { getRepository, setRepository } from '@/shared/database/repositoryMap'
@@ -88,7 +87,7 @@ describe('AuthController', () => {
         }),
         UserModule,
       ],
-      providers: [TokenService],
+      providers: [AuthService],
       controllers: [AuthController],
     }).compile()
     authController = app.get(AuthController)
@@ -124,9 +123,6 @@ describe('AuthController', () => {
     })
     it('me', async () => {
       const token = `${TOKEN_TYPE} accessToken`
-      const request = {} as Request
-      request.headers = { authorization: token }
-
       findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
 
       cacheGet.mockImplementationOnce((k) => {
@@ -134,7 +130,7 @@ describe('AuthController', () => {
         return Promise.resolve(map[k] || null)
       })
 
-      const res = await authController.me(request)
+      const res = await authController.me(token)
       expect(res).toEqual({
         code: 200,
         data: {

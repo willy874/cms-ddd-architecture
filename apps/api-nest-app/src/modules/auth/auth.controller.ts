@@ -1,23 +1,15 @@
-import { Body, Controller, Post, Get, Req, HttpCode, Query, Inject } from '@nestjs/common'
-import type { Request } from 'express'
+import { Body, Controller, Post, Get, HttpCode, Query, Headers } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
-import { JwtService } from '@nestjs/jwt'
-import { TokenService } from './token.service'
-import type { UserMe } from './token.service'
+import { AuthService, REFRESH_SECRET, TOKEN_TYPE } from './auth.service'
 import { AuthRegisterRequestDto, AuthUserMeResponseDto } from './auth.dto'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
-import { USER_SERVICE, UserService } from './imports/user'
-
-export const TOKEN_TYPE = 'Bearer'
+import { UserService } from './imports/user'
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(USER_SERVICE)
     private userService: UserService,
-    private jwtService: JwtService,
-    private tokenService: TokenService,
-    // private userService: UserService,
+    private authService: AuthService,
   ) {}
 
   @Post('/login')
@@ -36,14 +28,12 @@ export class AuthController {
     if (user.password !== hashPassword) {
       throw new LoginFailException()
     }
-    const payload = { uid: user.id } satisfies UserMe
-    const jwt = this.jwtService.sign(payload)
-    await this.tokenService.setToken(`${TOKEN_TYPE} ${jwt}`, payload)
+    const result = await this.authService.generateTokens({ uid: user.id })
     return {
       code: 200,
       data: {
         tokenType: TOKEN_TYPE,
-        accessToken: jwt,
+        ...result,
       },
     }
   }
@@ -84,13 +74,12 @@ export class AuthController {
 
   @Get('/me')
   async me(
-    @Req() request: Request
+    @Headers('authorization') authorization?: string
   ) {
-    const authorization = request.headers['authorization']
     if (!authorization) {
       throw new AuthorizationHeaderRequiredException()
     }
-    const payload = await this.tokenService.getUserPayloadByToken(authorization)
+    const payload = await this.authService.getUserPayloadByToken(authorization)
     if (!payload) {
       throw new InvalidTokenException()
     }
@@ -101,6 +90,36 @@ export class AuthController {
     return {
       code: 200,
       data: new AuthUserMeResponseDto(user).clone(),
+    }
+  }
+
+  @Post('/refresh')
+  async refresh(
+    @Headers('authorization') authorization?: string,
+    @Body('refreshToken') refreshToken?: string
+  ) {
+    if (!authorization) {
+      throw new AuthorizationHeaderRequiredException()
+    }
+    const isPass = await this.authService.validateToken(refreshToken, REFRESH_SECRET)
+    if (!isPass) {
+      throw new InvalidTokenException()
+    }
+    const payload = await this.authService.getUserPayloadByToken(authorization)
+    if (!payload) {
+      throw new InvalidTokenException()
+    }
+    const user = await this.userService.getUserById(payload.uid)
+    if (!user) {
+      throw new InvalidTokenException()
+    }
+    const result = this.authService.generateTokens({ uid: user.id })
+    return {
+      code: 200,
+      data: {
+        tokenType: TOKEN_TYPE,
+        result,
+      },
     }
   }
 }

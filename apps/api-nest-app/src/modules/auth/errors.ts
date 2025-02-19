@@ -35,3 +35,9 @@ export class InvalidTokenException extends HttpException {
     super('Invalid token', HttpStatus.UNAUTHORIZED)
   }
 }
+
+export class TokenExpiredException extends HttpException {
+  constructor() {
+    super('Token expired', HttpStatus.UNAUTHORIZED)
+  }
+}
