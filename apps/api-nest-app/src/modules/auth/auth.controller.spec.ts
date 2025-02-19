@@ -15,6 +15,7 @@ const MOCK_USER: User = {
   id: 1,
   username: 'admin',
   password: SHA256('password' + HASH_SECRET).toString(),
+  roles: [],
 }
 
 jest.mock('@/shared/cache/cache.module', () => {
