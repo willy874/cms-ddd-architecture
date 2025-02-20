@@ -1,0 +1,29 @@
+
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzQwMDE1NjI1LCJleHAiOjE3NDAwMTY1MjV9.seK2k2rslnOCes5DHod3V505Bi1nGbB-JY8kSdQs8tM
+
+###
+
+GET http://localhost:8765/apis/app/hello
+
+###
+
+POST http://localhost:8765/apis/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "password"
+}
+
+###
+POST http://localhost:8765/apis/auth/register
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "password"
+}
+
+###
+GET http://localhost:8765/apis/auth/me
+Authorization: Bearer {{token}}

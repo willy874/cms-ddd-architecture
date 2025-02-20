@@ -91,6 +91,8 @@ export class AuthService {
 
   async getUserMe(id: number): Promise<UserInfo> {
     const user = await this.userService.getUserById(id)
+    console.log('user', user)
+
     if (!user) {
       throw new InvalidTokenException()
     }

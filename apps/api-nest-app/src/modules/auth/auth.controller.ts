@@ -58,12 +58,11 @@ export class AuthController {
     if (user) {
       throw new UserAlreadyExistsException()
     }
-    await this.userService.createUser(
-      new AuthRegisterRequestDto({
-        username,
-        password: hash(password),
-      })
-    )
+    const dto = new AuthRegisterRequestDto({
+      username,
+      password: hash(password),
+    }).clone()
+    await this.userService.createUser(dto)
     return {
       code: 201,
       message: 'User created successfully.',
