@@ -3,12 +3,12 @@ import type { Request } from 'express'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/error'
 import { TOKEN_TYPE } from '@/shared/constants'
 import { TokenService } from '@/shared/token'
-import { CACHE_PROVIDER, CacheRepository } from '../cache'
+import { CacheRepository } from '../cache'
 
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(
-    @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
+    @Inject('TOKEN_CACHE_PROVIDER') private cacheRepository: CacheRepository,
     private tokenService: TokenService,
   ) {}
 

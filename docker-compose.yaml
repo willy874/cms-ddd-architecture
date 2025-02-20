@@ -5,8 +5,8 @@ services:
     image: mysql:8
     networks:
       - app-network
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     container_name: database-service
     environment:
       MYSQL_DATABASE: cms_db

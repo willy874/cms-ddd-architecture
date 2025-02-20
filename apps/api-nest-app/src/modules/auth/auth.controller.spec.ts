@@ -18,7 +18,6 @@ const MOCK_USER: User = {
   roles: [],
 }
 const MOCK_USER_ME = {
-  uid: MOCK_USER.id,
   user: MOCK_USER,
   permissions: [],
 }

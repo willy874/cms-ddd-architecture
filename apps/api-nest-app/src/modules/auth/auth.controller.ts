@@ -6,7 +6,7 @@ import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, UserAlreadyExistsException } from '@/shared/error'
 import { UserService } from './imports/user'
 import { z } from 'zod'
-import { TokenService, TokenGuard } from '@/shared/token'
+import { TokenGuard } from '@/shared/token'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
@@ -27,7 +27,6 @@ export class AuthController {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private tokenService: TokenService,
   ) {}
 
   @Post('/login')
