@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import type { Request } from 'express'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/errors'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/error'
 import { TOKEN_TYPE } from '@/shared/constants'
 import { TokenService } from '@/shared/token'
 
 @Injectable()
-export class UserGuard implements CanActivate {
+export class TokenGuard implements CanActivate {
   constructor(
     private tokenService: TokenService,
   ) {}

@@ -1,12 +1,12 @@
-import { Body, Controller, Post, Get, HttpCode, Query, Headers, HttpException } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
 import { to } from 'await-to-js'
 import { AuthService } from './auth.service'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, TokenExpiredException, UserAlreadyExistsException, UserNotFoundException } from '@/shared/errors'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, TokenExpiredException, UserAlreadyExistsException } from '@/shared/error'
 import { UserService } from './imports/user'
-import { z, ZodError } from 'zod'
-import { TokenService } from '@/shared/token'
+import { z } from 'zod'
+import { TokenService, TokenGuard } from '@/shared/token'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
@@ -17,19 +17,10 @@ const LoginRequestDtoSchema = z.object({
   password: z.string(),
 })
 
-async function schemaValidate<T extends z.ZodObject<any, any>>(schema: T, value: unknown): Promise<z.infer<T>> {
-  try {
-    return schema.parseAsync(value)
-  }
-  catch (error) {
-    if (error instanceof ZodError) {
-      throw new HttpException({
-        code: 400,
-        issues: error.issues,
-      }, 400)
-    }
-  }
-}
+const RegisterRequestDtoSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+})
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +37,7 @@ export class AuthController {
   ) {
     const [validationError, reqDto] = await to(schemaValidate(LoginRequestDtoSchema, { username, password }))
     if (validationError) {
-      throw new LoginValidationException()
+      throw validationError
     }
     const user = await this.userService.getUserByNameAndPassword(reqDto.username, hash(reqDto.password))
     if (!user) {
@@ -69,17 +60,18 @@ export class AuthController {
     @Body('username') username?: string,
     @Body('password') password?: string,
   ) {
-    if (!username || !password) {
-      throw new LoginValidationException()
+    const [validationError, reqDto] = await to(schemaValidate(RegisterRequestDtoSchema, { username, password }))
+    if (validationError) {
+      throw validationError
     }
-    const user = await this.userService.getUserByName(username)
-    if (user) {
+    if (await this.authService.isAlreadyExistsByUsername(reqDto.username)) {
       throw new UserAlreadyExistsException()
     }
-    await this.userService.createUser({
-      username,
-      password: hash(password),
-    })
+    const createDto = {
+      username: reqDto.username,
+      password: hash(reqDto.password),
+    }
+    await this.userService.createUser(createDto)
     return {
       code: 201,
       message: 'User created successfully.',
@@ -87,41 +79,25 @@ export class AuthController {
   }
 
   @Get('/check')
-  async checkByUsername(
+  checkByUsername(
     @Query('username') username: string
   ) {
-    const user = await this.userService.getUserByName(username)
-    if (user) {
-      return true
-    }
-    throw new UserNotFoundException()
+    return this.authService.isAlreadyExistsByUsername(username)
   }
 
   @Get('/me')
+  @UseGuards(TokenGuard)
   async me(
     @Headers('authorization') authorization: string
   ) {
-    if (!authorization) {
-      throw new AuthorizationHeaderRequiredException()
-    }
-    const [type, token] = authorization.split(' ')
-    if (type !== TOKEN_TYPE) {
-      throw new InvalidTokenException()
-    }
-    if (this.tokenService.isAccessTokenExpired(token)) {
-      throw new TokenExpiredException()
-    }
+    const [, token] = authorization.split(' ')
     const payload = await this.authService.getUserPayloadByToken(token)
     if (!payload) {
       throw new InvalidTokenException()
     }
-    const user = await this.userService.getUserById(payload.uid)
-    if (!user) {
-      throw new InvalidTokenException()
-    }
     return {
       code: 200,
-      data: user,
+      data: payload,
     }
   }
 

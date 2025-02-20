@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, UseGuards } from '@nestjs/common'
 import { UserService } from './user.service'
-import { UserGuard } from './user.guard'
+import { TokenGuard } from '@/shared/token'
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('/page-query')
-  @UseGuards(UserGuard)
+  @UseGuards(TokenGuard)
   async getUsers(@Query('page') page?: number, @Query('pageSize') pageSize?: number, @Query('search') search?: string) {
     return {
       code: 200,
@@ -20,7 +20,7 @@ export class UserController {
   }
 
   @Get('/:id')
-  @UseGuards(UserGuard)
+  @UseGuards(TokenGuard)
   async getUserById(@Param('id') id: number) {
     return {
       code: 200,
@@ -29,7 +29,7 @@ export class UserController {
   }
 
   @Post('/')
-  @UseGuards(UserGuard)
+  @UseGuards(TokenGuard)
   async createUser(@Body('username') username: string, @Body('password') password: string) {
     return {
       code: 201,
@@ -38,7 +38,7 @@ export class UserController {
   }
 
   @Put('/:id')
-  @UseGuards(UserGuard)
+  @UseGuards(TokenGuard)
   async updateUser(@Param('id') id: number, @Body('username') username: string, @Body('password') password: string) {
     await this.userService.updateUser(id, { username, password })
     return {
@@ -47,7 +47,7 @@ export class UserController {
   }
 
   @Delete('/:id')
-  @UseGuards(UserGuard)
+  @UseGuards(TokenGuard)
   async deleteUser(@Param('id') id: number) {
     await this.userService.deleteUser(id)
     return {

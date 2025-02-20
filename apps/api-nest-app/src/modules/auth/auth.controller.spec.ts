@@ -17,6 +17,11 @@ const MOCK_USER: User = {
   password: SHA256('password' + HASH_SECRET).toString(),
   roles: [],
 }
+const MOCK_USER_ME = {
+  uid: MOCK_USER.id,
+  user: MOCK_USER,
+  permissions: [],
+}
 
 describe('AuthController', () => {
   let authController: AuthController
@@ -72,22 +77,20 @@ describe('AuthController', () => {
     })
     it('me', async () => {
       const token = `${TOKEN_TYPE} accessToken`
-      findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
-
       cacheGet.mockImplementationOnce((k) => {
-        const map = { [k]: JSON.stringify({ uid: 1 }) }
+        const me = {
+          uid: 1,
+          user: MOCK_USER,
+          permissions: [],
+        }
+        const map = { [k]: JSON.stringify(me) }
         return Promise.resolve(map[k] || null)
       })
 
       const res = await authController.me(token)
       expect(res).toEqual({
         code: 200,
-        data: {
-          id: 1,
-          password: MOCK_USER.password,
-          username: 'admin',
-          roles: [],
-        },
+        data: MOCK_USER_ME,
       })
     })
     it('checkByUsername', async () => {
