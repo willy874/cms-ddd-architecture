@@ -1,5 +1,5 @@
 
-@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzQwMDE1NjI1LCJleHAiOjE3NDAwMTY1MjV9.seK2k2rslnOCes5DHod3V505Bi1nGbB-JY8kSdQs8tM
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzQwMDIxNjQ2LCJleHAiOjE3NDAwMjUyNDZ9.2D5VjSOjBYLrlbifN1ujLPYGHmoTeYAB6ajGywyD4dY
 
 ###
 
@@ -26,4 +26,12 @@ Content-Type: application/json
 
 ###
 GET http://localhost:8765/apis/auth/me
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:8765/apis/user/page-query
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:8765/apis/user/1
 Authorization: Bearer {{token}}

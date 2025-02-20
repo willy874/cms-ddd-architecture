@@ -29,7 +29,7 @@ export class AuthService {
 
   async generateTokens(uid: number) {
     const me = { uid, permissions: [] } satisfies BaseUserPayload
-    const accessToken = this.jwtService.sign(me, { secret: ACCESS_SECRET, expiresIn: '15m' })
+    const accessToken = this.jwtService.sign(me, { secret: ACCESS_SECRET, expiresIn: '1h' })
     const refreshToken = this.jwtService.sign(me, { secret: REFRESH_SECRET, expiresIn: '7d' })
     const payload = { ...me, accessToken, refreshToken }
     await Promise.all([

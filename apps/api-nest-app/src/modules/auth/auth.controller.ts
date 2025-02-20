@@ -1,7 +1,6 @@
 import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
 import { AuthService } from './auth.service'
-import { AuthRegisterRequestDto } from './auth.dto'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
 import { UserService } from './imports/user'
 import { HASH_SECRET, TOKEN_TYPE } from './constants'
@@ -26,12 +25,8 @@ export class AuthController {
     if (!username || !password) {
       throw new LoginValidationException()
     }
-    const user = await this.userService.getUserByName(username)
+    const user = await this.userService.getUserByNameAndPassword(username, hash(password))
     if (!user) {
-      throw new LoginFailException()
-    }
-    const hashPassword = hash(password)
-    if (user.password !== hashPassword) {
       throw new LoginFailException()
     }
     const result = await this.authService.generateTokens(user.id)
@@ -58,11 +53,10 @@ export class AuthController {
     if (user) {
       throw new UserAlreadyExistsException()
     }
-    const dto = new AuthRegisterRequestDto({
+    await this.userService.createUser({
       username,
       password: hash(password),
-    }).clone()
-    await this.userService.createUser(dto)
+    })
     return {
       code: 201,
       message: 'User created successfully.',
