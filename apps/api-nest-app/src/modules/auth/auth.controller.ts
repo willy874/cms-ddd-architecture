@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Query, Headers } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
+import { to } from 'await-to-js'
 import { AuthService } from './auth.service'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from '@/shared/errors'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, TokenExpiredException, UserAlreadyExistsException, UserNotFoundException } from '@/shared/errors'
 import { UserService } from './imports/user'
-import { AuthGuard } from './auth.guard'
+import { TokenExpiredError } from '@nestjs/jwt'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
@@ -75,11 +76,23 @@ export class AuthController {
   }
 
   @Get('/me')
-  @UseGuards(AuthGuard)
   async me(
     @Headers('authorization') authorization: string
   ) {
-    const [, token] = authorization.split(' ')
+    if (!authorization) {
+      throw new AuthorizationHeaderRequiredException()
+    }
+    const [type, token] = authorization.split(' ')
+    if (type !== TOKEN_TYPE) {
+      throw new InvalidTokenException()
+    }
+    const [verifyError, isPass] = await to(this.authService.verifyAccessToken(token))
+    if (verifyError instanceof TokenExpiredError) {
+      throw new TokenExpiredException()
+    }
+    if (!isPass) {
+      throw new InvalidTokenException()
+    }
     const payload = await this.authService.getUserPayloadByToken(token)
     if (!payload) {
       throw new InvalidTokenException()
@@ -99,7 +112,10 @@ export class AuthController {
     if (!authorization) {
       throw new AuthorizationHeaderRequiredException()
     }
-    const isPass = await this.authService.verifyRefreshToken(refreshToken)
+    const [verifyError, isPass] = await to(this.authService.verifyRefreshToken(refreshToken))
+    if (verifyError instanceof TokenExpiredError) {
+      throw new TokenExpiredException()
+    }
     if (!isPass) {
       throw new InvalidTokenException()
     }

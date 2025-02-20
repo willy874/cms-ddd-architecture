@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { JwtService, TokenExpiredError } from '@nestjs/jwt'
+import { JwtService } from '@nestjs/jwt'
 import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
-import { InvalidTokenException, TokenExpiredException } from '@/shared/errors'
+import { InvalidTokenException } from '@/shared/errors'
 import { ACCESS_SECRET, REFRESH_SECRET } from '@/shared/constants'
 import { UserService } from './imports/user'
 
@@ -42,30 +42,14 @@ export class AuthService {
     }
   }
 
-  verifyAccessToken(token: string) {
-    try {
-      this.jwtService.verify(token, { secret: ACCESS_SECRET })
-      return true
-    }
-    catch (error) {
-      if (error instanceof TokenExpiredError) {
-        throw new TokenExpiredException()
-      }
-    }
-    return false
+  async verifyAccessToken(token: string) {
+    this.jwtService.verify(token, { secret: ACCESS_SECRET })
+    return true
   }
 
-  verifyRefreshToken(token: string) {
-    try {
-      this.jwtService.verify(token, { secret: REFRESH_SECRET })
-      return true
-    }
-    catch (error) {
-      if (error instanceof TokenExpiredError) {
-        throw new TokenExpiredException()
-      }
-    }
-    return false
+  async verifyRefreshToken(token: string) {
+    this.jwtService.verify(token, { secret: REFRESH_SECRET })
+    return true
   }
 
   async removeToken(token: string) {
