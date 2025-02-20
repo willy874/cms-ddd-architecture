@@ -98,6 +98,9 @@ export class AuthController {
       throw new InvalidTokenException()
     }
     const user = await this.authService.getUserMe(payload.uid)
+    if (!user) {
+      throw new InvalidTokenException()
+    }
     return {
       code: 200,
       data: user,

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
-import { InvalidTokenException } from '@/shared/errors'
 import { ACCESS_SECRET, REFRESH_SECRET } from '@/shared/constants'
 import { UserService } from './imports/user'
 
@@ -75,10 +74,8 @@ export class AuthService {
 
   async getUserMe(id: number): Promise<UserInfo> {
     const user = await this.userService.getUserById(id)
-    console.log('user', user)
-
     if (!user) {
-      throw new InvalidTokenException()
+      return null
     }
     return {
       username: user.username,
