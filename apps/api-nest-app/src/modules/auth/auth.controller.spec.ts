@@ -9,7 +9,7 @@ import { getRepository, setRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, type CacheRepository } from '@/shared/cache'
 import { setCurrentCache, getCurrentCache } from '@/shared/cache/cacheRef'
-import { HASH_SECRET, TOKEN_TYPE } from './constants'
+import { HASH_SECRET, TOKEN_TYPE } from '../../shared/constants'
 
 const MOCK_USER: User = {
   id: 1,
@@ -54,6 +54,9 @@ jest.mock('@/shared/database/database.module', () => {
             find: jest.fn(),
             findOne: jest.fn(),
             save: jest.fn(),
+            findAndCount: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
           } as IRepository<any>
           setRepository(entity, repository)
           return repository

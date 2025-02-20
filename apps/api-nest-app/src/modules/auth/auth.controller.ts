@@ -1,9 +1,9 @@
 import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
 import { AuthService } from './auth.service'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from './errors'
+import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, UserAlreadyExistsException, UserNotFoundException } from '@/shared/errors'
 import { UserService } from './imports/user'
-import { HASH_SECRET, TOKEN_TYPE } from './constants'
 import { AuthGuard } from './auth.guard'
 
 function hash(str: string) {

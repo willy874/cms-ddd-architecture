@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import type { Request } from 'express'
-import { TOKEN_TYPE } from './constants'
-import { AuthorizationHeaderRequiredException, InvalidTokenException } from './errors'
+import { TOKEN_TYPE } from '@/shared/constants'
+import { AuthorizationHeaderRequiredException, InvalidTokenException } from '@/shared/errors'
 import { AuthService } from './auth.service'
 
 @Injectable()

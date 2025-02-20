@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService, TokenExpiredError } from '@nestjs/jwt'
 import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
-import { InvalidTokenException, TokenExpiredException } from './errors'
-import { ACCESS_SECRET, REFRESH_SECRET } from './constants'
+import { InvalidTokenException, TokenExpiredException } from '@/shared/errors'
+import { ACCESS_SECRET, REFRESH_SECRET } from '@/shared/constants'
 import { UserService } from './imports/user'
 
 export interface BaseUserPayload {

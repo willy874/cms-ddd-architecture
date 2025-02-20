@@ -1,21 +1,18 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import type { Request } from 'express'
 import { JwtService, TokenExpiredError } from '@nestjs/jwt'
-// import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '../auth/errors'
-
-const TOKEN_TYPE = 'Bearer'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/errors'
+import { ACCESS_SECRET, TOKEN_TYPE } from '@/shared/constants'
 
 @Injectable()
 export class UserGuard implements CanActivate {
   constructor(
-    // @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
     private jwtService: JwtService,
   ) {}
 
   verifyAccessToken(token: string) {
     try {
-      this.jwtService.verify(token, { secret: 'ACCESS_SECRET' })
+      this.jwtService.verify(token, { secret: ACCESS_SECRET })
       return true
     }
     catch (error) {
