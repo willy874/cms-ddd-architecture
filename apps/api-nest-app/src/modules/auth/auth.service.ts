@@ -4,20 +4,29 @@ import { TokenService } from '@/shared/token'
 import { UserService } from './imports/user'
 import { z } from 'zod'
 
-const UserPayloadSchema = z.object({
+const JwtPayloadSchema = z.object({
   uid: z.number(),
+  permissions: z.array(z.string()),
+})
+
+type JwtPayload = z.infer<typeof JwtPayloadSchema>
+
+const TokenPayloadSchema = z.object({
+  uid: z.number(),
+  accessToken: z.string(),
+  refreshToken: z.string(),
+})
+
+type TokenPayload = z.infer<typeof TokenPayloadSchema>
+
+const UserPayloadSchema = z.object({
   user: z.unknown(),
   permissions: z.array(z.string()),
 })
 
 type UserPayload = z.infer<typeof UserPayloadSchema>
 
-const TokenPayloadSchema = UserPayloadSchema.extend({
-  accessToken: z.string(),
-  refreshToken: z.string(),
-})
-
-type TokenPayload = z.infer<typeof TokenPayloadSchema>
+type CachePayload = TokenPayload & UserPayload
 
 @Injectable()
 export class AuthService {
@@ -34,21 +43,21 @@ export class AuthService {
 
   async generateTokens(uid: number) {
     const user = await this.userService.getUserById(uid)
-    const userPayload = {
+    const jwtPayload = JwtPayloadSchema.parse({
       uid,
-      user,
       permissions: [],
-    } satisfies UserPayload
-    const accessToken = this.tokenService.createAccessToken(userPayload)
-    const refreshToken = this.tokenService.createRefreshToken(userPayload)
-    const tokenPayload = {
-      ...userPayload,
+    } satisfies JwtPayload)
+    const accessToken = this.tokenService.createAccessToken(jwtPayload)
+    const refreshToken = this.tokenService.createRefreshToken(jwtPayload)
+    const cachePayload = {
+      user,
+      permissions: jwtPayload.permissions,
       accessToken,
       refreshToken,
-    } satisfies TokenPayload
+    } satisfies CachePayload
     await Promise.all([
-      this.cacheRepository.set(accessToken, JSON.stringify(tokenPayload)),
-      this.cacheRepository.set(refreshToken, JSON.stringify(tokenPayload)),
+      this.cacheRepository.set(accessToken, JSON.stringify(cachePayload)),
+      this.cacheRepository.set(refreshToken, JSON.stringify(cachePayload)),
     ])
     return {
       accessToken,
@@ -57,16 +66,24 @@ export class AuthService {
   }
 
   async removeToken(token: string) {
-    const userPayload = await this.cacheRepository.get(token) || 'null'
-    const payload = TokenPayloadSchema.parse(JSON.parse(userPayload))
-    if (payload) {
+    const cachePayload = await this.cacheRepository.get(token) || 'null'
+    if (cachePayload) {
+      const tokenPayload = TokenPayloadSchema.parse(JSON.parse(cachePayload))
       await Promise.all([
-        this.cacheRepository.del(payload.accessToken),
-        this.cacheRepository.del(payload.refreshToken),
+        this.cacheRepository.del(tokenPayload.accessToken),
+        this.cacheRepository.del(tokenPayload.refreshToken),
       ])
       return true
     }
     return false
+  }
+
+  async getTokenPayloadByToken(token: string) {
+    const value = await this.cacheRepository.get(token)
+    if (!value) {
+      return null
+    }
+    return TokenPayloadSchema.parse(JSON.parse(value))
   }
 
   async getUserPayloadByToken(token: string) {

@@ -16,6 +16,7 @@ export class TokenService {
       if (error instanceof TokenExpiredError) {
         return true
       }
+      throw error
     }
     return false
   }
@@ -28,6 +29,7 @@ export class TokenService {
       if (error instanceof TokenExpiredError) {
         return true
       }
+      throw error
     }
     return false
   }

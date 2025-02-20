@@ -3,7 +3,7 @@ import { SHA256 } from 'crypto-js'
 import { to } from 'await-to-js'
 import { AuthService } from './auth.service'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, TokenExpiredException, UserAlreadyExistsException } from '@/shared/error'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, UserAlreadyExistsException } from '@/shared/error'
 import { UserService } from './imports/user'
 import { z } from 'zod'
 import { TokenService, TokenGuard } from '@/shared/token'
@@ -109,15 +109,16 @@ export class AuthController {
     if (!authorization) {
       throw new AuthorizationHeaderRequiredException()
     }
-    if (this.tokenService.isRefreshTokenExpired(refreshToken)) {
-      throw new TokenExpiredException()
-    }
     const [, token] = authorization.split(' ')
-    const payload = await this.authService.getUserPayloadByToken(token)
+    const payload = await this.authService.getTokenPayloadByToken(token)
+    if (payload.refreshToken !== refreshToken) {
+      throw new InvalidTokenException()
+    }
     if (!payload) {
       throw new InvalidTokenException()
     }
     const result = await this.authService.generateTokens(payload.uid)
+    this.authService.removeToken(refreshToken)
     return {
       code: 200,
       data: {
