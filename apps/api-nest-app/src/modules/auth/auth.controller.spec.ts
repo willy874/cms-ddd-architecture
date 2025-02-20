@@ -1,15 +1,15 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
-import { JwtModule } from '@nestjs/jwt'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { UserModule, User } from './imports/user'
+import { UserModule, User, UserService } from './imports/user'
 import { DatabaseModule } from '@/shared/database'
-import { getRepository, setRepository } from '@/shared/database/repositoryMap'
+import { getRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, type CacheRepository } from '@/shared/cache'
-import { setCurrentCache, getCurrentCache } from '@/shared/cache/cacheRef'
+import { getCurrentCache } from '@/shared/cache/cacheRef'
 import { HASH_SECRET, TOKEN_TYPE } from '../../shared/constants'
+import { TokenModule, TokenService } from '@/shared/token'
 
 const MOCK_USER: User = {
   id: 1,
@@ -17,63 +17,6 @@ const MOCK_USER: User = {
   password: SHA256('password' + HASH_SECRET).toString(),
   roles: [],
 }
-
-jest.mock('@/shared/cache/cache.module', () => {
-  const CACHE_PROVIDER = 'CACHE_PROVIDER'
-  const cacheProvider = {
-    provide: CACHE_PROVIDER,
-    useFactory: () => {
-      const cache = {
-        get: jest.fn(),
-        set: jest.fn(),
-        del: jest.fn(),
-      } satisfies CacheRepository
-      setCurrentCache(cache)
-      return cache
-    },
-  }
-
-  return {
-    CACHE_PROVIDER,
-    CacheModule: {
-      module: class {},
-      providers: [cacheProvider],
-      exports: [cacheProvider],
-    },
-  }
-})
-
-jest.mock('@/shared/database/database.module', () => {
-  const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
-  const databaseProvider = {
-    provide: DATABASE_PROVIDER,
-    useFactory: () => {
-      return {
-        getRepository: (entity) => {
-          const repository = {
-            find: jest.fn(),
-            findOne: jest.fn(),
-            save: jest.fn(),
-            findAndCount: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
-          } as IRepository<any>
-          setRepository(entity, repository)
-          return repository
-        },
-      }
-    },
-  }
-
-  return {
-    DATABASE_PROVIDER,
-    DatabaseModule: {
-      module: class {},
-      providers: [databaseProvider],
-      exports: [databaseProvider],
-    },
-  }
-})
 
 describe('AuthController', () => {
   let authController: AuthController
@@ -87,12 +30,10 @@ describe('AuthController', () => {
       imports: [
         DatabaseModule,
         CacheModule,
-        JwtModule.register({
-          secretOrPrivateKey: 'secretKey',
-        }),
+        TokenModule,
         UserModule,
       ],
-      providers: [AuthService],
+      providers: [TokenService, UserService, AuthService],
       controllers: [AuthController],
     }).compile()
     authController = app.get(AuthController)
@@ -142,7 +83,10 @@ describe('AuthController', () => {
       expect(res).toEqual({
         code: 200,
         data: {
+          id: 1,
+          password: MOCK_USER.password,
           username: 'admin',
+          roles: [],
         },
       })
     })

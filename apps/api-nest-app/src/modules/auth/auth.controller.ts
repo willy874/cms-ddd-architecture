@@ -1,14 +1,34 @@
-import { Body, Controller, Post, Get, HttpCode, Query, Headers } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Query, Headers, HttpException } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
 import { to } from 'await-to-js'
 import { AuthService } from './auth.service'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, LoginValidationException, TokenExpiredException, UserAlreadyExistsException, UserNotFoundException } from '@/shared/errors'
 import { UserService } from './imports/user'
-import { TokenExpiredError } from '@nestjs/jwt'
+import { z, ZodError } from 'zod'
+import { TokenService } from '@/shared/token'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
+}
+
+const LoginRequestDtoSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+})
+
+async function schemaValidate<T extends z.ZodObject<any, any>>(schema: T, value: unknown): Promise<z.infer<T>> {
+  try {
+    return schema.parseAsync(value)
+  }
+  catch (error) {
+    if (error instanceof ZodError) {
+      throw new HttpException({
+        code: 400,
+        issues: error.issues,
+      }, 400)
+    }
+  }
 }
 
 @Controller('auth')
@@ -16,6 +36,7 @@ export class AuthController {
   constructor(
     private userService: UserService,
     private authService: AuthService,
+    private tokenService: TokenService,
   ) {}
 
   @Post('/login')
@@ -23,10 +44,11 @@ export class AuthController {
     @Body('username') username?: string,
     @Body('password') password?: string,
   ) {
-    if (!username || !password) {
+    const [validationError, reqDto] = await to(schemaValidate(LoginRequestDtoSchema, { username, password }))
+    if (validationError) {
       throw new LoginValidationException()
     }
-    const user = await this.userService.getUserByNameAndPassword(username, hash(password))
+    const user = await this.userService.getUserByNameAndPassword(reqDto.username, hash(reqDto.password))
     if (!user) {
       throw new LoginFailException()
     }
@@ -86,18 +108,14 @@ export class AuthController {
     if (type !== TOKEN_TYPE) {
       throw new InvalidTokenException()
     }
-    const [verifyError, isPass] = await to(this.authService.verifyAccessToken(token))
-    if (verifyError instanceof TokenExpiredError) {
+    if (this.tokenService.isAccessTokenExpired(token)) {
       throw new TokenExpiredException()
-    }
-    if (!isPass) {
-      throw new InvalidTokenException()
     }
     const payload = await this.authService.getUserPayloadByToken(token)
     if (!payload) {
       throw new InvalidTokenException()
     }
-    const user = await this.authService.getUserMe(payload.uid)
+    const user = await this.userService.getUserById(payload.uid)
     if (!user) {
       throw new InvalidTokenException()
     }
@@ -115,12 +133,8 @@ export class AuthController {
     if (!authorization) {
       throw new AuthorizationHeaderRequiredException()
     }
-    const [verifyError, isPass] = await to(this.authService.verifyRefreshToken(refreshToken))
-    if (verifyError instanceof TokenExpiredError) {
+    if (this.tokenService.isRefreshTokenExpired(refreshToken)) {
       throw new TokenExpiredException()
-    }
-    if (!isPass) {
-      throw new InvalidTokenException()
     }
     const [, token] = authorization.split(' ')
     const payload = await this.authService.getUserPayloadByToken(token)

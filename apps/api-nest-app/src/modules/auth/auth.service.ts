@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
 import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
-import { ACCESS_SECRET, REFRESH_SECRET } from '@/shared/constants'
-import { UserService } from './imports/user'
+import { TokenService } from '@/shared/token'
 
 export interface BaseUserPayload {
   uid: number
@@ -22,15 +20,14 @@ export interface UserInfo {
 export class AuthService {
   constructor(
     @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
-    private jwtService: JwtService,
-    private userService: UserService,
+    private tokenService: TokenService,
   ) {}
 
   async generateTokens(uid: number) {
-    const me = { uid, permissions: [] } satisfies BaseUserPayload
-    const accessToken = this.jwtService.sign(me, { secret: ACCESS_SECRET, expiresIn: '1h' })
-    const refreshToken = this.jwtService.sign(me, { secret: REFRESH_SECRET, expiresIn: '7d' })
-    const payload = { ...me, accessToken, refreshToken }
+    const tokenPayload = { uid, permissions: [] } satisfies BaseUserPayload
+    const accessToken = this.tokenService.createAccessToken(tokenPayload)
+    const refreshToken = this.tokenService.createRefreshToken(tokenPayload)
+    const payload = { ...tokenPayload, accessToken, refreshToken }
     await Promise.all([
       this.cacheRepository.set(accessToken, JSON.stringify(payload)),
       this.cacheRepository.set(refreshToken, JSON.stringify(payload)),
@@ -39,16 +36,6 @@ export class AuthService {
       accessToken,
       refreshToken,
     }
-  }
-
-  async verifyAccessToken(token: string) {
-    this.jwtService.verify(token, { secret: ACCESS_SECRET })
-    return true
-  }
-
-  async verifyRefreshToken(token: string) {
-    this.jwtService.verify(token, { secret: REFRESH_SECRET })
-    return true
   }
 
   async removeToken(token: string) {
@@ -70,15 +57,5 @@ export class AuthService {
       return null
     }
     return JSON.parse(value) as UserPayload
-  }
-
-  async getUserMe(id: number): Promise<UserInfo> {
-    const user = await this.userService.getUserById(id)
-    if (!user) {
-      return null
-    }
-    return {
-      username: user.username,
-    }
   }
 }

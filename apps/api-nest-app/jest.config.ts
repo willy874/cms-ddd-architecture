@@ -1,9 +1,9 @@
 export default {
-  rootDir: 'src',
+  rootDir: '.',
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   moduleFileExtensions: [
     'js',
@@ -18,4 +18,5 @@ export default {
     '**/*.(t|j)s',
   ],
   coverageDirectory: '../coverage',
+  setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
 }

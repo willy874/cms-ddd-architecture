@@ -15,6 +15,9 @@ export class User {
   })
   username: string
 
+  /**
+   * Password is not selected by default
+   */
   @Column({
     type: 'varchar',
     length: 255,
