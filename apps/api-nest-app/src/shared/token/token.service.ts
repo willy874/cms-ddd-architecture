@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService, TokenExpiredError } from '@nestjs/jwt'
 // import { CacheRepository } from '../cache'
-import { ACCESS_SECRET, REFRESH_SECRET } from '../constants'
+import { ACCESS_SECRET, QUERY_SECRET, REFRESH_SECRET } from '../constants'
 
 @Injectable()
 export class TokenService {
@@ -41,5 +41,9 @@ export class TokenService {
 
   createRefreshToken(payload: object) {
     return this.jwtService.sign(payload, { secret: REFRESH_SECRET, expiresIn: '7d' })
+  }
+
+  createQueryToken(payload: object) {
+    return this.jwtService.sign(payload, { secret: QUERY_SECRET, expiresIn: '5m' })
   }
 }

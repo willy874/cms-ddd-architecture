@@ -1,5 +1,5 @@
 
-@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzQwMDIxNjQ2LCJleHAiOjE3NDAwMjUyNDZ9.2D5VjSOjBYLrlbifN1ujLPYGHmoTeYAB6ajGywyD4dY
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzQwMjMzNzUxLCJleHAiOjE3NDAyMzczNTF9.464nYPZq81f-sNt0Ly_5zLRLyLDdRWVB5_3gk110PRc
 
 ###
 
@@ -29,9 +29,19 @@ GET http://localhost:8765/apis/auth/me
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8765/apis/user/page-query
+GET http://localhost:8765/apis/users?page=1&pageSize=2&a=1&a=2
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8765/apis/user/1
+POST http://localhost:8765/apis/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "username": "admin-3",
+    "password": "password"
+}
+
+###
+GET http://localhost:8765/apis/users/1
 Authorization: Bearer {{token}}

@@ -1,21 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
-import { GetProviderType } from '@/utils/types'
+import { GetProviderType, QueryParams } from '@/utils/types'
 import { Like } from 'typeorm'
+import { TokenService } from '@/shared/token'
+import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
 
 export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
-interface QueryUserParams {
+type QueryPageResult<T = any> = {
+  list: T[]
   page: number
-  limit: number
-  search?: string
+  total: number
 }
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(USER_REPOSITORY)
-    private userRepository: UserRepository,
+    @Inject(USER_REPOSITORY) private userRepository: UserRepository,
+    @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
+    private tokenService: TokenService,
   ) {}
 
   getUserByNameAndPassword(username: string, password: string) {
@@ -34,12 +37,12 @@ export class UserService {
     return this.userRepository.save({ ...payload })
   }
 
-  async queryPage({ page, limit, search }: QueryUserParams) {
-    const skip = (page - 1) * limit
+  async queryPage({ page = 1, pageSize = 10, search = '' }: QueryParams): Promise<QueryPageResult> {
+    const skip = (page - 1) * pageSize
     const where = search ? { username: Like(`%${search}%`) } : undefined
     const [list, total] = await this.userRepository.findAndCount({
       skip: skip,
-      take: limit,
+      take: pageSize,
       where,
     })
     return {
@@ -47,6 +50,25 @@ export class UserService {
       page,
       total,
     }
+  }
+
+  async createCache(query: QueryParams) {
+    const key = `query:${JSON.stringify(query)}`
+    const data = await this.cacheRepository.get(key)
+    if (!data) {
+      const resultData = await this.queryPage(query)
+      this.cacheRepository.set(key, JSON.stringify(resultData))
+    }
+    const payload = { resource: 'users' }
+    const token = await this.tokenService.createQueryToken(payload)
+    this.cacheRepository.set(token, key)
+    return token
+  }
+
+  async queryByToken(token: string) {
+    const key = await this.cacheRepository.get(token)
+    const data = await this.cacheRepository.get(key)
+    return JSON.parse(data) as QueryPageResult
   }
 
   updateUser(id: number, payload: { username: string, password: string }) {
