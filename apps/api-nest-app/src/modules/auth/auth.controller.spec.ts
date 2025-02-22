@@ -1,15 +1,16 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
-import { UserModule, User, UserService } from './imports/user'
 import { DatabaseModule } from '@/shared/database'
 import { getRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, type CacheRepository } from '@/shared/cache'
 import { getCurrentCache } from '@/shared/cache/cacheRef'
-import { HASH_SECRET, TOKEN_TYPE } from '../../shared/constants'
+import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { TokenModule, TokenService } from '@/shared/token'
+import { User } from '@/entities/user.entity'
+import { AuthController } from './auth.controller'
+import { AuthService } from './auth.service'
+import { UserModule, UserService } from './imports/user'
 
 const MOCK_USER: User = {
   id: 1,

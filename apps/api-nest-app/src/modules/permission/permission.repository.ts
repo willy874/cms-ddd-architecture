@@ -1,4 +1,4 @@
-import { Permission } from './permission.entity'
+import { Permission } from '@/entities/permission.entity'
 import { DatabaseOperator, DATABASE_PROVIDER } from '@/shared/database'
 
 export const PERMISSION_REPOSITORY = 'PERMISSION_REPOSITORY'

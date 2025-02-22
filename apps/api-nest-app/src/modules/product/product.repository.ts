@@ -1,6 +1,6 @@
 import { GetProviderType } from '@/utils/types'
 import { DatabaseOperator, DATABASE_PROVIDER } from '@/shared/database'
-import { Product } from './product.entity'
+import { Product } from '@/entities/product.entity'
 
 export const PRODUCT_REPOSITORY = 'PRODUCT_REPOSITORY'
 
