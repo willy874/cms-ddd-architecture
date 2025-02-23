@@ -32,9 +32,10 @@ export class UserController {
   @Post('/search')
   @UseGuards(UserGuard)
   async searchUsers(@Body() body: QueryParams) {
+    const data = await this.userService.createCache(body, p => this.userService.queryPage(p))
     return {
       code: 200,
-      data: this.userService.createCache(body),
+      data,
     }
   }
 
@@ -53,7 +54,7 @@ export class UserController {
   async createUser(@Body() body: CreateUserDto) {
     return {
       code: 201,
-      data: await this.userService.createUser(body),
+      data: await this.userService.insertUser(body),
     }
   }
 

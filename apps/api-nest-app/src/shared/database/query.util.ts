@@ -37,11 +37,11 @@ export function orderBy<T extends ObjectLiteral>(sorts: string | string[] = []):
   }
 }
 
-export function searchBy<T extends ObjectLiteral>(fields: Record<string, string>): QueryFn<T> {
+export function searchBy<T extends ObjectLiteral>(fields: Record<string, unknown>): QueryFn<T> {
   return (query) => {
-    const where: [string, FindOperator<string>][] = []
+    const where: [string, unknown][] = []
     for (const [field, value] of Object.entries(fields)) {
-      where.push([field, Like(`%${value}%`)])
+      where.push([field, value])
     }
     if (where.length) {
       return query.andWhere(Object.fromEntries(where))

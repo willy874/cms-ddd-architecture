@@ -18,6 +18,7 @@ export type QueryPageResult<T = any> = {
 export interface IRepository<Entity extends ObjectLiteral> {
   find(options?: FindManyOptions<Entity>): Promise<Entity[]>
   findOne(options: FindOneOptions<Entity>): Promise<Entity | null>
+  insert(entity: QueryDeepPartialEntity<Entity>): Promise<Entity>
   save(entity: DeepPartial<Entity>, options?: SaveOptions): Promise<Entity>
   findAndCount(options?: FindManyOptions<Entity>): Promise<[Entity[], number]>
   update(id: number, entity: QueryDeepPartialEntity<Entity>): Promise<void>
@@ -40,6 +41,11 @@ export class Repository<Entity extends ObjectLiteral> implements IRepository<Ent
 
   async findOne(options: FindOneOptions<Entity>): Promise<Entity | null> {
     return await this.repository.findOne(options)
+  }
+
+  async insert(entity: QueryDeepPartialEntity<Entity>): Promise<Entity> {
+    const result = await this.repository.insert(entity)
+    return result.generatedMaps[0] as Entity
   }
 
   async save(entity: DeepPartial<Entity>, options?: SaveOptions): Promise<Entity> {

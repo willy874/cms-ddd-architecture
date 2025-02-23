@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
 import { GetProviderType, QueryParams } from '@/utils/types'
-import { Like } from 'typeorm'
 import { TokenService } from '@/shared/token'
 import { CacheService } from '@/shared/cache'
 import { CreateUserDto } from './create-user.dto'
@@ -27,29 +26,18 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } })
   }
 
-  async queryPage({ page = 1, pageSize = 10, search = '' }: QueryParams): Promise<QueryPageResult> {
-    const skip = (page - 1) * pageSize
-    const where = search ? { username: Like(`%${search}%`) } : undefined
-    const [list, total] = await this.userRepository.findAndCount({
-      skip: skip,
-      take: pageSize,
-      where,
-    })
-    return {
-      list,
-      page,
-      total,
-    }
+  queryPage(params: QueryParams): Promise<QueryPageResult> {
+    return this.userRepository.queryPage(params)
   }
 
-  async createCache(query: QueryParams) {
-    const key = `query:${JSON.stringify(query)}`
+  async createCache<T extends QueryParams>(params: T, queryFn: (p: T) => Promise<unknown>) {
+    const payload = { resource: 'users' }
+    const key = `query:${JSON.stringify(params)}`
     const data = await this.cacheService.get(key)
     if (!data) {
-      const resultData = await this.queryPage(query)
+      const resultData = await queryFn(params)
       this.cacheService.set(key, JSON.stringify(resultData))
     }
-    const payload = { resource: 'users' }
     const token = await this.tokenService.createQueryToken(payload)
     this.cacheService.set(token, key)
     return token
@@ -61,8 +49,8 @@ export class UserService {
     return JSON.parse(data) as QueryPageResult
   }
 
-  createUser(payload: CreateUserDto) {
-    return this.userRepository.save({ ...payload })
+  insertUser(payload: CreateUserDto) {
+    return this.userRepository.insert({ ...payload })
   }
 
   updateUser(id: number, payload: UpdateUserDto) {

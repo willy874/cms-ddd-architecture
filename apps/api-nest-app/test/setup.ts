@@ -37,6 +37,7 @@ jest.mock('@/shared/database', () => {
 
     find = jest.fn()
     findOne = jest.fn()
+    insert = jest.fn()
     save = jest.fn()
     findAndCount = jest.fn()
     update = jest.fn()
