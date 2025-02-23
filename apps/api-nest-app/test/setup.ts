@@ -1,9 +1,12 @@
 import { setCurrentCache } from '@/shared/cache/cacheRef'
 import { IRepository } from '@/shared/database/Repository'
 import { setRepository } from '@/shared/database/repositoryMap'
+import { Injectable } from '@nestjs/common'
 
 jest.mock('@/shared/cache', () => {
   // const modules = jest.requireActual('@/shared/cache')
+
+  @Injectable()
   class CacheService {
     constructor() {
       setCurrentCache(this as any)
@@ -23,8 +26,7 @@ jest.mock('@/shared/cache', () => {
   }
 })
 
-jest.mock('@/shared/database/database.module', () => {
-  // const modules = jest.requireActual('@/shared/database/database.module')
+jest.mock('@/shared/database', () => {
   const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
   const databaseProvider = {
     provide: DATABASE_PROVIDER,
