@@ -1,15 +1,13 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
-import { JwtModule } from '@nestjs/jwt'
 import { User } from '@/entities/user.entity'
 import { getRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, CacheService } from '@/shared/cache'
 import { getCurrentCache } from '@/shared/cache/cacheRef'
-import { HASH_SECRET, TOKEN_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { DatabaseModule } from '@/shared/database'
-import { TokenService } from './token'
-import { UserRepositoryProvider, UserService } from './user'
+import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
+import { TokenModule } from './token'
+import { UserModule } from './user'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 
@@ -34,14 +32,11 @@ describe('AuthController', () => {
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [
-        DatabaseModule,
-        JwtModule.register({ secretOrPrivateKey: TOKEN_SECRET }),
+        UserModule,
+        TokenModule,
         CacheModule,
       ],
       providers: [
-        UserRepositoryProvider,
-        UserService,
-        TokenService,
         AuthService,
       ],
       controllers: [AuthController],

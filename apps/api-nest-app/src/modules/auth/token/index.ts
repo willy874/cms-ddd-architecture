@@ -1,2 +1,1 @@
-export { TokenService } from './token.service'
-export { TokenGuard } from './token.guard'
+export { TokenModule, TokenService, TokenGuard } from '@/shared/token'

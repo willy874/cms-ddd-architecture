@@ -1,2 +1,2 @@
-export { UserRepositoryProvider } from './user.repository'
+export { UserModule } from './user.module'
 export { UserService } from './user.service'
