@@ -7,6 +7,7 @@ export interface QueryParams {
   page?: number
   pageSize?: number
   search?: string
-  filter?: string | string[]
   sort?: string | string[]
+  searchField?: string | string[]
+  filter?: string | string[]
 }

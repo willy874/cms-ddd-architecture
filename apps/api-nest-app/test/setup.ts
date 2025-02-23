@@ -41,6 +41,7 @@ jest.mock('@/shared/database', () => {
     findAndCount = jest.fn()
     update = jest.fn()
     delete = jest.fn()
+    queryPage = jest.fn()
   }
 
   const databaseProvider = {

@@ -4,6 +4,8 @@ import { GetProviderType, QueryParams } from '@/utils/types'
 import { Like } from 'typeorm'
 import { TokenService } from '@/shared/token'
 import { CacheService } from '@/shared/cache'
+import { CreateUserDto } from './create-user.dto'
+import { UpdateUserDto } from './update-user.dto'
 
 export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
@@ -23,10 +25,6 @@ export class UserService {
 
   getUserById(id: number) {
     return this.userRepository.findOne({ where: { id } })
-  }
-
-  createUser(payload: { username: string, password: string }) {
-    return this.userRepository.save({ ...payload })
   }
 
   async queryPage({ page = 1, pageSize = 10, search = '' }: QueryParams): Promise<QueryPageResult> {
@@ -63,7 +61,11 @@ export class UserService {
     return JSON.parse(data) as QueryPageResult
   }
 
-  updateUser(id: number, payload: { username: string, password: string }) {
+  createUser(payload: CreateUserDto) {
+    return this.userRepository.save({ ...payload })
+  }
+
+  updateUser(id: number, payload: UpdateUserDto) {
     return this.userRepository.update(id, { ...payload })
   }
 
