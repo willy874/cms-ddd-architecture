@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { CacheModule } from '@/shared/cache'
-import { TokenModule } from './token'
+import { TokenModule } from '@/shared/token'
 import { UserModule } from './user'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'

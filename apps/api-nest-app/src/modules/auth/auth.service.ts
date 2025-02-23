@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { Injectable } from '@nestjs/common'
-import { CacheService } from '@/shared/cache'
-import { TokenService } from './token'
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
+import { TokenService } from '@/shared/token'
 import { UserService } from './user'
 
 const JwtPayloadSchema = z.object({
@@ -31,7 +31,7 @@ type CachePayload = TokenPayload & UserPayload
 @Injectable()
 export class AuthService {
   constructor(
-    private cacheService: CacheService,
+    @Inject(CACHE_PROVIDER) private cacheService: CacheService,
     private tokenService: TokenService,
     private userService: UserService,
   ) {}

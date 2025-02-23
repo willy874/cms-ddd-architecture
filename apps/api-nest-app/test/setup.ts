@@ -1,55 +1,61 @@
-import { setCurrentCache } from '@/shared/cache/cacheRef'
-import { IRepository } from '@/shared/database/Repository'
-import { setRepository } from '@/shared/database/repositoryMap'
-import { Injectable } from '@nestjs/common'
+import type { EntityTarget, IRepository } from '@/shared/database/Repository'
 
 jest.mock('@/shared/cache', () => {
-  // const modules = jest.requireActual('@/shared/cache')
-
-  @Injectable()
-  class CacheService {
-    constructor() {
-      setCurrentCache(this as any)
-    }
-
-    get = jest.fn()
-    set = jest.fn()
-    del = jest.fn()
+  const cacheModule = jest.requireActual<typeof import('@/shared/cache')>('@/shared/cache')
+  const { CACHE_PROVIDER, setCurrentCache } = cacheModule
+  const cacheManagerModule = jest.requireActual<typeof import('cache-manager')>('cache-manager')
+  const cacheManager = cacheManagerModule.createCache()
+  const CacheServiceProvider = {
+    provide: CACHE_PROVIDER,
+    useFactory: () => {
+      cacheManager.get = jest.fn()
+      cacheManager.set = jest.fn()
+      cacheManager.del = jest.fn()
+      setCurrentCache(cacheManager as any)
+      return cacheManager
+    },
   }
-
   return {
+    ...cacheModule,
     CacheModule: {
       module: class {},
-      providers: [CacheService],
-      exports: [CacheService],
+      providers: [CacheServiceProvider],
+      exports: [CacheServiceProvider],
     },
   }
 })
 
 jest.mock('@/shared/database', () => {
-  const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
+  const databaseModule = jest.requireActual('@/shared/database')
+
+  const setRepository = databaseModule.setRepository
+  const DATABASE_PROVIDER = databaseModule.DATABASE_PROVIDER
+  class MockRepository<T> implements IRepository<T> {
+    constructor(private entity: EntityTarget<T>) {
+      setRepository(entity, this)
+    }
+
+    find = jest.fn()
+    findOne = jest.fn()
+    save = jest.fn()
+    findAndCount = jest.fn()
+    update = jest.fn()
+    delete = jest.fn()
+  }
+
   const databaseProvider = {
     provide: DATABASE_PROVIDER,
     useFactory: () => {
       return {
         getRepository: (entity) => {
-          const repository = {
-            find: jest.fn(),
-            findOne: jest.fn(),
-            save: jest.fn(),
-            findAndCount: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
-          } as IRepository<any>
-          setRepository(entity, repository)
-          return repository
+          return new MockRepository(entity)
         },
       }
     },
   }
 
   return {
-    DATABASE_PROVIDER,
+    ...databaseModule,
     DatabaseModule: {
       module: class {},
       providers: [databaseProvider],

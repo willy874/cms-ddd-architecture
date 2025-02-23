@@ -1,14 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common'
 import type { Request } from 'express'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/error'
 import { TOKEN_TYPE } from '@/shared/constants'
 import { TokenService } from '@/shared/token'
-import { CacheService } from '@/shared/cache'
+import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private cacheService: CacheService,
+    @Inject(CACHE_PROVIDER) private cacheService: CacheService,
     private tokenService: TokenService,
   ) {}
 

@@ -1,3 +1,3 @@
-export { CacheModule, CACHE_PROVIDER } from './cache.module'
-export { CacheService } from './cache.service'
-export type { CacheRepository } from './CacheRepository'
+export { CacheModule, CACHE_PROVIDER } from './redis'
+export { getCurrentCache, setCurrentCache } from './cacheRef'
+export { CacheService } from './CacheRepository'

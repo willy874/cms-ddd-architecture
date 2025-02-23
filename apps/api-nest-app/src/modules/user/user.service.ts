@@ -16,8 +16,8 @@ type QueryPageResult<T = any> = {
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(USER_REPOSITORY) private userRepository: UserRepository,
-    private cacheService: CacheService,
+    @Inject(USER_REPOSITORY) private cacheService: CacheService,
+    private userRepository: UserRepository,
     private tokenService: TokenService,
   ) {}
 

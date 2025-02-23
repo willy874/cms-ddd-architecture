@@ -1,10 +1,9 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
 import { User } from '@/entities/user.entity'
-import { getRepository } from '@/shared/database/repositoryMap'
+import { getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database/Repository'
-import { CacheModule, CacheService } from '@/shared/cache'
-import { getCurrentCache } from '@/shared/cache/cacheRef'
+import { CacheModule, CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { TokenModule } from './token'
 import { UserModule } from './user'
@@ -23,7 +22,7 @@ const MOCK_USER_ME = {
 }
 
 describe('AuthController', () => {
-  let authController: AuthController
+  let authController: AuthController & { test: () => string }
   let userRepository: IRepository<User>
   let findOne = jest.fn()
   let cacheRepository: CacheService
@@ -55,7 +54,6 @@ describe('AuthController', () => {
     it('login', async () => {
       let accessToken = ''
       let refreshToken = ''
-
       findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
       const res = await authController.login('admin', 'password')
       accessToken = res.data.accessToken
