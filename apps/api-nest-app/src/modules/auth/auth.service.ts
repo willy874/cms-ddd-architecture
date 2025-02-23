@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
 import { TokenService } from '@/shared/token'
 import { UserService } from './user'
+import { LoginDto } from './login.dto'
+import { RegisterDto } from './register.dto'
 
 const JwtPayloadSchema = z.object({
   uid: z.number(),
@@ -36,12 +38,12 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  getUserByNameAndPassword(username: string, password: string) {
-    return this.userService.getUserByNameAndPassword(username, password)
+  getUserByNameAndPassword(dto: LoginDto) {
+    return this.userService.getUserByNameAndPassword(dto)
   }
 
-  createUser(payload: { username: string, password: string }) {
-    this.userService.createUser(payload)
+  createUser(dto: RegisterDto) {
+    this.userService.createUser(dto)
   }
 
   async isAlreadyExistsByUsername(username: string) {

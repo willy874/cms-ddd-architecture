@@ -1,25 +1,15 @@
 import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
-import { to } from 'await-to-js'
-import { z } from 'zod'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, UserAlreadyExistsException } from '@/shared/error'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, UserAlreadyExistsException } from '@/shared/error'
 import { AuthService } from './auth.service'
 import { AuthGuard } from './auth.guard'
+import { LoginDto } from './login.dto'
+import { RegisterDto } from './register.dto'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
 }
-
-const LoginRequestDtoSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-})
-
-const RegisterRequestDtoSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-})
 
 @Controller('auth')
 export class AuthController {
@@ -29,14 +19,12 @@ export class AuthController {
 
   @Post('/login')
   async login(
-    @Body('username') username?: string,
-    @Body('password') password?: string,
+    @Body() body: LoginDto,
   ) {
-    const [validationError, reqDto] = await to(schemaValidate(LoginRequestDtoSchema, { username, password }))
-    if (validationError) {
-      throw validationError
-    }
-    const user = await this.authService.getUserByNameAndPassword(reqDto.username, hash(reqDto.password))
+    const user = await this.authService.getUserByNameAndPassword({
+      username: body.username,
+      password: hash(body.password),
+    })
     if (!user) {
       throw new LoginFailException()
     }
@@ -54,19 +42,14 @@ export class AuthController {
   @Post('/register')
   @HttpCode(201)
   async register(
-    @Body('username') username?: string,
-    @Body('password') password?: string,
+    @Body() body: RegisterDto,
   ) {
-    const [validationError, reqDto] = await to(schemaValidate(RegisterRequestDtoSchema, { username, password }))
-    if (validationError) {
-      throw validationError
-    }
-    if (await this.authService.isAlreadyExistsByUsername(reqDto.username)) {
+    if (await this.authService.isAlreadyExistsByUsername(body.username)) {
       throw new UserAlreadyExistsException()
     }
     const createDto = {
-      username: reqDto.username,
-      password: hash(reqDto.password),
+      username: body.username,
+      password: hash(body.password),
     }
     await this.authService.createUser(createDto)
     return {

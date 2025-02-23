@@ -5,7 +5,7 @@ import { getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { TokenModule } from './token'
+import { TokenModule } from '@/shared/token'
 import { UserModule } from './user'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
@@ -45,7 +45,10 @@ describe('AuthController', () => {
 
   describe('Auth', () => {
     it('register', async () => {
-      const res = await authController.register('admin', 'password')
+      const res = await authController.register({
+        username: 'admin',
+        password: 'password',
+      })
       expect(res).toEqual({
         code: 201,
         message: 'User created successfully.',
@@ -55,7 +58,10 @@ describe('AuthController', () => {
       let accessToken = ''
       let refreshToken = ''
       findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
-      const res = await authController.login('admin', 'password')
+      const res = await authController.login({
+        username: 'admin',
+        password: 'password',
+      })
       accessToken = res.data.accessToken
       refreshToken = res.data.refreshToken
       expect(res).toEqual({

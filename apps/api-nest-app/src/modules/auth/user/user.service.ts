@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
 import { GetProviderType } from '@/utils/types'
+import { LoginDto } from '../login.dto'
+import { RegisterDto } from '../register.dto'
 
 export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
@@ -10,8 +12,8 @@ export class UserService {
     @Inject(USER_REPOSITORY) private userRepository: UserRepository,
   ) {}
 
-  getUserByNameAndPassword(username: string, password: string) {
-    return this.userRepository.findOne({ where: { username, password } })
+  getUserByNameAndPassword(dto: LoginDto) {
+    return this.userRepository.findOne({ where: { ...dto } })
   }
 
   getUserByName(username: string) {
@@ -22,7 +24,7 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } })
   }
 
-  createUser(payload: { username: string, password: string }) {
-    return this.userRepository.save({ ...payload })
+  createUser(dto: RegisterDto) {
+    return this.userRepository.save({ ...dto })
   }
 }
