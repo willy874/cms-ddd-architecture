@@ -21,14 +21,6 @@ export class UserService {
     private tokenService: TokenService,
   ) {}
 
-  getUserByNameAndPassword(username: string, password: string) {
-    return this.userRepository.findOne({ where: { username, password } })
-  }
-
-  getUserByName(username: string) {
-    return this.userRepository.findOne({ where: { username } })
-  }
-
   getUserById(id: number) {
     return this.userRepository.findOne({ where: { id } })
   }

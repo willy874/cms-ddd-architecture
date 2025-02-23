@@ -1,8 +1,8 @@
+import { z } from 'zod'
 import { Injectable } from '@nestjs/common'
 import { CacheService } from '@/shared/cache'
 import { TokenService } from '@/shared/token'
-import { UserService } from './imports/user'
-import { z } from 'zod'
+import { UserService } from './user.service'
 
 const JwtPayloadSchema = z.object({
   uid: z.number(),

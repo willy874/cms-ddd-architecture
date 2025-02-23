@@ -9,7 +9,9 @@ import { TokenModule, TokenService } from '@/shared/token'
 import { User } from '@/entities/user.entity'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { UserModule, UserService } from './imports/user'
+import { UserService } from './user.service'
+import { UserRepositoryProvider } from './user.repository'
+import { DatabaseModule } from '@/shared/database'
 
 const MOCK_USER: User = {
   id: 1,
@@ -32,14 +34,14 @@ describe('AuthController', () => {
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [
+        DatabaseModule,
         CacheModule,
         TokenModule,
-        UserModule,
       ],
       providers: [
-        CacheService,
-        TokenService,
+        UserRepositoryProvider,
         UserService,
+        TokenService,
         AuthService,
       ],
       controllers: [AuthController],
