@@ -4,7 +4,7 @@ import { to } from 'await-to-js'
 import { z } from 'zod'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, UserAlreadyExistsException } from '@/shared/error'
-import { TokenGuard } from '@/shared/token'
+import { TokenGuard } from './token'
 import { AuthService } from './auth.service'
 
 function hash(str: string) {
