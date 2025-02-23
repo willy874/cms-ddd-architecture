@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { MysqlModule, MYSQL_PROVIDER, MysqlProvider } from './mysql.module'
+import { MysqlModule, MYSQL_PROVIDER, MysqlProvider } from './mysql/mysql.module'
 import { Repository } from './Repository'
 import type { ObjectLiteral, EntityTarget, IRepository } from './Repository'
 

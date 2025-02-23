@@ -2,7 +2,7 @@ import Redis from 'ioredis'
 import { Module } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { GetProviderType } from '@/utils/types'
-import cacheConfigProvider from '../config/cache'
+import cacheConfigProvider from '../../config/cache'
 
 export const REDIS_PROVIDER = 'REDIS_PROVIDER'
 

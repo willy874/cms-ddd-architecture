@@ -1,4 +1,4 @@
-import type { CacheRepository } from './cache.module'
+import type { CacheRepository } from './CacheRepository'
 
 const cacheRef: { current: CacheRepository } = { current: null }
 export function getCurrentCache(): CacheRepository {
