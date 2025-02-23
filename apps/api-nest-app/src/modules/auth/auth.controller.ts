@@ -1,12 +1,11 @@
 import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
 import { SHA256 } from 'crypto-js'
 import { to } from 'await-to-js'
-import { AuthService } from './auth.service'
+import { z } from 'zod'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, UserAlreadyExistsException } from '@/shared/error'
-import { UserService } from './imports/user'
-import { z } from 'zod'
 import { TokenGuard } from '@/shared/token'
+import { AuthService } from './auth.service'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
@@ -25,7 +24,6 @@ const RegisterRequestDtoSchema = z.object({
 @Controller('auth')
 export class AuthController {
   constructor(
-    private userService: UserService,
     private authService: AuthService,
   ) {}
 
@@ -38,7 +36,7 @@ export class AuthController {
     if (validationError) {
       throw validationError
     }
-    const user = await this.userService.getUserByNameAndPassword(reqDto.username, hash(reqDto.password))
+    const user = await this.authService.getUserByNameAndPassword(reqDto.username, hash(reqDto.password))
     if (!user) {
       throw new LoginFailException()
     }
@@ -70,7 +68,7 @@ export class AuthController {
       username: reqDto.username,
       password: hash(reqDto.password),
     }
-    await this.userService.createUser(createDto)
+    await this.authService.createUser(createDto)
     return {
       code: 201,
       message: 'User created successfully.',

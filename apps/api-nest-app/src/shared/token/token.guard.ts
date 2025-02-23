@@ -1,14 +1,14 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import type { Request } from 'express'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/error'
 import { TOKEN_TYPE } from '@/shared/constants'
 import { TokenService } from '@/shared/token'
-import { CacheRepository } from '../cache'
+import { CacheService } from '@/shared/cache'
 
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(
-    @Inject('TOKEN_CACHE_PROVIDER') private cacheRepository: CacheRepository,
+    private cacheService: CacheService,
     private tokenService: TokenService,
   ) {}
 
@@ -25,7 +25,7 @@ export class TokenGuard implements CanActivate {
     if (this.tokenService.isAccessTokenExpired(token)) {
       throw new TokenExpiredException()
     }
-    const cachePayload = await this.cacheRepository.get(token)
+    const cachePayload = await this.cacheService.get(token)
     if (!cachePayload) {
       throw new InvalidTokenException()
     }

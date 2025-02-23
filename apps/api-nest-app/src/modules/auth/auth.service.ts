@@ -1,5 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
+import { Injectable } from '@nestjs/common'
+import { CacheService } from '@/shared/cache'
 import { TokenService } from '@/shared/token'
 import { UserService } from './imports/user'
 import { z } from 'zod'
@@ -31,10 +31,18 @@ type CachePayload = TokenPayload & UserPayload
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
+    private cacheService: CacheService,
     private tokenService: TokenService,
     private userService: UserService,
   ) {}
+
+  getUserByNameAndPassword(username: string, password: string) {
+    return this.userService.getUserByNameAndPassword(username, password)
+  }
+
+  createUser(payload: { username: string, password: string }) {
+    this.userService.createUser(payload)
+  }
 
   async isAlreadyExistsByUsername(username: string) {
     const user = await this.userService.getUserByName(username)
@@ -56,8 +64,8 @@ export class AuthService {
       refreshToken,
     } satisfies CachePayload
     await Promise.all([
-      this.cacheRepository.set(accessToken, JSON.stringify(cachePayload)),
-      this.cacheRepository.set(refreshToken, JSON.stringify(cachePayload)),
+      this.cacheService.set(accessToken, JSON.stringify(cachePayload)),
+      this.cacheService.set(refreshToken, JSON.stringify(cachePayload)),
     ])
     return {
       accessToken,
@@ -66,12 +74,12 @@ export class AuthService {
   }
 
   async removeToken(token: string) {
-    const cachePayload = await this.cacheRepository.get(token) || 'null'
+    const cachePayload = await this.cacheService.get(token) || 'null'
     if (cachePayload) {
       const tokenPayload = TokenPayloadSchema.parse(JSON.parse(cachePayload))
       await Promise.all([
-        this.cacheRepository.del(tokenPayload.accessToken),
-        this.cacheRepository.del(tokenPayload.refreshToken),
+        this.cacheService.del(tokenPayload.accessToken),
+        this.cacheService.del(tokenPayload.refreshToken),
       ])
       return true
     }
@@ -79,7 +87,7 @@ export class AuthService {
   }
 
   async getTokenPayloadByToken(token: string) {
-    const value = await this.cacheRepository.get(token)
+    const value = await this.cacheService.get(token)
     if (!value) {
       return null
     }
@@ -87,7 +95,7 @@ export class AuthService {
   }
 
   async getUserPayloadByToken(token: string) {
-    const value = await this.cacheRepository.get(token)
+    const value = await this.cacheService.get(token)
     if (!value) {
       return null
     }

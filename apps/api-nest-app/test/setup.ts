@@ -1,34 +1,30 @@
-import { CacheRepository } from '@/shared/cache'
 import { setCurrentCache } from '@/shared/cache/cacheRef'
 import { IRepository } from '@/shared/database/Repository'
 import { setRepository } from '@/shared/database/repositoryMap'
 
-jest.mock('@/shared/cache/cache.module', () => {
-  const CACHE_PROVIDER = 'CACHE_PROVIDER'
-  const cacheProvider = {
-    provide: CACHE_PROVIDER,
-    useFactory: () => {
-      const cache = {
-        get: jest.fn(),
-        set: jest.fn(),
-        del: jest.fn(),
-      } satisfies CacheRepository
-      setCurrentCache(cache)
-      return cache
-    },
+jest.mock('@/shared/cache', () => {
+  // const modules = jest.requireActual('@/shared/cache')
+  class CacheService {
+    constructor() {
+      setCurrentCache(this as any)
+    }
+
+    get = jest.fn()
+    set = jest.fn()
+    del = jest.fn()
   }
 
   return {
-    CACHE_PROVIDER,
     CacheModule: {
       module: class {},
-      providers: [cacheProvider],
-      exports: [cacheProvider],
+      providers: [CacheService],
+      exports: [CacheService],
     },
   }
 })
 
 jest.mock('@/shared/database/database.module', () => {
+  // const modules = jest.requireActual('@/shared/database/database.module')
   const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
   const databaseProvider = {
     provide: DATABASE_PROVIDER,

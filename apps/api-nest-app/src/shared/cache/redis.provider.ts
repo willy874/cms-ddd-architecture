@@ -1,8 +1,7 @@
 import Redis from 'ioredis'
-import { Module } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { GetProviderType } from '@/utils/types'
-import cacheConfigProvider from '../../config/cache'
+import cacheConfigProvider from '@/shared/config/cache'
 
 export const REDIS_PROVIDER = 'REDIS_PROVIDER'
 
@@ -18,9 +17,3 @@ export const redisProvider = {
 }
 
 export type RedisRepository = GetProviderType<typeof redisProvider>
-
-@Module({
-  providers: [redisProvider],
-  exports: [redisProvider],
-})
-export class RedisModule {}

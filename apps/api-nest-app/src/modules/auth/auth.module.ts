@@ -13,7 +13,9 @@ import { TokenModule, TokenService } from '@/shared/token'
     TokenModule,
     UserModule,
   ],
-  providers: [TokenService, UserService, AuthService],
+  providers: [
+    TokenService, UserService, AuthService,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

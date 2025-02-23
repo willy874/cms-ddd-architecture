@@ -1,18 +1,12 @@
 import { Module } from '@nestjs/common'
-import { REDIS_PROVIDER, RedisModule } from './redis/redis.module'
-import { cacheFactory } from './cache.provider'
+import { CacheService } from './CacheService'
+import { redisProvider } from './redis.provider'
 
 export const CACHE_PROVIDER = 'CACHE_PROVIDER'
 
-export const cacheProvider = {
-  provide: CACHE_PROVIDER,
-  inject: [REDIS_PROVIDER],
-  useFactory: cacheFactory,
-}
-
 @Module({
-  imports: [RedisModule],
-  providers: [cacheProvider],
-  exports: [cacheProvider],
+  imports: [],
+  providers: [redisProvider, CacheService],
+  exports: [redisProvider, CacheService],
 })
 export class CacheModule {}

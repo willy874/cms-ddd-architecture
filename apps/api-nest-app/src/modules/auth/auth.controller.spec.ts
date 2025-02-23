@@ -1,9 +1,8 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
-import { DatabaseModule } from '@/shared/database'
 import { getRepository } from '@/shared/database/repositoryMap'
 import type { IRepository } from '@/shared/database/Repository'
-import { CacheModule, type CacheRepository } from '@/shared/cache'
+import { CacheModule, CacheService } from '@/shared/cache'
 import { getCurrentCache } from '@/shared/cache/cacheRef'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { TokenModule, TokenService } from '@/shared/token'
@@ -27,18 +26,22 @@ describe('AuthController', () => {
   let authController: AuthController
   let userRepository: IRepository<User>
   let findOne = jest.fn()
-  let cacheRepository: CacheRepository
+  let cacheRepository: CacheService
   let cacheGet = jest.fn()
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [
-        DatabaseModule,
         CacheModule,
         TokenModule,
         UserModule,
       ],
-      providers: [TokenService, UserService, AuthService],
+      providers: [
+        CacheService,
+        TokenService,
+        UserService,
+        AuthService,
+      ],
       controllers: [AuthController],
     }).compile()
     authController = app.get(AuthController)

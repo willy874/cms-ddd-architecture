@@ -8,8 +8,8 @@ import { CacheModule } from '@/shared/cache'
 
 @Module({
   imports: [DatabaseModule, CacheModule, TokenModule],
-  providers: [TokenService, UserRepositoryProvider, UserService],
-  exports: [UserRepositoryProvider, UserService],
+  providers: [UserRepositoryProvider, TokenService, UserService],
+  exports: [UserRepositoryProvider, TokenService, UserService],
   controllers: [UserController],
 })
 export class UserModule {}

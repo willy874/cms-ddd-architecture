@@ -3,7 +3,7 @@ import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
 import { GetProviderType, QueryParams } from '@/utils/types'
 import { Like } from 'typeorm'
 import { TokenService } from '@/shared/token'
-import { CACHE_PROVIDER, CacheRepository } from '@/shared/cache'
+import { CacheService } from '@/shared/cache'
 
 export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
@@ -17,7 +17,7 @@ type QueryPageResult<T = any> = {
 export class UserService {
   constructor(
     @Inject(USER_REPOSITORY) private userRepository: UserRepository,
-    @Inject(CACHE_PROVIDER) private cacheRepository: CacheRepository,
+    private cacheService: CacheService,
     private tokenService: TokenService,
   ) {}
 
@@ -54,20 +54,20 @@ export class UserService {
 
   async createCache(query: QueryParams) {
     const key = `query:${JSON.stringify(query)}`
-    const data = await this.cacheRepository.get(key)
+    const data = await this.cacheService.get(key)
     if (!data) {
       const resultData = await this.queryPage(query)
-      this.cacheRepository.set(key, JSON.stringify(resultData))
+      this.cacheService.set(key, JSON.stringify(resultData))
     }
     const payload = { resource: 'users' }
     const token = await this.tokenService.createQueryToken(payload)
-    this.cacheRepository.set(token, key)
+    this.cacheService.set(token, key)
     return token
   }
 
   async queryByToken(token: string) {
-    const key = await this.cacheRepository.get(token)
-    const data = await this.cacheRepository.get(key)
+    const key = await this.cacheService.get(token)
+    const data = await this.cacheService.get(key)
     return JSON.parse(data) as QueryPageResult
   }
 
