@@ -9,7 +9,7 @@ export type DatabaseOperator<T extends ObjectLiteral = ObjectLiteral> = {
   getRepository: <Entity extends T>(entity: EntityTarget<Entity>) => IRepository<Entity>
 }
 
-export const databaseProvider = {
+const DatabaseProvider = {
   provide: DATABASE_PROVIDER,
   inject: [MYSQL_PROVIDER],
   useFactory: (database: MysqlProvider): DatabaseOperator => {
@@ -23,7 +23,7 @@ export const databaseProvider = {
 
 @Module({
   imports: [MysqlModule],
-  providers: [databaseProvider],
-  exports: [databaseProvider],
+  providers: [DatabaseProvider],
+  exports: [DatabaseProvider],
 })
 export class DatabaseModule {}

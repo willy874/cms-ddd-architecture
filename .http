@@ -29,7 +29,7 @@ GET http://localhost:8765/apis/auth/me
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8765/apis/users?page=1&pageSize=2&a=1&a=2
+GET http://localhost:8765/apis/users
 Authorization: Bearer {{token}}
 
 ###

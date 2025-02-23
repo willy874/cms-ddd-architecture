@@ -22,7 +22,7 @@ const MOCK_USER_ME = {
 }
 
 describe('AuthController', () => {
-  let authController: AuthController & { test: () => string }
+  let authController: AuthController
   let userRepository: IRepository<User>
   let findOne = jest.fn()
   let cacheRepository: CacheService

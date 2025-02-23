@@ -26,7 +26,7 @@ jest.mock('@/shared/cache', () => {
 })
 
 jest.mock('@/shared/database', () => {
-  const databaseModule = jest.requireActual('@/shared/database')
+  const databaseModule = jest.requireActual<typeof import('@/shared/database')>('@/shared/database')
 
   const setRepository = databaseModule.setRepository
   const DATABASE_PROVIDER = databaseModule.DATABASE_PROVIDER

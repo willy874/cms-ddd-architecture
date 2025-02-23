@@ -1,5 +1,5 @@
-import { DatabaseModule } from '@/shared/database'
 import { Module } from '@nestjs/common'
+import { DatabaseModule } from '@/shared/database'
 import { TokenModule } from '@/shared/token'
 import { CacheModule } from '@/shared/cache'
 import { UserRepositoryProvider } from './user.repository'
