@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
 import { GetProviderType, QueryParams } from '@/utils/types'
 import { TokenService } from '@/shared/token'
-import { CacheService } from '@/shared/cache'
+import { CacheService, CACHE_PROVIDER } from '@/shared/cache'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
 
@@ -17,8 +17,8 @@ type QueryPageResult<T = any> = {
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(USER_REPOSITORY) private cacheService: CacheService,
-    private userRepository: UserRepository,
+    @Inject(CACHE_PROVIDER) private cacheService: CacheService,
+    @Inject(USER_REPOSITORY) private userRepository: UserRepository,
     private tokenService: TokenService,
   ) {}
 

@@ -1,5 +1,3 @@
-import type { EntityTarget, IRepository } from '@/shared/database/Repository'
-
 jest.mock('@/shared/cache', () => {
   const cacheModule = jest.requireActual<typeof import('@/shared/cache')>('@/shared/cache')
   const { CACHE_PROVIDER, setCurrentCache } = cacheModule
@@ -26,31 +24,29 @@ jest.mock('@/shared/cache', () => {
 })
 
 jest.mock('@/shared/database', () => {
+  type ObjectLiteral = import('@/shared/database').ObjectLiteral
+  type IRepository = import('@/shared/database').IRepository<ObjectLiteral>
+  type EntityTarget = import('@/shared/database').EntityTarget<ObjectLiteral>
   const databaseModule = jest.requireActual<typeof import('@/shared/database')>('@/shared/database')
-
-  const setRepository = databaseModule.setRepository
-  const DATABASE_PROVIDER = databaseModule.DATABASE_PROVIDER
-  class MockRepository<T> implements IRepository<T> {
-    constructor(private entity: EntityTarget<T>) {
-      setRepository(entity, this)
-    }
-
-    find = jest.fn()
-    findOne = jest.fn()
-    insert = jest.fn()
-    save = jest.fn()
-    findAndCount = jest.fn()
-    update = jest.fn()
-    delete = jest.fn()
-    queryPage = jest.fn()
-  }
-
-  const databaseProvider = {
+  const { setRepository, DATABASE_PROVIDER } = databaseModule
+  const DatabaseProvider = {
     provide: DATABASE_PROVIDER,
     useFactory: () => {
       return {
-        getRepository: (entity) => {
-          return new MockRepository(entity)
+        isTest: true,
+        getRepository: (entity: EntityTarget) => {
+          const instance = {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            insert: jest.fn(),
+            save: jest.fn(),
+            findAndCount: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
+            queryPage: jest.fn(),
+          } satisfies IRepository
+          setRepository(entity, instance)
+          return instance
         },
       }
     },
@@ -60,8 +56,8 @@ jest.mock('@/shared/database', () => {
     ...databaseModule,
     DatabaseModule: {
       module: class {},
-      providers: [databaseProvider],
-      exports: [databaseProvider],
+      providers: [DatabaseProvider],
+      exports: [DatabaseProvider],
     },
   }
 })
