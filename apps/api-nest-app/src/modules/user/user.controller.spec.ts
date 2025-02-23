@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { User } from '@/entities/user.entity'
 import { DatabaseModule, getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database'
-import { CacheModule, CacheService, getCurrentCache } from '@/shared/cache'
+import { CacheModule } from '@/shared/cache'
 import { HASH_SECRET } from '@/shared/constants'
 import { TokenModule } from '@/shared/token'
 import { UserController } from './user.controller'
@@ -21,8 +21,6 @@ describe('UserController', () => {
   let userController: UserController
   let userRepository: IRepository<User>
   let queryPage = jest.fn()
-  let cacheRepository: CacheService
-  let cacheGet = jest.fn()
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -34,14 +32,10 @@ describe('UserController', () => {
 
     userRepository = getRepository(User)
     queryPage = userRepository.queryPage as jest.Mock
-
-    cacheRepository = getCurrentCache()
-    cacheGet = cacheRepository.get as jest.Mock
   })
 
   describe('User', () => {
     it('getUsers', async () => {
-      cacheGet.mockReturnValue('')
       const mockData = {
         list: [MOCK_USER],
         page: 1,

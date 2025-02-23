@@ -33,7 +33,6 @@ jest.mock('@/shared/database', () => {
     provide: DATABASE_PROVIDER,
     useFactory: () => {
       return {
-        isTest: true,
         getRepository: (entity: EntityTarget) => {
           const instance = {
             find: jest.fn(),
@@ -51,7 +50,6 @@ jest.mock('@/shared/database', () => {
       }
     },
   }
-
   return {
     ...databaseModule,
     DatabaseModule: {

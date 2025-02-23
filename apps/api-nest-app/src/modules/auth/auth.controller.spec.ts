@@ -6,7 +6,7 @@ import type { IRepository } from '@/shared/database/Repository'
 import { CacheModule, CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { TokenModule } from '@/shared/token'
-import { UserModule } from './user'
+import { AuthUserModule } from './user'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 
@@ -30,7 +30,7 @@ describe('AuthController', () => {
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      imports: [UserModule, TokenModule, CacheModule],
+      imports: [AuthUserModule, TokenModule, CacheModule],
       providers: [AuthService],
       controllers: [AuthController],
     }).compile()
