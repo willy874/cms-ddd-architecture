@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
 import { TokenService } from '@/shared/token'
-import { UserService } from './user'
+import { AuthUserService } from './user'
 import { LoginDto } from './login.dto'
 import { RegisterDto } from './register.dto'
 
@@ -35,7 +35,7 @@ export class AuthService {
   constructor(
     @Inject(CACHE_PROVIDER) private cacheService: CacheService,
     private tokenService: TokenService,
-    private userService: UserService,
+    private userService: AuthUserService,
   ) {}
 
   getUserByNameAndPassword(dto: LoginDto) {

@@ -16,8 +16,6 @@ export class UserController {
   async getUsers(
     @Query() query: QueryParams & { queryToken?: string },
   ) {
-    console.log('query', query)
-
     const { queryToken, ...restQuery } = query
     if (queryToken) {
       return {
