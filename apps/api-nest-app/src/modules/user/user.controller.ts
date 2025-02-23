@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, UseGuards, HttpCode } from '@nestjs/common'
-import { TokenGuard } from '@/shared/token'
 import { QueryParams } from '@/utils/types'
 import { UserService } from './user.service'
+import { UserGuard } from './user.guard'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
 
@@ -12,7 +12,7 @@ export class UserController {
   ) {}
 
   @Get('')
-  @UseGuards(TokenGuard)
+  @UseGuards(UserGuard)
   async getUsers(
     @Query() query: QueryParams & { queryToken?: string },
   ) {
@@ -30,7 +30,7 @@ export class UserController {
   }
 
   @Post('/search')
-  @UseGuards(TokenGuard)
+  @UseGuards(UserGuard)
   async searchUsers(@Body() body: QueryParams) {
     return {
       code: 200,
@@ -39,7 +39,7 @@ export class UserController {
   }
 
   @Get('/:id')
-  @UseGuards(TokenGuard)
+  @UseGuards(UserGuard)
   async getUserById(@Param('id') id: number) {
     return {
       code: 200,
@@ -49,7 +49,7 @@ export class UserController {
 
   @Post('/')
   @HttpCode(201)
-  @UseGuards(TokenGuard)
+  @UseGuards(UserGuard)
   async createUser(@Body() body: CreateUserDto) {
     return {
       code: 201,
@@ -58,7 +58,7 @@ export class UserController {
   }
 
   @Put('/:id')
-  @UseGuards(TokenGuard)
+  @UseGuards(UserGuard)
   async updateUser(@Param('id') id: number, @Body() body: UpdateUserDto) {
     await this.userService.updateUser(id, body)
     return {
@@ -68,7 +68,7 @@ export class UserController {
 
   @Delete('/:id')
   @HttpCode(204)
-  @UseGuards(TokenGuard)
+  @UseGuards(UserGuard)
   async deleteUser(@Param('id') id: number) {
     await this.userService.deleteUser(id)
     return {

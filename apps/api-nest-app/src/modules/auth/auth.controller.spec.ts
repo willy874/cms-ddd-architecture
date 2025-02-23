@@ -31,14 +31,8 @@ describe('AuthController', () => {
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      imports: [
-        UserModule,
-        TokenModule,
-        CacheModule,
-      ],
-      providers: [
-        AuthService,
-      ],
+      imports: [UserModule, TokenModule, CacheModule],
+      providers: [AuthService],
       controllers: [AuthController],
     }).compile()
     authController = app.get(AuthController)

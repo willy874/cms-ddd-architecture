@@ -4,8 +4,8 @@ import { to } from 'await-to-js'
 import { z } from 'zod'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, schemaValidate, UserAlreadyExistsException } from '@/shared/error'
-import { TokenGuard } from './token'
 import { AuthService } from './auth.service'
+import { AuthGuard } from './auth.guard'
 
 function hash(str: string) {
   return SHA256(str + HASH_SECRET).toString()
@@ -83,7 +83,7 @@ export class AuthController {
   }
 
   @Get('/me')
-  @UseGuards(TokenGuard)
+  @UseGuards(AuthGuard)
   async me(
     @Headers('authorization') authorization: string
   ) {

@@ -6,7 +6,7 @@ import { TokenService } from '@/shared/token'
 import { CacheService } from '@/shared/cache'
 
 @Injectable()
-export class TokenGuard implements CanActivate {
+export class UserGuard implements CanActivate {
   constructor(
     private cacheService: CacheService,
     private tokenService: TokenService,
