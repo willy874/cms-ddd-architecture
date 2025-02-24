@@ -38,6 +38,7 @@ services:
       DATABASE_USER: root
       DATABASE_PASSWORD: password
       DATABASE_NAME: cms_db
+      CACHE_MODE: 'redis'
       REDIS_HOST: redis-service
       REDIS_PORT: 6379
     depends_on:
