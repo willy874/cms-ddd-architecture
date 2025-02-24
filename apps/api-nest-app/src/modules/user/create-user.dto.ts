@@ -10,4 +10,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, { message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number and must be at least 8 characters long.' })
   password: string
+
+  roles: string[]
 }

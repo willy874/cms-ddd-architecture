@@ -4,6 +4,7 @@ import { GetProviderType, QueryParams } from '@/utils/types'
 import { QueryPageResult } from '@/shared/database'
 import { CreateRoleDto } from './create-role.dto'
 import { UpdateRoleDto } from './update-role.dto'
+import { UserRepository, ROLE_USER_REPOSITORY } from './user'
 
 export type RoleRepository = GetProviderType<typeof RoleRepositoryProvider>
 
@@ -11,6 +12,7 @@ export type RoleRepository = GetProviderType<typeof RoleRepositoryProvider>
 export class RoleService {
   constructor(
     @Inject(ROLE_REPOSITORY) private roleRepository: RoleRepository,
+    @Inject(ROLE_USER_REPOSITORY) private userRepository: UserRepository,
   ) {}
 
   getRoleById(id: number) {

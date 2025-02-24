@@ -37,6 +37,7 @@ jest.mock('@/shared/database', () => {
           const instance = {
             find: jest.fn(),
             findOne: jest.fn(),
+            findBy: jest.fn(),
             insert: jest.fn(),
             save: jest.fn(),
             findAndCount: jest.fn(),

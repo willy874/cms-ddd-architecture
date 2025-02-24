@@ -1,5 +1,5 @@
 import { QueryParams } from '@/utils/types'
-import { DeepPartial, EntitySchema, FindManyOptions, FindOneOptions, ObjectType, Repository as OrmRepository, SaveOptions } from 'typeorm'
+import { DeepPartial, EntitySchema, FindManyOptions, FindOneOptions, FindOptionsWhere, ObjectType, Repository as OrmRepository, SaveOptions } from 'typeorm'
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { likeSearchBy, orderBy, queryPipe, filterBy, QueryPipeFn } from './query.util'
 
@@ -18,6 +18,7 @@ export type QueryPageResult<T = any> = {
 export interface IRepository<Entity extends ObjectLiteral> {
   find(options?: FindManyOptions<Entity>): Promise<Entity[]>
   findOne(options: FindOneOptions<Entity>): Promise<Entity | null>
+  findBy(options: FindOptionsWhere<Entity> | FindOptionsWhere<Entity>[]): Promise<Entity[]>
   insert(entity: QueryDeepPartialEntity<Entity>): Promise<Entity>
   save(entity: DeepPartial<Entity>, options?: SaveOptions): Promise<Entity>
   findAndCount(options?: FindManyOptions<Entity>): Promise<[Entity[], number]>
@@ -37,6 +38,10 @@ export class Repository<Entity extends ObjectLiteral> implements IRepository<Ent
 
   async find(options?: FindManyOptions<Entity>): Promise<Entity[]> {
     return await this.repository.find(options)
+  }
+
+  async findBy(options: FindOptionsWhere<Entity> | FindOptionsWhere<Entity>[]): Promise<Entity[]> {
+    return await this.repository.findBy(options)
   }
 
   async findOne(options: FindOneOptions<Entity>): Promise<Entity | null> {

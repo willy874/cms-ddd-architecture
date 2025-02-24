@@ -91,10 +91,7 @@ export class AuthController {
     }
     const [, token] = authorization.split(' ')
     const payload = await this.authService.getTokenPayloadByToken(token)
-    if (payload.refreshToken !== refreshToken) {
-      throw new InvalidTokenException()
-    }
-    if (!payload) {
+    if (!(payload?.refreshToken === refreshToken)) {
       throw new InvalidTokenException()
     }
     const result = await this.authService.generateTokens(payload.uid)

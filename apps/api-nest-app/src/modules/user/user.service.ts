@@ -5,6 +5,8 @@ import { TokenService } from '@/shared/token'
 import { CacheService, CACHE_PROVIDER } from '@/shared/cache'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
+import { RoleRepository, USER_ROLE_REPOSITORY } from './roles'
+import { In } from 'typeorm'
 
 export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
@@ -19,6 +21,7 @@ export class UserService {
   constructor(
     @Inject(CACHE_PROVIDER) private cacheService: CacheService,
     @Inject(USER_REPOSITORY) private userRepository: UserRepository,
+    @Inject(USER_ROLE_REPOSITORY) private roleRepository: RoleRepository,
     private tokenService: TokenService,
   ) {}
 
@@ -49,8 +52,10 @@ export class UserService {
     return JSON.parse(data) as QueryPageResult
   }
 
-  insertUser(payload: CreateUserDto) {
-    return this.userRepository.insert({ ...payload })
+  async insertUser(payload: CreateUserDto) {
+    const { roles: roleNames, ...rest } = payload
+    const roles = await this.roleRepository.findBy({ name: In(roleNames) })
+    return this.userRepository.save({ ...rest, roles })
   }
 
   updateUser(id: number, payload: UpdateUserDto) {
