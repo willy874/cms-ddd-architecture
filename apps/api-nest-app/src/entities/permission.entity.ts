@@ -15,6 +15,6 @@ export class Permission {
   })
   name: string
 
-  @ManyToMany(() => Role, permission => permission.roles)
+  @ManyToMany(() => Role, roles => roles.permissions)
   roles: Role[]
 }

@@ -23,7 +23,7 @@ export class Role {
     joinColumn: { name: 'roleId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'permissionId', referencedColumnName: 'id' },
   })
-  roles: Permission[]
+  permissions: Permission[]
 
   @ManyToMany(() => User, user => user.roles)
   users: User[]

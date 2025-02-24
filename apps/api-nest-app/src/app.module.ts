@@ -8,6 +8,7 @@ import httpConfigLoad from './shared/config/http'
 import databaseConfigLoad from './shared/config/database'
 import cacheConfigLoad from './shared/config/cache'
 import devConfigLoad from './shared/config/dev'
+import { RoleModule } from './modules/role/role.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import devConfigLoad from './shared/config/dev'
     }),
     ProductModule,
     UserModule,
+    RoleModule,
     AuthModule,
   ],
   controllers: [AppController],

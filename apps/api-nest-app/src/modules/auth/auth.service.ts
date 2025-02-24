@@ -19,16 +19,18 @@ const TokenPayloadSchema = z.object({
   refreshToken: z.string(),
 })
 
-type TokenPayload = z.infer<typeof TokenPayloadSchema>
+// type TokenPayload = z.infer<typeof TokenPayloadSchema>
 
 const UserPayloadSchema = z.object({
   user: z.unknown(),
   permissions: z.array(z.string()),
 })
 
-type UserPayload = z.infer<typeof UserPayloadSchema>
+// type UserPayload = z.infer<typeof UserPayloadSchema>
 
-type CachePayload = TokenPayload & UserPayload
+const CachePayloadSchema = TokenPayloadSchema.merge(UserPayloadSchema)
+
+type CachePayload = z.infer<typeof CachePayloadSchema>
 
 @Injectable()
 export class AuthService {
@@ -59,12 +61,13 @@ export class AuthService {
     } satisfies JwtPayload)
     const accessToken = this.tokenService.createAccessToken(jwtPayload)
     const refreshToken = this.tokenService.createRefreshToken(jwtPayload)
-    const cachePayload = {
+    const cachePayload = CachePayloadSchema.parse({
+      uid,
       user,
       permissions: jwtPayload.permissions,
       accessToken,
       refreshToken,
-    } satisfies CachePayload
+    } satisfies CachePayload)
     await Promise.all([
       this.cacheService.set(accessToken, JSON.stringify(cachePayload)),
       this.cacheService.set(refreshToken, JSON.stringify(cachePayload)),
