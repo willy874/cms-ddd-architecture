@@ -5,8 +5,6 @@ services:
     image: mysql:8
     networks:
       - app-network
-    ports:
-      - "3306:3306"
     container_name: database-service
     environment:
       MYSQL_DATABASE: cms_db
@@ -33,7 +31,7 @@ services:
       CACHE_MODE: 'memory'
     depends_on:
       - database-service
-    command: pnpm --filter api-nest-app start:dev
+    command: pnpm --filter api-nest-app exec typeorm migration:run
 networks:
   app-network:
     driver: bridge
