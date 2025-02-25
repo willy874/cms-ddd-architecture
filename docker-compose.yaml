@@ -29,6 +29,9 @@ services:
     container_name: backend-service
     volumes:
       - .:/app
+    ports:
+      - "4000:4000"
+      - "9229:9229"
     environment:
       NODE_ENV: development
       APP_PORT: 4000
