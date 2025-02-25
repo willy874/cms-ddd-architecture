@@ -1,7 +1,7 @@
 import Redis from 'ioredis'
 import { ConfigType } from '@nestjs/config'
 import cacheConfigProvider from '@/shared/config/cache'
-import { CacheRepository, CacheService } from '../cache.repository'
+import { CacheRepository, CacheService } from './cache.repository'
 
 export const cacheFactory = (config: ConfigType<typeof cacheConfigProvider>) => {
   const redis = new Redis({
