@@ -1,10 +1,7 @@
-import { User } from '../entities/user.entity'
-import { MigrationInterface, QueryRunner, Table, EntitySchema, DataSource } from 'typeorm'
+import { MigrationInterface, QueryRunner, Table } from 'typeorm'
 
 export class Users1740371924606 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    console.log('queryRunner')
-    console.log(queryRunner.manager.getRepository(User).metadata.columns[0].type)
     await queryRunner.createTable(
       new Table({
         name: 'users',
@@ -33,5 +30,6 @@ export class Users1740371924606 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('users')
   }
 }

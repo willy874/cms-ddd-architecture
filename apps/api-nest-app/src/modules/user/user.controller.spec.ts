@@ -1,14 +1,11 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
 import { User } from '@/entities/user.entity'
-import { DatabaseModule, getRepository } from '@/shared/database'
+import { getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database'
-import { CacheModule } from '@/shared/cache'
 import { HASH_SECRET } from '@/shared/constants'
-import { TokenModule } from '@/shared/token'
 import { UserController } from './user.controller'
-import { UserService } from './user.service'
-import { UserRepositoryProvider } from './user.repository'
+import { userModuleOptions } from './user.module'
 
 const MOCK_USER: User = {
   id: 1,
@@ -23,11 +20,7 @@ describe('UserController', () => {
   let queryPage = jest.fn()
 
   beforeAll(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      imports: [DatabaseModule, TokenModule, CacheModule],
-      providers: [UserRepositoryProvider, UserService],
-      controllers: [UserController],
-    }).compile()
+    const app: TestingModule = await Test.createTestingModule(userModuleOptions).compile()
     userController = app.get(UserController)
 
     userRepository = getRepository(User)

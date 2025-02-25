@@ -3,12 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { User } from '@/entities/user.entity'
 import { getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database/Repository'
-import { CacheModule, CacheService, getCurrentCache } from '@/shared/cache'
+import { CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { TokenModule } from '@/shared/token'
-import { AuthUserModule } from './user'
 import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
+import { authModuleOptions } from './auth.module'
 
 const MOCK_USER: User = {
   id: 1,
@@ -29,11 +27,7 @@ describe('AuthController', () => {
   let cacheGet = jest.fn()
 
   beforeAll(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      imports: [AuthUserModule, TokenModule, CacheModule],
-      providers: [AuthService],
-      controllers: [AuthController],
-    }).compile()
+    const app: TestingModule = await Test.createTestingModule(authModuleOptions).compile()
     authController = app.get(AuthController)
 
     userRepository = getRepository(User)
