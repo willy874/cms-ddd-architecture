@@ -7,11 +7,16 @@ type LoginSearcher = {
 }
 
 type UserIdSearcher = {
-  type: 'userid'
+  type: 'user-id'
   id: number
 }
 
-export type FindUserEmissionDTO = LoginSearcher | UserIdSearcher
+type UserNameSearcher = {
+  type: 'user-name'
+  username: string
+}
+
+export type FindUserEmissionDTO = LoginSearcher | UserIdSearcher | UserNameSearcher
 
 export interface FindUserReceptionDTO {
   data: unknown

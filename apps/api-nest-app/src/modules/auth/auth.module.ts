@@ -1,13 +1,13 @@
 import { Module, ModuleMetadata } from '@nestjs/common'
 import { CacheModule } from '@/shared/cache'
 import { TokenModule } from '@/shared/token'
-import { AuthUserModule } from './user'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
+import { AuthUserService } from './user.service'
 
 export const authModuleOptions = {
-  imports: [AuthUserModule, TokenModule, CacheModule],
-  providers: [AuthService],
+  imports: [TokenModule, CacheModule],
+  providers: [AuthUserService, AuthService],
   controllers: [AuthController],
 } satisfies ModuleMetadata
 

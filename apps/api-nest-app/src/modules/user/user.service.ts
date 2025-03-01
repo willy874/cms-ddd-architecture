@@ -32,6 +32,10 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } })
   }
 
+  getUserByName(username: string) {
+    return this.userRepository.findOne({ where: { username } })
+  }
+
   queryPage(params: QueryParams): Promise<QueryPageResult> {
     return this.userRepository.queryPage(params)
   }

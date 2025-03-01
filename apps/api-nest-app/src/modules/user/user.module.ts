@@ -7,10 +7,11 @@ import { UserService } from './user.service'
 import { UserController } from './user.controller'
 import { UserRoleModule } from './roles'
 import { FindUserHandler } from './user.query'
+import { CreateUserHandler } from './user.command'
 
 export const userModuleOptions = {
   imports: [DatabaseModule, UserRoleModule, CacheModule, TokenModule],
-  providers: [UserRepositoryProvider, UserService, FindUserHandler],
+  providers: [UserRepositoryProvider, UserService, FindUserHandler, CreateUserHandler],
   controllers: [UserController],
 } satisfies ModuleMetadata
 

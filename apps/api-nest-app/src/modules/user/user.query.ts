@@ -12,9 +12,14 @@ export class FindUserHandler implements IQueryHandler<FindUserQuery> {
         data: await this.userService.getUserByNameAndPassword(query.dto),
       }
     }
-    if (query.dto.type === 'userid') {
+    if (query.dto.type === 'user-id') {
       return {
         data: await this.userService.getUserById(query.dto.id),
+      }
+    }
+    if (query.dto.type === 'user-name') {
+      return {
+        data: await this.userService.getUserByName(query.dto.username),
       }
     }
     return {
