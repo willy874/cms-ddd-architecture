@@ -8,8 +8,10 @@ import httpConfigLoad from './shared/config/http'
 import databaseConfigLoad from './shared/config/database'
 import cacheConfigLoad from './shared/config/cache'
 import devConfigLoad from './shared/config/dev'
+import queueConfigLoad from './shared/config/queue'
 import { RoleModule } from './modules/role/role.module'
 import { CqrsModule } from '@nestjs/cqrs'
+import { MessageQueueModule } from './shared/queue'
 
 @Module({
   imports: [
@@ -21,9 +23,11 @@ import { CqrsModule } from '@nestjs/cqrs'
         databaseConfigLoad,
         cacheConfigLoad,
         devConfigLoad,
+        queueConfigLoad,
       ],
     }),
     CqrsModule.forRoot(),
+    MessageQueueModule,
     ProductModule,
     UserModule,
     RoleModule,
