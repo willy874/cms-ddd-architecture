@@ -1,13 +1,14 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
+import { QueryBus } from '@nestjs/cqrs'
 import { User } from '@/entities/user.entity'
 import { getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
+import { FindUserQuery } from '@/shared/queries'
 import { AuthController } from './auth.controller'
 import { authModuleOptions } from './auth.module'
-
 const MOCK_USER: User = {
   id: 1,
   username: 'admin',
@@ -21,14 +22,29 @@ const MOCK_USER_ME = {
 
 describe('AuthController', () => {
   let authController: AuthController
+  // let findUserHandler: FindUserHandler
+  let queryBus: jest.Mocked<QueryBus>
   let userRepository: IRepository<User>
   let findOne = jest.fn()
   let cacheRepository: CacheService
   let cacheGet = jest.fn()
 
   beforeAll(async () => {
-    const app: TestingModule = await Test.createTestingModule(authModuleOptions).compile()
+    const app: TestingModule = await Test.createTestingModule({
+      imports: [...authModuleOptions.imports],
+      providers: [
+        {
+          provide: QueryBus,
+          useValue: {
+            execute: jest.fn(),
+          },
+        },
+        ...authModuleOptions.providers,
+      ],
+      controllers: [AuthController],
+    }).compile()
     authController = app.get(AuthController)
+    queryBus = app.get(QueryBus)
 
     userRepository = getRepository(User)
     findOne = userRepository.findOne as jest.Mock
@@ -51,7 +67,12 @@ describe('AuthController', () => {
     it('login', async () => {
       let accessToken = ''
       let refreshToken = ''
-      findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
+      queryBus.execute.mockImplementationOnce((query) => {
+        if (query instanceof FindUserQuery) {
+          return Promise.resolve({ data: MOCK_USER })
+        }
+        throw new Error('Invalid query')
+      })
       const res = await authController.login({
         username: 'admin',
         password: 'password',

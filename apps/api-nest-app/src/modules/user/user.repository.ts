@@ -1,5 +1,6 @@
 import { User } from '@/entities/user.entity'
 import { DatabaseOperator, DATABASE_PROVIDER } from '@/shared/database'
+import { GetProviderType } from '@/utils/types'
 
 export const USER_REPOSITORY = 'USER_REPOSITORY'
 
@@ -10,3 +11,5 @@ export const UserRepositoryProvider = {
     return database.getRepository(User)
   },
 }
+
+export type UserRepository = GetProviderType<typeof UserRepositoryProvider>

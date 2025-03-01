@@ -5,6 +5,8 @@ import { TokenService } from '@/shared/token'
 import { AuthUserService } from './user'
 import { LoginDto } from './login.dto'
 import { RegisterDto } from './register.dto'
+import { QueryBus } from '@nestjs/cqrs'
+import { FindUserQuery } from '@/shared/queries'
 
 const JwtPayloadSchema = z.object({
   uid: z.number(),
@@ -32,16 +34,23 @@ const CachePayloadSchema = TokenPayloadSchema.merge(UserPayloadSchema)
 
 type CachePayload = z.infer<typeof CachePayloadSchema>
 
+const UserSchema = z.object({
+  id: z.number(),
+})
+
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(CACHE_PROVIDER) private cacheService: CacheService,
+    private queryBus: QueryBus,
     private tokenService: TokenService,
     private userService: AuthUserService,
   ) {}
 
-  getUserByNameAndPassword(dto: LoginDto) {
-    return this.userService.getUserByNameAndPassword(dto)
+  async getUserByNameAndPassword(dto: LoginDto) {
+    const query = new FindUserQuery(dto)
+    const result = await this.queryBus.execute(query)
+    return UserSchema.parse(result.data)
   }
 
   createUser(dto: RegisterDto) {

@@ -1,15 +1,11 @@
 import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
-import { SHA256 } from 'crypto-js'
-import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
+import { TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, UserAlreadyExistsException } from '@/shared/error'
 import { AuthService } from './auth.service'
 import { AuthGuard } from './auth.guard'
 import { LoginDto } from './login.dto'
 import { RegisterDto } from './register.dto'
-
-function hash(str: string) {
-  return SHA256(str + HASH_SECRET).toString()
-}
+import { hash } from '@/utils/crypoto'
 
 @Controller('auth')
 export class AuthController {

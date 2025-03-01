@@ -1,14 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { USER_REPOSITORY, UserRepositoryProvider } from './user.repository'
-import { GetProviderType, QueryParams } from '@/utils/types'
+import { USER_REPOSITORY, UserRepository } from './user.repository'
+import { QueryParams } from '@/utils/types'
 import { TokenService } from '@/shared/token'
 import { CacheService, CACHE_PROVIDER } from '@/shared/cache'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
 import { RoleRepository, USER_ROLE_REPOSITORY } from './roles'
 import { In } from 'typeorm'
-
-export type UserRepository = GetProviderType<typeof UserRepositoryProvider>
 
 type QueryPageResult<T = any> = {
   list: T[]
@@ -24,6 +22,11 @@ export class UserService {
     @Inject(USER_ROLE_REPOSITORY) private roleRepository: RoleRepository,
     private tokenService: TokenService,
   ) {}
+
+  getUserByNameAndPassword(dto: { username: string, password: string }) {
+    const { username, password } = dto
+    return this.userRepository.findOne({ where: { username, password } })
+  }
 
   getUserById(id: number) {
     return this.userRepository.findOne({ where: { id } })

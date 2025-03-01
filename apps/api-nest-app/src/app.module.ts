@@ -9,6 +9,7 @@ import databaseConfigLoad from './shared/config/database'
 import cacheConfigLoad from './shared/config/cache'
 import devConfigLoad from './shared/config/dev'
 import { RoleModule } from './modules/role/role.module'
+import { CqrsModule } from '@nestjs/cqrs'
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RoleModule } from './modules/role/role.module'
         devConfigLoad,
       ],
     }),
+    CqrsModule.forRoot(),
     ProductModule,
     UserModule,
     RoleModule,
