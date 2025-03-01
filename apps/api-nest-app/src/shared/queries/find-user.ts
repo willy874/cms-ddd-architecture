@@ -1,9 +1,17 @@
 import { Query } from '@nestjs/cqrs'
 
-export type FindUserEmissionDTO = {
+type LoginSearcher = {
+  type: 'login'
   username: string
   password: string
 }
+
+type UserIdSearcher = {
+  type: 'userid'
+  id: number
+}
+
+export type FindUserEmissionDTO = LoginSearcher | UserIdSearcher
 
 export interface FindUserReceptionDTO {
   data: unknown

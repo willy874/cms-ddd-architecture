@@ -48,9 +48,22 @@ export class AuthService {
   ) {}
 
   async getUserByNameAndPassword(dto: LoginDto) {
-    const query = new FindUserQuery(dto)
+    const query = new FindUserQuery({
+      type: 'login',
+      username: dto.username,
+      password: dto.password,
+    })
     const result = await this.queryBus.execute(query)
     return UserSchema.parse(result.data)
+  }
+
+  async getUserById(id: number) {
+    const query = new FindUserQuery({
+      type: 'userid',
+      id,
+    })
+    const result = await this.queryBus.execute(query)
+    return result.data
   }
 
   createUser(dto: RegisterDto) {
@@ -63,7 +76,7 @@ export class AuthService {
   }
 
   async generateTokens(uid: number) {
-    const user = await this.userService.getUserById(uid)
+    const user = await this.getUserById(uid)
     const jwtPayload = JwtPayloadSchema.parse({
       uid,
       permissions: [],

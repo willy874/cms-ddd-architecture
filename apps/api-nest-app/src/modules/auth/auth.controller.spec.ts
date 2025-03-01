@@ -6,7 +6,6 @@ import { getRepository } from '@/shared/database'
 import type { IRepository } from '@/shared/database/Repository'
 import { CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
-import { FindUserQuery } from '@/shared/queries'
 import { AuthController } from './auth.controller'
 import { authModuleOptions } from './auth.module'
 const MOCK_USER: User = {
@@ -22,7 +21,6 @@ const MOCK_USER_ME = {
 
 describe('AuthController', () => {
   let authController: AuthController
-  // let findUserHandler: FindUserHandler
   let queryBus: jest.Mocked<QueryBus>
   let userRepository: IRepository<User>
   let findOne = jest.fn()
@@ -67,12 +65,8 @@ describe('AuthController', () => {
     it('login', async () => {
       let accessToken = ''
       let refreshToken = ''
-      queryBus.execute.mockImplementationOnce((query) => {
-        if (query instanceof FindUserQuery) {
-          return Promise.resolve({ data: MOCK_USER })
-        }
-        throw new Error('Invalid query')
-      })
+      queryBus.execute.mockImplementationOnce(() => Promise.resolve({ t: 'login', data: MOCK_USER }))
+      queryBus.execute.mockImplementationOnce(() => Promise.resolve({ t: 'userid', data: MOCK_USER }))
       const res = await authController.login({
         username: 'admin',
         password: 'password',
