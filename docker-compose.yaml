@@ -16,9 +16,20 @@ services:
     networks:
       - app-network
     container_name: redis-service
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     environment:
       REDIS_PORT: 6379
       REDIS_HOST: redis-service
+  queue-service:
+    image: rabbitmq:3.12-management
+    networks:
+      - app-network
+    container_name: queue-service
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
   backend-service:
     build:
       context: .
@@ -36,6 +47,7 @@ services:
     depends_on:
       - database-service
       - redis-service
+      - queue-service
     command: pnpm --filter api-nest-app start:dev
   frontend-service:
     build:
