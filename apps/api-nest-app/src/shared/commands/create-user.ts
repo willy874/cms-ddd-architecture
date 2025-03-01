@@ -1,11 +1,11 @@
 import { Command } from '@nestjs/cqrs'
+import { User } from '@/entities/user.entity'
 
-export interface CreateUserEmissionDTO {
-  username: string
-  password: string
-  roles: string[]
+export type CreateUserEmissionDTO = {
+  username: User['username']
+  password: User['password']
+  roles: User['roles'][number]['name'][]
 }
-
 export interface CreateUserReceptionDTO {
   data: unknown
 }

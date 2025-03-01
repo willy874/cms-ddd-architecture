@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { FindUserQuery } from '@/shared/queries'
 import { LoginDto } from './login.dto'
-import { CreateUserCommand } from '@/shared/commands/create-user'
+import { CreateUserCommand } from '@/shared/commands'
 
 export const UserSchema = z.object({
   id: z.number(),
@@ -18,7 +18,6 @@ export class AuthUserService {
 
   async getUserByNameAndPassword(dto: LoginDto) {
     const query = new FindUserQuery({
-      type: 'login',
       username: dto.username,
       password: dto.password,
     })
@@ -28,7 +27,6 @@ export class AuthUserService {
 
   async getUserById(id: number) {
     const query = new FindUserQuery({
-      type: 'user-id',
       id,
     })
     const result = await this.queryBus.execute(query)
@@ -37,7 +35,6 @@ export class AuthUserService {
 
   async getUserByName(username: string) {
     const query = new FindUserQuery({
-      type: 'user-name',
       username,
     })
     const result = await this.queryBus.execute(query)

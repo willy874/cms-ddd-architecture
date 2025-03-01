@@ -1,9 +1,7 @@
 import { SHA256 } from 'crypto-js'
 import { Test, TestingModule } from '@nestjs/testing'
-import { QueryBus } from '@nestjs/cqrs'
+import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { User } from '@/entities/user.entity'
-import { getRepository } from '@/shared/database'
-import type { IRepository } from '@/shared/database/Repository'
 import { CacheService, getCurrentCache } from '@/shared/cache'
 import { HASH_SECRET, TOKEN_TYPE } from '@/shared/constants'
 import { AuthController } from './auth.controller'
@@ -22,8 +20,7 @@ const MOCK_USER_ME = {
 describe('AuthController', () => {
   let authController: AuthController
   let queryBus: jest.Mocked<QueryBus>
-  let userRepository: IRepository<User>
-  let findOne = jest.fn()
+  let commandBus: jest.Mocked<CommandBus>
   let cacheRepository: CacheService
   let cacheGet = jest.fn()
 
@@ -37,15 +34,19 @@ describe('AuthController', () => {
             execute: jest.fn(),
           },
         },
+        {
+          provide: CommandBus,
+          useValue: {
+            execute: jest.fn(),
+          },
+        },
         ...authModuleOptions.providers,
       ],
       controllers: [AuthController],
     }).compile()
     authController = app.get(AuthController)
     queryBus = app.get(QueryBus)
-
-    userRepository = getRepository(User)
-    findOne = userRepository.findOne as jest.Mock
+    commandBus = app.get(CommandBus)
 
     cacheRepository = getCurrentCache()
     cacheGet = cacheRepository.get as jest.Mock
@@ -53,6 +54,8 @@ describe('AuthController', () => {
 
   describe('Auth', () => {
     it('register', async () => {
+      queryBus.execute.mockImplementationOnce(() => Promise.resolve({ t: 'user-name', data: null }))
+      commandBus.execute.mockImplementationOnce(() => Promise.resolve())
       const res = await authController.register({
         username: 'admin',
         password: 'password',
@@ -83,6 +86,7 @@ describe('AuthController', () => {
       })
     })
     it('me', async () => {
+      queryBus.execute.mockImplementationOnce(() => Promise.resolve({ t: 'user-name', data: MOCK_USER }))
       const token = `${TOKEN_TYPE} accessToken`
       cacheGet.mockImplementationOnce((k) => {
         const me = {
@@ -101,8 +105,7 @@ describe('AuthController', () => {
       })
     })
     it('checkByUsername', async () => {
-      findOne.mockImplementationOnce(() => Promise.resolve(MOCK_USER))
-
+      queryBus.execute.mockImplementationOnce(() => Promise.resolve({ t: 'user-name', data: MOCK_USER }))
       const res = await authController.checkByUsername('admin')
       expect(res).toEqual(true)
     })

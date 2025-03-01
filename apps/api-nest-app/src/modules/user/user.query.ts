@@ -7,19 +7,22 @@ export class FindUserHandler implements IQueryHandler<FindUserQuery> {
   constructor(private userService: UserService) {}
 
   async execute(query: FindUserQuery): Promise<FindUserReceptionDTO> {
-    if (query.dto.type === 'login') {
+    const { id, username, password } = query.dto
+    if (id) {
       return {
-        data: await this.userService.getUserByNameAndPassword(query.dto),
+        data: await this.userService.getUserById(id),
       }
     }
-    if (query.dto.type === 'user-id') {
+    if (username && password) {
       return {
-        data: await this.userService.getUserById(query.dto.id),
+        data: await this.userService.getUserByNameAndPassword({
+          username, password,
+        }),
       }
     }
-    if (query.dto.type === 'user-name') {
+    if (username) {
       return {
-        data: await this.userService.getUserByName(query.dto.username),
+        data: await this.userService.getUserByName(username),
       }
     }
     return {
