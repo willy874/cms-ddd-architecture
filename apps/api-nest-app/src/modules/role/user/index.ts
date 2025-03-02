@@ -1,4 +1,4 @@
-import { GetProviderType } from '@/utils/types'
+import { GetProviderType } from '@/types'
 import { UserRepositoryProvider } from './user.repository'
 
 export type UserRepository = GetProviderType<typeof UserRepositoryProvider>

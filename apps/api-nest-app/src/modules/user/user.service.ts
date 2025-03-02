@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { USER_REPOSITORY, UserRepository } from './user.repository'
-import { QueryParams } from '@/utils/types'
+import { QueryParams } from '@/types'
 import { TokenService } from '@/shared/token'
 import { CacheService, CACHE_PROVIDER } from '@/shared/cache'
 import { CreateUserDto } from './create-user.dto'

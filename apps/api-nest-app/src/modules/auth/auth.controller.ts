@@ -1,15 +1,16 @@
-import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards, Inject } from '@nestjs/common'
 import { TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, UserAlreadyExistsException } from '@/shared/error'
+import { CRYPTO_PROVIDER, CryptoService } from '@/shared/util'
 import { AuthService } from './auth.service'
 import { AuthGuard } from './auth.guard'
 import { LoginDto } from './login.dto'
 import { RegisterDto } from './register.dto'
-import { hash } from '@/utils/crypoto'
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    @Inject(CRYPTO_PROVIDER) private crypto: CryptoService,
     private authService: AuthService,
   ) {}
 
@@ -19,7 +20,7 @@ export class AuthController {
   ) {
     const user = await this.authService.getUserByNameAndPassword({
       username: body.username,
-      password: hash(body.password),
+      password: this.crypto.hash(body.password),
     })
     if (!user) {
       throw new LoginFailException()
@@ -45,7 +46,7 @@ export class AuthController {
     }
     const createDto = {
       username: body.username,
-      password: hash(body.password),
+      password: this.crypto.hash(body.password),
     }
     await this.authService.createUser(createDto)
     return {

@@ -1,4 +1,4 @@
-import { GetProviderType } from '@/utils/types'
+import { GetProviderType } from '@/types'
 import { DatabaseOperator, DATABASE_PROVIDER } from '@/shared/database'
 import { Product } from '@/entities/product.entity'
 

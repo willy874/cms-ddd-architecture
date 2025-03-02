@@ -1,4 +1,4 @@
-import { GetProviderType } from '@/utils/types'
+import { GetProviderType } from '@/types'
 import { RoleRepositoryProvider } from './role.repository'
 
 export type RoleRepository = GetProviderType<typeof RoleRepositoryProvider>

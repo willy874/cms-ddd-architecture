@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ROLE_REPOSITORY, RoleRepositoryProvider } from './role.repository'
-import { GetProviderType, QueryParams } from '@/utils/types'
+import { GetProviderType, QueryParams } from '@/types'
 import { QueryPageResult } from '@/shared/database'
 import { CreateRoleDto } from './create-role.dto'
 import { UpdateRoleDto } from './update-role.dto'

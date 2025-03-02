@@ -1,7 +1,7 @@
 import { pipe } from 'rxjs'
+import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { ValidationPipePlugin } from './utils/validation'
 import { initMessageQueueService, initEventBusService } from './shared/queue'
 
 const createMicroservices = pipe(
@@ -16,7 +16,7 @@ async function bootstrap() {
   })
   app
     .setGlobalPrefix(process.env.API_PREFIX || '')
-    .useGlobalPipes(new ValidationPipePlugin())
+    .useGlobalPipes(new ValidationPipe())
   await createMicroservices(app)
   await app.listen(process.env.APP_PORT ?? 3000)
 }

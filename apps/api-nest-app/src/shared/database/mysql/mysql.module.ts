@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { DataSource } from 'typeorm'
-import { GetProviderType } from '@/utils/types'
+import { GetProviderType } from '@/types'
 import databaseConfigProvider from '../../config/database'
 
 export const MYSQL_PROVIDER = 'MYSQL_PROVIDER'

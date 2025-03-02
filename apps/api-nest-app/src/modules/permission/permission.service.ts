@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { PERMISSION_REPOSITORY, PermissionRepositoryProvider } from './permission.repository'
-import { GetProviderType } from '@/utils/types'
+import { GetProviderType } from '@/types'
 
 export type PermissionRepository = GetProviderType<typeof PermissionRepositoryProvider>
 

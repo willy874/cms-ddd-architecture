@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, UseGuards, HttpCode } from '@nestjs/common'
-import { QueryParams } from '@/utils/types'
+import { QueryParams } from '@/types'
 import { MessageQueueProducer } from '@/shared/queue'
 import { UserService } from './user.service'
 import { UserGuard } from './user.guard'

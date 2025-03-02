@@ -1,4 +1,4 @@
-import { QueryParams } from '@/utils/types'
+import { QueryParams } from '@/types'
 import { DeepPartial, EntitySchema, FindManyOptions, FindOneOptions, FindOptionsWhere, ObjectType, Repository as OrmRepository, SaveOptions } from 'typeorm'
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { likeSearchBy, orderBy, queryPipe, filterBy, QueryPipeFn } from './query.util'

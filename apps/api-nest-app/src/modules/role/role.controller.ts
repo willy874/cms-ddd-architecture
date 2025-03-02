@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, UseGuards, HttpCode } from '@nestjs/common'
-import { QueryParams } from '@/utils/types'
+import { QueryParams } from '@/types'
 import { RoleService } from './role.service'
 import { RoleGuard } from './role.guard'
 import { CreateRoleDto } from './create-role.dto'
