@@ -9,6 +9,8 @@ export const initMessageQueueService = (app: INestApplication, callback?: (app: 
     options: {
       urls: [`amqp://${config.user}:${config.password}@${config.host}:${config.port}`],
       queue: 'user_queue',
+      noAck: false,
+      prefetchCount: 1,
       queueOptions: {
         durable: false,
       },

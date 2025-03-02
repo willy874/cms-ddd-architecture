@@ -1,14 +1,17 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, UseGuards, HttpCode } from '@nestjs/common'
 import { QueryParams } from '@/utils/types'
+import { MessageQueueProducer } from '@/shared/queue'
 import { UserService } from './user.service'
 import { UserGuard } from './user.guard'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
+import { ConsumerMap } from './user.consumer'
 
 @Controller('users')
 export class UserController {
   constructor(
     private userService: UserService,
+    private producer: MessageQueueProducer<ConsumerMap>
   ) {}
 
   @Get('/')
@@ -26,6 +29,15 @@ export class UserController {
     return {
       code: 200,
       data: await this.userService.queryPage(restQuery),
+    }
+  }
+
+  @Post('/queue')
+  async testQueue() {
+    const [result] = await this.producer.publish('message_event', { data: 'Hello, World!' })
+    return {
+      code: 200,
+      ...result as object,
     }
   }
 

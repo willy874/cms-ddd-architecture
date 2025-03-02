@@ -11,7 +11,6 @@ import devConfigLoad from './shared/config/dev'
 import queueConfigLoad from './shared/config/queue'
 import { RoleModule } from './modules/role/role.module'
 import { CqrsModule } from '@nestjs/cqrs'
-import { MessageQueueModule } from './shared/queue'
 
 @Module({
   imports: [
@@ -27,7 +26,6 @@ import { MessageQueueModule } from './shared/queue'
       ],
     }),
     CqrsModule.forRoot(),
-    MessageQueueModule,
     ProductModule,
     UserModule,
     RoleModule,

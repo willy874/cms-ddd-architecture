@@ -1,4 +1,4 @@
-export { MessageQueueProducer } from './queue.producer'
-export { MessageQueueConsumer } from './queue.consumer'
 export { initMessageQueueService } from './queue.microservice'
-export { MessageQueueModule } from './queue.module'
+export { MessageQueueModule, MESSAGE_SERVICE } from './queue.module'
+export { MessageQueueProducer } from './queue.producer'
+export { ConsumerContext } from './queue.consumer'

@@ -1,11 +1,12 @@
-import { Controller } from '@nestjs/common'
-import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices'
+import { RmqContext } from '@nestjs/microservices'
+import { Channel, ConsumeMessage } from 'amqplib'
 
-@Controller()
-export class MessageQueueConsumer {
-  @MessagePattern('message_event')
-  async handleMessage(@Payload() data: unknown, @Ctx() context: RmqContext) {
-    console.log('Received Message from RabbitMQ:', data, context)
-    return { status: 'Message Processed', data, context }
+export class ConsumerContext extends RmqContext {
+  getChannelRef() {
+    return super.getChannelRef() as Channel
+  }
+
+  getMessage() {
+    return super.getMessage() as ConsumeMessage
   }
 }
