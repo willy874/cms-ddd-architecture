@@ -1,11 +1,12 @@
+import { pipe } from 'rxjs'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ValidationPipePlugin } from './utils/validation'
-import { initMessageQueueService } from './shared/queue'
-import { pipe } from 'rxjs'
+import { initMessageQueueService, initEventBusService } from './shared/queue'
 
 const createMicroservices = pipe(
-  initMessageQueueService,
+  initMessageQueueService(),
+  initEventBusService(),
   app => app.startAllMicroservices(),
 )
 

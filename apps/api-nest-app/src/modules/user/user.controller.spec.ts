@@ -46,10 +46,15 @@ describe('UserController', () => {
         data: mockData,
       })
     })
-    it('getUsers', async () => {
-      producerPublish.mockResolvedValue([{ data: 'Hello, World!' }])
-      const res = await userController.testQueue()
-      expect(res).toEqual({ code: 200, data: 'Hello, World!' })
+    it('createUser', async () => {
+      const MOCK_USER_DTO = {
+        username: 'admin',
+        password: 'password',
+        roles: [],
+      }
+      producerPublish.mockResolvedValue([MOCK_USER_DTO])
+      const res = await userController.createUser(MOCK_USER_DTO)
+      expect(res).toEqual({ code: 201, data: MOCK_USER_DTO })
     })
   })
 })

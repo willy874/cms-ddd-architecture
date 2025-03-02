@@ -1,30 +1,35 @@
 import { Controller } from '@nestjs/common'
 import { Ctx, MessagePattern, Payload } from '@nestjs/microservices'
 import { ConsumerContext } from '@/shared/queue'
+import { User } from '@/entities/user.entity'
+import { CreateUserDto } from './create-user.dto'
+import { UserService } from './user.service'
 
-export const MSG_EVENT = 'message_event'
+export const CREATE_USER = 'CREATE_USER'
 
-type MsgEventPayload = { data: string }
-type MsgEventResult = { message: string }
+type CreateUserPayload = CreateUserDto
+type CreateUserResult = User
 
 @Controller()
 export class UserConsumer {
-  @MessagePattern(MSG_EVENT)
-  async handleMessage(@Payload() payload: MsgEventPayload, @Ctx() context: ConsumerContext): Promise<MsgEventResult> {
+  constructor(private userService: UserService) {}
+
+  @MessagePattern(CREATE_USER)
+  async handleCreateUser(@Payload() payload: CreateUserPayload, @Ctx() context: ConsumerContext): Promise<CreateUserResult> {
     const channel = context.getChannelRef()
     const message = context.getMessage()
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const data = await this.userService.insertUser(payload)
       channel.ack(message)
-      return { message: 'Message received!', ...payload }
+      return data
     }
     catch (error) {
       console.error('Order processing failed:', error)
-      channel.nack(message, false, false)
+      throw error
     }
   }
 }
 
 export type ConsumerMap = {
-  [MSG_EVENT]: [MsgEventResult, MsgEventPayload]
+  [CREATE_USER]: [CreateUserResult, CreateUserPayload]
 }

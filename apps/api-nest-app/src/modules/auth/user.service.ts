@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { to } from 'await-to-js'
 import { Injectable } from '@nestjs/common'
-import { CommandBus, QueryBus } from '@nestjs/cqrs'
+import { CommandBus, QueryBus, QueryHandlerNotFoundException, CommandHandlerNotFoundException } from '@nestjs/cqrs'
 import { FindUserQuery } from '@/shared/queries'
-import { LoginDto } from './login.dto'
 import { CreateUserCommand } from '@/shared/commands'
+import { LoginDto } from './login.dto'
 
 export const UserSchema = z.object({
   id: z.number(),
@@ -21,15 +22,27 @@ export class AuthUserService {
       username: dto.username,
       password: dto.password,
     })
-    const result = await this.queryBus.execute(query)
-    return UserSchema.parse(result.data)
+    const [error, result] = await to(this.queryBus.execute(query))
+    if (error instanceof QueryHandlerNotFoundException) {
+      return null
+    }
+    if (error) {
+      throw error
+    }
+    return UserSchema.or(z.null()).parse(result.data)
   }
 
   async getUserById(id: number) {
     const query = new FindUserQuery({
       id,
     })
-    const result = await this.queryBus.execute(query)
+    const [error, result] = await to(this.queryBus.execute(query))
+    if (error instanceof QueryHandlerNotFoundException) {
+      return null
+    }
+    if (error) {
+      throw error
+    }
     return result.data
   }
 
@@ -37,16 +50,29 @@ export class AuthUserService {
     const query = new FindUserQuery({
       username,
     })
-    const result = await this.queryBus.execute(query)
+    const [error, result] = await to(this.queryBus.execute(query))
+    if (error instanceof QueryHandlerNotFoundException) {
+      return null
+    }
+    if (error) {
+      throw error
+    }
     return result.data
   }
 
   async insertUser(dto: { username: string, password: string }) {
-    await this.commandBus.execute(new CreateUserCommand({
+    const command = new CreateUserCommand({
       username: dto.username,
       password: dto.password,
       roles: [],
-    }))
-    return {}
+    })
+    const [error, result] = await to(this.commandBus.execute(command))
+    if (error instanceof CommandHandlerNotFoundException) {
+      return null
+    }
+    if (error) {
+      throw error
+    }
+    return result.data
   }
 }

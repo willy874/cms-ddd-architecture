@@ -5,7 +5,7 @@ import { UserService } from './user.service'
 import { UserGuard } from './user.guard'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
-import { ConsumerMap } from './user.consumer'
+import { ConsumerMap, CREATE_USER } from './user.consumer'
 
 @Controller('users')
 export class UserController {
@@ -32,15 +32,6 @@ export class UserController {
     }
   }
 
-  @Post('/queue')
-  async testQueue() {
-    const [result] = await this.producer.publish('message_event', { data: 'Hello, World!' })
-    return {
-      code: 200,
-      ...result as object,
-    }
-  }
-
   @Post('/search')
   @UseGuards(UserGuard)
   async searchUsers(@Body() body: QueryParams) {
@@ -64,9 +55,10 @@ export class UserController {
   @HttpCode(201)
   @UseGuards(UserGuard)
   async createUser(@Body() body: CreateUserDto) {
+    const [result] = await this.producer.publish(CREATE_USER, body)
     return {
       code: 201,
-      data: await this.userService.insertUser(body),
+      data: result,
     }
   }
 
