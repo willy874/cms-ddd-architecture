@@ -1,10 +1,10 @@
 import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards, Inject } from '@nestjs/common'
 import { TOKEN_TYPE } from '@/shared/constants'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, UserAlreadyExistsException } from '@/shared/error'
-import { CRYPTO_PROVIDER, CryptoService } from '@/shared/util'
+import { CRYPTO_PROVIDER, CryptoService, ZodValidationPipe } from '@/shared/util'
 import { AuthService } from './auth.service'
 import { AuthGuard } from './auth.guard'
-import { LoginDto } from './login.dto'
+import { LoginDto, LoginDtoSchema } from './login.dto'
 import { RegisterDto } from './register.dto'
 
 @Controller('auth')
@@ -16,7 +16,7 @@ export class AuthController {
 
   @Post('/login')
   async login(
-    @Body() body: LoginDto,
+    @Body(new ZodValidationPipe(LoginDtoSchema)) body: LoginDto,
   ) {
     const user = await this.authService.getUserByNameAndPassword({
       username: body.username,
