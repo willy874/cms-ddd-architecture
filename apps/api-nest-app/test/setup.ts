@@ -1,3 +1,5 @@
+// import { Observable } from 'rxjs'
+
 jest.mock('@/shared/cache', () => {
   const cacheModule = jest.requireActual<typeof import('@/shared/cache')>('@/shared/cache')
   const { CACHE_PROVIDER, setCurrentCache } = cacheModule
@@ -57,6 +59,31 @@ jest.mock('@/shared/database', () => {
       module: class {},
       providers: [DatabaseProvider],
       exports: [DatabaseProvider],
+    },
+  }
+})
+
+jest.mock('@/shared/queue', () => {
+  const queueModule = jest.requireActual<typeof import('@/shared/queue')>('@/shared/queue')
+  const queueProvider = {
+    provide: queueModule.MESSAGE_SERVICE,
+    useValue: {
+      connect: jest.fn(),
+      send: jest.fn(),
+      emit: jest.fn(),
+    },
+  }
+  class MessageQueueProducer {
+    publish: jest.Mock
+  }
+  MessageQueueProducer.prototype.publish = jest.fn()
+  return {
+    ...queueModule,
+    MessageQueueProducer,
+    MessageQueueModule: {
+      module: class {},
+      providers: [queueProvider],
+      exports: [queueProvider],
     },
   }
 })

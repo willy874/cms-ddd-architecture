@@ -6,6 +6,7 @@ import type { IRepository } from '@/shared/database'
 import { HASH_SECRET } from '@/shared/constants'
 import { UserController } from './user.controller'
 import { userModuleOptions } from './user.module'
+import { MessageQueueProducer } from '@/shared/queue'
 
 const MOCK_USER: User = {
   id: 1,
@@ -17,7 +18,8 @@ const MOCK_USER: User = {
 describe('UserController', () => {
   let userController: UserController
   let userRepository: IRepository<User>
-  let queryPage = jest.fn()
+  let queryPage: jest.Mock
+  let producerPublish: jest.Mock
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule(userModuleOptions).compile()
@@ -25,6 +27,9 @@ describe('UserController', () => {
 
     userRepository = getRepository(User)
     queryPage = userRepository.queryPage as jest.Mock
+
+    const producer = app.get(MessageQueueProducer)
+    producerPublish = producer.publish as jest.Mock
   })
 
   describe('User', () => {
@@ -40,6 +45,11 @@ describe('UserController', () => {
         code: 200,
         data: mockData,
       })
+    })
+    it('getUsers', async () => {
+      producerPublish.mockResolvedValue([{ data: 'Hello, World!' }])
+      const res = await userController.testQueue()
+      expect(res).toEqual({ code: 200, data: 'Hello, World!' })
     })
   })
 })
