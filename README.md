@@ -15,3 +15,4 @@ cp apps/api-nest-app/.env.example apps/api-nest-app/.env
 ```bash
 docker-compose up
 ```
+
