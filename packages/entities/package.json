@@ -1,5 +1,5 @@
 {
-  "name": "entities",
+  "name": "@packages/entities",
   "version": "1.0.0",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
