@@ -4,3 +4,4 @@ import { Role } from './role.entity'
 import { User } from './user.entity'
 
 export const entities = [User, Product, Role, Permission]
+export { Permission, Product, Role, User }
