@@ -27,7 +27,7 @@ init()
 
     const authMiddleware = createAuthMiddleware()
 
-    if (AUTH_API_PREFIX && AUTH_API_HOST && AUTH_API_PORT) {
+    if (AUTH_API_PORT) {
       app.use(
         AUTH_API_PREFIX, 
         createProxyMiddleware({
@@ -37,7 +37,7 @@ init()
       );
       console.log(`The auth service proxy is using.`);
     }
-    if (USER_API_PREFIX && USER_API_HOST && USER_API_PORT) {
+    if (USER_API_PORT) {
       app.use(
         USER_API_PREFIX, 
         authMiddleware,
