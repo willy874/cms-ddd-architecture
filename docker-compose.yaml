@@ -42,7 +42,7 @@ services:
     # ports:
     #   - "4000:4000"
     env_file:
-      - ./apps/api-nest-app/.env
+      - ./.env
     depends_on:
       - database-service
       - redis-service
