@@ -6,6 +6,11 @@ import { UserService } from './user.service'
 import { UserController } from './user.controller'
 import { TokenService } from './token.service'
 
+interface UserModuleOptions {
+  imports?: ModuleMetadata['imports']
+  providers?: ModuleMetadata['providers']
+}
+
 export const userModuleOptions = {
   imports: [DatabaseModule, CacheModule],
   providers: [UserRepositoryProvider, TokenService, UserService],
@@ -13,10 +18,12 @@ export const userModuleOptions = {
 } satisfies ModuleMetadata
 
 export class UserModule {
-  static register(options: ModuleMetadata) {
+  static register(options: UserModuleOptions) {
     return {
       module: UserModule,
-      ...options,
+      imports: [...options.imports, ...userModuleOptions.imports],
+      providers: [...options.providers, ...userModuleOptions.providers],
+      controllers: [...userModuleOptions.controllers],
     }
   }
 }

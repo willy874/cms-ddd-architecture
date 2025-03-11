@@ -15,7 +15,7 @@ export class RoleModule {
     return {
       module: RoleModule,
       imports: [...metadata.imports, DatabaseModule],
-      providers: [RoleRepositoryProvider, UserRepositoryProvider, RoleService],
+      providers: [...metadata.providers, RoleRepositoryProvider, UserRepositoryProvider, RoleService],
       controllers: [RoleController],
     }
   }

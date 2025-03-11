@@ -14,7 +14,7 @@ export class PermissionModule {
     return {
       module: PermissionModule,
       imports: [...metadata.imports, DatabaseModule],
-      providers: [PermissionRepositoryProvider, PermissionService],
+      providers: [...metadata.providers, PermissionRepositoryProvider, PermissionService],
       controllers: [PermissionController],
     }
   }
