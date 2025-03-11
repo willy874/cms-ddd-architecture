@@ -1,1 +1,1 @@
-export { loadEnv } from './env'
+export { getEnvironment, loadEnv } from '@packages/shared'

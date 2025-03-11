@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import { getEnvironment } from './environment';
+import { getEnvironment } from '@packages/shared';
 
 let redis: Redis | null = null;
 
