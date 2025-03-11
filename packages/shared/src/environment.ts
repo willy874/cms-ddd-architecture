@@ -7,18 +7,6 @@ const EnvironmentSchema = z.object({
   NODE_ENV: z.string().default('development'),
   APP_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
   API_PREFIX: z.string().default('apis'),
-  // gateway service
-  GATEWAY_API_PREFIX: z.string().default('apis'),
-  GATEWAY_API_HOST: z.string().default('localhost'),
-  GATEWAY_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
-  // auth service
-  AUTH_API_PREFIX: z.string().default('apis/auth'),
-  AUTH_API_HOST: z.string().default('localhost'),
-  AUTH_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
-  // user service
-  USER_API_PREFIX: z.string().default('apis/user'),
-  USER_API_HOST: z.string().default('localhost'),
-  USER_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
   // database service
   DATABASE_HOST: z.string().default('localhost'),
   DATABASE_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
@@ -33,6 +21,26 @@ const EnvironmentSchema = z.object({
   // cache service
   CACHE_HOST: z.string().default('localhost'),
   CACHE_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
+  // gateway service
+  GATEWAY_API_PREFIX: z.string().default('apis'),
+  GATEWAY_API_HOST: z.string().default('localhost'),
+  GATEWAY_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
+  // auth service
+  AUTH_API_PREFIX: z.string().default('apis/auth'),
+  AUTH_API_HOST: z.string().default('localhost'),
+  AUTH_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
+  // user service
+  USER_API_PREFIX: z.string().default('apis/users'),
+  USER_API_HOST: z.string().default('localhost'),
+  USER_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
+  // role service
+  ROLE_API_PREFIX: z.string().default('apis/roles'),
+  ROLE_API_HOST: z.string().default('localhost'),
+  ROLE_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
+  // permission service
+  PERMISSION_API_PREFIX: z.string().default('apis/permissions'),
+  PERMISSION_API_HOST: z.string().default('localhost'),
+  PERMISSION_API_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
 })
 
 let env: Record<string, string | undefined> | null = null

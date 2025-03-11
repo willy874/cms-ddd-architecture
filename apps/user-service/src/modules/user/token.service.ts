@@ -18,7 +18,9 @@ class JwtService {
 
 @Injectable()
 export class TokenService {
-  constructor(private jwtService = new JwtService()) {}
+  private jwtService = new JwtService()
+  
+  constructor() {}
 
   async isAccessTokenExpired(token: string) {
     try {

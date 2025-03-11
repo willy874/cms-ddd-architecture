@@ -71,6 +71,7 @@ next-env.d.ts
 .env.production
 .env.production.local
 !.env.example
+!.env.*.example
 
 # temp directory
 .temp
