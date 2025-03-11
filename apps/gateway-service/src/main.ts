@@ -11,46 +11,58 @@ async function init() {
 
 init()
   .then(() => {
-    const {
-      // GATEWAY_API_PREFIX,
-      GATEWAY_API_PORT,
-      // GATEWAY_API_HOST,
-      AUTH_API_PREFIX,
-      AUTH_API_HOST,
-      AUTH_API_PORT,
-      USER_API_PREFIX,
-      USER_API_HOST,
-      USER_API_PORT,
-    } = getEnvironment();
-
+    const env = getEnvironment();
     const app = express();
-
     const authMiddleware = createAuthMiddleware()
 
-    if (AUTH_API_PORT) {
+    if (env.AUTH_API_PORT) {
       app.use(
-        AUTH_API_PREFIX, 
+        env.AUTH_API_PREFIX, 
         createProxyMiddleware({
-          target: `http://${AUTH_API_HOST}:${AUTH_API_PORT}`,
+          target: `http://${env.AUTH_API_HOST}:${env.AUTH_API_PORT}`,
           changeOrigin: true,
         })
       );
       console.log(`The auth service proxy is using.`);
     }
-    if (USER_API_PORT) {
+    if (env.USER_API_PORT) {
       app.use(
-        USER_API_PREFIX, 
+        env.USER_API_PREFIX, 
         authMiddleware,
         createProxyMiddleware({
-          target: `http://${USER_API_HOST}:${USER_API_PORT}`,
+          target: `http://${env.USER_API_HOST}:${env.USER_API_PORT}`,
           changeOrigin: true,
         })
       );
       console.log(`The user service proxy is using.`);
     }
 
-    if (GATEWAY_API_PORT) {
-      app.listen(GATEWAY_API_PORT, () => {
+    if (env.ROLE_API_PORT) {
+      app.use(
+        env.ROLE_API_PREFIX, 
+        authMiddleware,
+        createProxyMiddleware({
+          target: `http://${env.ROLE_API_HOST}:${env.ROLE_API_PORT}`,
+          changeOrigin: true,
+        })
+      );
+      console.log(`The role service proxy is using.`);
+    }
+
+    if (env.PERMISSION_API_PORT) {
+      app.use(
+        env.PERMISSION_API_PREFIX, 
+        authMiddleware,
+        createProxyMiddleware({
+          target: `http://${env.PERMISSION_API_HOST}:${env.PERMISSION_API_PORT}`,
+          changeOrigin: true,
+        })
+      );
+      console.log(`The permission service proxy is using.`);
+    }
+
+    if (env.GATEWAY_API_PORT) {
+      app.listen(env.GATEWAY_API_PORT, () => {
         console.log(`The gateway is running.`);
       })
     }
