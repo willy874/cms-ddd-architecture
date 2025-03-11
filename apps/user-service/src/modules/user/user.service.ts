@@ -65,8 +65,11 @@ export class UserService {
     return this.userRepository.save({ ...rest, roles })
   }
 
-  updateUser(id: number, payload: UpdateUserDto) {
-    return this.userRepository.update(id, { ...payload })
+  async updateUser(id: number, payload: UpdateUserDto) {
+    const { roles: roleNames, ...rest } = payload
+    const findRoleNames = this.roleRepository.createFindOperator('in', roleNames,  true, true)
+    const roles = await this.roleRepository.findBy({ name: findRoleNames })
+    return this.userRepository.update(id, { ...rest, roles })
   }
 
   deleteUser(id: number) {
