@@ -2,10 +2,9 @@ import { jwtVerify } from 'jose';
 import { to } from 'await-to-js';
 import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
+import { ACCESS_SECRET } from '@packages/shared';
 import { getEnvironment } from './environment';
 import { getRedis } from './redis';
-
-const ACCESS_SECRET = 'ACCESS_SECRET'
 
 const AuthInfoSchema = z.object({})
 
