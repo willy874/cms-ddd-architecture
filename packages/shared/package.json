@@ -12,8 +12,7 @@
   "description": "",
   "dependencies": {
     "crypto-js": "4.2.0",
-    "dotenv": "16.4.7",
-    "zod": "3.24.2"
+    "dotenv": "16.4.7"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "5.1.1",
@@ -26,5 +25,8 @@
     "rollup-plugin-esbuild": "6.2.1",
     "ts-node": "10.9.1",
     "typescript": "5.7.3"
+  },
+  "peerDependencies": {
+    "zod": ">=3.24.2"
   }
 }

@@ -1,6 +1,6 @@
 import { QueryParams } from './utils/types'
 import { repositoriesMap } from './cache'
-import { DeepPartial, FindManyOptions, FindOneOptions, FindOptionsWhere, Repository as OrmRepository, SaveOptions, ObjectLiteral, EntityTarget } from 'typeorm'
+import { DeepPartial, FindManyOptions, FindOneOptions, FindOptionsWhere, Repository as OrmRepository, SaveOptions, ObjectLiteral, EntityTarget, FindOperator, FindOperatorType } from 'typeorm'
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { likeSearchBy, orderBy, queryPipe, filterBy, QueryPipeFn } from './query.util'
 
@@ -18,6 +18,10 @@ export class Repository<Entity extends ObjectLiteral> {
     this.fields = Object.keys(repository.metadata.propertiesMap)
     this.queryPipe = queryPipe(repository)
     repositoriesMap.set(repository.metadata.target as EntityTarget<Entity>, this as any)
+  }
+
+  createFindOperator<T>(type: FindOperatorType, value: T | FindOperator<T>, useParameter?: boolean, multipleParameters?: boolean, getSql?: (aliasPath: string) => string, objectLiteralParameters?: ObjectLiteral): FindOperator<any> {
+    return new FindOperator(type, value, useParameter, multipleParameters, getSql, objectLiteralParameters)
   }
 
   async find(options?: FindManyOptions<Entity>): Promise<Entity[]> {
