@@ -85,6 +85,16 @@ const aliasPlugin = () => {
   });
 };
 
+const onwarn = (warning, warn) => {
+  if (
+    warning.code === "CIRCULAR_DEPENDENCY" &&
+    warning.ids.some((id) => id.includes(path.normalize("src/entities")))
+  ) {
+    return;
+  }
+  warn(warning);
+}
+
 module.exports = [
   {
     input: path.resolve(rootPath, 'src/main.ts'),
@@ -107,6 +117,7 @@ module.exports = [
       }),
     ],
     external,
+    onwarn,
   },
   {
     input: path.resolve(rootPath, 'src/main.ts'),
@@ -118,5 +129,6 @@ module.exports = [
       dts.default(),
     ],
     external,
+    onwarn,
   }
 ];

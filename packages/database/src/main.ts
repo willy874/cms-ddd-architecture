@@ -1,7 +1,9 @@
-import { Permission } from './permission.entity'
-import { Product } from './product.entity'
-import { Role } from './role.entity'
-import { User } from './user.entity'
+import { Permission } from './entities/permission.entity'
+import { Product } from './entities/product.entity'
+import { Role } from './entities/role.entity'
+import { User } from './entities/user.entity'
 
-export const entities = [User, Product, Role, Permission]
 export { Permission, Product, Role, User }
+export { Database } from './Database'
+export { Repository } from './Repository'
+export { repositoriesMap } from './cache'
