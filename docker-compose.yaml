@@ -15,7 +15,7 @@ services:
     image: redis:7
     networks:
       - app-network
-    container_name: redis-service
+    container_name: cache-service
     environment:
       CACHE_PORT: 6379
       CACHE_HOST: cache-service
@@ -45,7 +45,7 @@ services:
       - ./.env
     depends_on:
       - database-service
-      - redis-service
+      - cache-service
       - queue-service
     command: pnpm --filter api-nest-app start:dev
   frontend-service:
