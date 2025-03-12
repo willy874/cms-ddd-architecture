@@ -1,1 +1,0 @@
-export { getEnvironment, loadEnv } from '@packages/shared'
