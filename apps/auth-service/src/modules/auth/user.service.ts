@@ -1,66 +1,59 @@
 import { z } from 'zod'
+import { Axios } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { CommandBus, QueryBus, QueryHandlerNotFoundException, CommandHandlerNotFoundException } from '@nestjs/cqrs'
-import { FindUserQuery } from '@/shared/queries'
-import { CreateUserCommand } from '@/shared/commands'
+import { getEnvironment } from '@packages/shared'
 import { LoginDto } from './login.dto'
 import { RegisterDto } from './register.dto'
 
-const executeCondition = <T, R>(execute: () => Promise<T>, cb: (res: T) => R): Promise<Awaited<R>> => {
-  return execute()
-    .then(cb)
-    .catch((error) => {
-      if (error instanceof QueryHandlerNotFoundException) {
-        return null
-      }
-      if (error instanceof CommandHandlerNotFoundException) {
-        return null
-      }
-      if (error) {
-        throw error
-      }
-    })
-}
-
-export const UserSchema = z.object({
+const UserSchema = z.object({
   id: z.number(),
+})
+
+const HttpResultSchema = z.object({
+  data: UserSchema,
 })
 
 @Injectable()
 export class AuthUserService {
-  constructor(
-    private queryBus: QueryBus,
-    private commandBus: CommandBus,
-  ) {}
+  private http: Axios
+
+  constructor() {
+    const env = getEnvironment()
+    this.http = new Axios({
+      baseURL: `http://${env.USER_API_HOST}:${env.USER_API_PORT}/${env.USER_API_PREFIX}`,
+    })
+  }
 
   async getUserByNameAndPassword(dto: LoginDto) {
-    const query = new FindUserQuery({
+    const query = {
       username: dto.username,
       password: dto.password,
-    })
-    return executeCondition(() => this.queryBus.execute(query), result => UserSchema.or(z.null()).parse(result.data))
+    }
+    const { data } = await this.http.get('/', { params: query })
+    const result = HttpResultSchema.parse(data)
+    return UserSchema.or(z.null()).parse(result.data)
   }
 
   async getUserById(id: number) {
-    const query = new FindUserQuery({
-      id,
-    })
-    return executeCondition(() => this.queryBus.execute(query), result => result.data)
+    const res = await this.http.get(`/${id}`)
+    return UserSchema.parse(res.data.data)
   }
 
   async getUserByName(username: string) {
-    const query = new FindUserQuery({
-      username,
-    })
-    return executeCondition(() => this.queryBus.execute(query), result => result.data)
+    const query = { username }
+    const { data } = await this.http.get('/', { params: query })
+    const result = HttpResultSchema.parse(data)
+    return UserSchema.or(z.null()).parse(result.data)
   }
 
   async insertUser(dto: RegisterDto) {
-    const command = new CreateUserCommand({
+    const command = {
       username: dto.username,
       password: dto.password,
       roles: [],
-    })
-    return executeCondition(() => this.commandBus.execute(command), result => result.data)
+    }
+    const { data } = await this.http.post('/', command)
+    const result = HttpResultSchema.parse(data)
+    return UserSchema.parse(result.data)
   }
 }
