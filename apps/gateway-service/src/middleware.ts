@@ -2,13 +2,12 @@ import { jwtVerify } from 'jose';
 import { to } from 'await-to-js';
 import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
-import { getEnvironment, ACCESS_SECRET } from '@packages/shared';
+import { ACCESS_SECRET } from '@packages/shared';
 import { getRedis } from './redis';
 
 const AuthInfoSchema = z.object({})
 
 export function createAuthMiddleware() {
-  const env = getEnvironment();
   const secret = new TextEncoder().encode(ACCESS_SECRET);
   const redis = getRedis();
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +26,7 @@ export function createAuthMiddleware() {
       res.status(401).send('Unauthorized');
       return;
     }
-    if (result) {
+    if (!result) {
       res.status(401).send('Unauthorized');
       return;
     }

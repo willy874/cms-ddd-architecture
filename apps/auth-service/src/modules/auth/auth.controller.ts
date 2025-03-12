@@ -5,6 +5,7 @@ import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailE
 import { AuthService } from './auth.service'
 import { LoginDto, LoginDtoSchema } from './login.dto'
 import { RegisterDto } from './register.dto'
+import { AuthGuard } from './auth.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -59,6 +60,7 @@ export class AuthController {
   }
 
   @Get('/me')
+  @UseGuards(AuthGuard)
   async me(
     @Headers('authorization') authorization: string
   ) {

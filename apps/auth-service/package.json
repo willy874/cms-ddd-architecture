@@ -26,6 +26,7 @@
     "@packages/database": "workspace:*",
     "@packages/shared": "workspace:*",
     "axios": "1.8.2",
+    "await-to-js": "3.0.0",
     "cache-manager": "6.4.0",
     "ioredis": "5.5.0",
     "jose": "6.0.8",
