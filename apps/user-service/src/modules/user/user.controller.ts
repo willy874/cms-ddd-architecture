@@ -1,8 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Query, Param, Body, UseGuards, HttpCode } from '@nestjs/common'
+import { Controller, Get, Post, Put, Delete, Query, Param, Body, HttpCode } from '@nestjs/common'
 import { QueryParams } from '@/shared/types'
 import { UserService } from './user.service'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
+import { LoginDto } from './login.dto'
+import { UserAlreadyExistsException } from '@/shared/errors'
+
+const asArray = <T>(value?: T | T[]) => Array.isArray(value) ? [...value] : (value ? [value] : [])
+
+const mergeArray = <T>(value: T | T[], defaultValue: T[]) => Array.isArray(value) ? [...value] : defaultValue
 
 @Controller('users')
 export class UserController {
@@ -10,31 +16,50 @@ export class UserController {
     private userService: UserService,
   ) {}
 
-  @Get('/')
-  async getUsers(
-    @Query() query: QueryParams & { queryToken?: string },
+  @Get('/query')
+  async getPageUsers(
+    @Query() query: QueryParams,
   ) {
-    const { queryToken, ...restQuery } = query
-    if (queryToken) {
-      return {
-        code: 200,
-        data: await this.userService.queryByToken(queryToken),
-      }
-    }
+    query.exclude = mergeArray(asArray(query.exclude), ['password'])
     return {
       code: 200,
-      data: await this.userService.searchQuery(restQuery),
+      data: await this.userService.pageQuery(query),
     }
   }
 
-  @Post('/search')
-  async searchUsers(@Body() body: QueryParams) {
-    const data = await this.userService.createCache(body, p => this.userService.searchQuery(p))
+  @Get('/query/:token')
+  async getUsersByToken(
+    @Param('token') token: string,
+  ) {
+    return {
+      code: 200,
+      data: await this.userService.queryByToken(token),
+    }
+  }
+
+  @Post('/query')
+  async queryUsers(@Body() body: QueryParams) {
+    body.exclude = mergeArray(asArray(body.exclude), ['password'])
+    const data = await this.userService.createCache(body, p => this.userService.pageQuery(p))
     return {
       code: 200,
       data,
     }
   }
+
+  @Get('/login-check')
+  async getUserByLogin(
+    @Body() body: LoginDto,
+  ) {
+    return {
+      code: 200,
+      data: await this.userService.getUserByNameAndPassword({
+        username: body.username,
+        password: body.password,
+      }),
+    }
+  }
+
 
   @Get('/:id')
   async getUserById(@Param('id') id: number) {
@@ -47,6 +72,10 @@ export class UserController {
   @Post('/')
   @HttpCode(201)
   async createUser(@Body() body: CreateUserDto) {
+    const user = await this.userService.getUserNamesByName(body.username)
+    if (user) {
+      throw new UserAlreadyExistsException()
+    }
     const result = await this.userService.insertUser(body)
     return {
       code: 201,

@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Get, HttpCode, Query, Headers, UseGuards } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Headers, UseGuards } from '@nestjs/common'
 import { TOKEN_TYPE, hash } from '@packages/shared'
 import { ZodValidationPipe } from '@/shared/utils/validation'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException, UserAlreadyExistsException } from '@/shared/error'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException } from '@/shared/error'
 import { AuthService } from './auth.service'
 import { LoginDto, LoginDtoSchema } from './login.dto'
 import { RegisterDto } from './register.dto'
@@ -15,7 +15,7 @@ export class AuthController {
   async login(
     @Body(new ZodValidationPipe(LoginDtoSchema)) body: LoginDto,
   ) {
-    const user = await this.authService.getUserByNameAndPassword({
+    const user = await this.authService.loginCheck({
       username: body.username,
       password: hash(body.password),
     })
@@ -38,9 +38,6 @@ export class AuthController {
   async register(
     @Body() body: RegisterDto,
   ) {
-    if (await this.authService.isAlreadyExistsByUsername(body.username)) {
-      throw new UserAlreadyExistsException()
-    }
     const createDto = {
       username: body.username,
       password: hash(body.password),
@@ -53,10 +50,9 @@ export class AuthController {
   }
 
   @Get('/check')
-  checkByUsername(
-    @Query('username') username: string
-  ) {
-    return this.authService.isAlreadyExistsByUsername(username)
+  @UseGuards(AuthGuard)
+  checkByUsername() {
+    return { code: 200, date: true }
   }
 
   @Get('/me')

@@ -24,12 +24,12 @@ export class AuthUserService {
     })
   }
 
-  async getUserByNameAndPassword(dto: LoginDto) {
+  async loginCheck(dto: LoginDto) {
     const query = {
       username: dto.username,
       password: dto.password,
     }
-    const { data } = await this.http.get('/', { params: query })
+    const { data } = await this.http.get('/login-check', { params: query })
     const result = HttpResultSchema.parse(data)
     return UserSchema.or(z.null()).parse(result.data)
   }
@@ -37,13 +37,6 @@ export class AuthUserService {
   async getUserById(id: number) {
     const res = await this.http.get(`/${id}`)
     return UserSchema.parse(res.data.data)
-  }
-
-  async getUserByName(username: string) {
-    const query = { username }
-    const { data } = await this.http.get('/', { params: query })
-    const result = HttpResultSchema.parse(data)
-    return UserSchema.or(z.null()).parse(result.data)
   }
 
   async insertUser(dto: RegisterDto) {

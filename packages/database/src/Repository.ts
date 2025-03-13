@@ -42,19 +42,14 @@ export class Repository<Entity extends ObjectLiteral> {
     await this.repository.delete(id)
   }
 
-  async searchQuery(params: QueryParams): Promise<QueryPageResult<Entity>> {
-    const { page, pageSize, filter, searchMode = 'equal', search, searchField, sort } = params
-    const fields = searchField && searchField.length ? searchField : this.fields
-    const [list, total] = await this.queryPipe(
-      filterBy(filter),
-      searchBy(searchMode, search, fields),
+  async searchQuery(params: QueryParams): Promise<[Entity[], number]> {
+    const { page, pageSize, filter, exclude, search, sort } = params
+    const result = await this.queryPipe(
+      filterBy(filter, exclude),
+      searchBy(search, this.fields),
       orderBy(sort),
       pageBy(page, pageSize),
     ).getManyAndCount()
-    return {
-      list,
-      page,
-      total,
-    }
+    return result
   }
 }

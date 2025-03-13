@@ -4,6 +4,7 @@ import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
 import { AuthUserService } from './user.service'
 import { RegisterDto } from './register.dto'
 import { TokenService } from './token.service'
+import { LoginDto } from './login.dto'
 
 const JwtPayloadSchema = z.object({
   uid: z.number(),
@@ -39,17 +40,12 @@ export class AuthService {
     private userService: AuthUserService,
   ) {}
 
-  getUserByNameAndPassword(dto: { username: string, password: string }) {
-    return this.userService.getUserByNameAndPassword(dto)
+  loginCheck(dto: LoginDto) {
+    return this.userService.loginCheck(dto)
   }
 
   createUser(dto: RegisterDto) {
     this.userService.insertUser(dto)
-  }
-
-  async isAlreadyExistsByUsername(username: string) {
-    const user = await this.userService.getUserByName(username)
-    return !!user
   }
 
   async generateTokens(uid: number) {
