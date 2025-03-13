@@ -14,6 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
   })
+  // app.useGlobalInterceptors()
   app
     .setGlobalPrefix(process.env.API_PREFIX || '')
     .useGlobalPipes(new ValidationPipe())

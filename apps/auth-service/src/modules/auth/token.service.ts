@@ -1,54 +1,69 @@
-import { Injectable,  } from '@nestjs/common'
-import { jwtVerify, SignJWT } from 'jose'
+import { Injectable } from '@nestjs/common'
+import { jwtVerify, SignJWT, errors } from 'jose'
 import { ACCESS_SECRET, QUERY_SECRET, REFRESH_SECRET } from '@packages/shared'
  
 class JwtService {
-  verify(token: string, secret: string) {
-    return jwtVerify(token, new TextEncoder().encode(secret))
+  private secret: Uint8Array
+  constructor(secret: string) {
+    this.secret = new TextEncoder().encode(secret)
   }
 
-  sign(payload: object, secret: string, expiresIn: string) {
+  async isExpired(token: string) {
+    try {
+      await jwtVerify(token, this.secret)
+      return false
+    } catch (error) {
+      if (error instanceof errors.JWTExpired) {
+        return true
+      }
+      throw error
+    }
+  }
+
+  verify(token: string) {
+    return jwtVerify(token, this.secret)
+  }
+
+  sign(payload: object, expiresIn: string) {
     return new SignJWT({ ...payload })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime(expiresIn)
-      .sign(new TextEncoder().encode(secret));
+      .sign(this.secret);
   }
 }
 
 @Injectable()
 export class TokenService {
-  private jwtService = new JwtService()
-  
-  constructor() {}
-
-  async isAccessTokenExpired(token: string) {
-    try {
-      return await this.jwtService.verify(token, ACCESS_SECRET)
-    }
-    catch (error) {
-      return Promise.resolve(false)
-    }
-  }
-
-  async isRefreshTokenExpired(token: string) {
-    try {
-      return await this.jwtService.verify(token, REFRESH_SECRET)
-    }
-    catch (error) {
-      return Promise.resolve(false)
-    }
-  }
+  private accessJwtService = new JwtService(ACCESS_SECRET)
+  private refreshJwtService = new JwtService(REFRESH_SECRET)
+  private queryJwtService = new JwtService(QUERY_SECRET)
 
   createAccessToken(payload: object) {
-    return this.jwtService.sign(payload, ACCESS_SECRET,  '1h')
+    return this.accessJwtService.sign(payload,  '1h')
   }
 
+  isAccessTokenExpired(token: string) {
+    return this.accessJwtService.isExpired(token)
+  }
+
+  isAccessTokenValid(token: string) {
+    return this.accessJwtService.verify(token)
+  }
+  
   createRefreshToken(payload: object) {
-    return this.jwtService.sign(payload, ACCESS_SECRET,  '1h')
+    return this.refreshJwtService.sign(payload, '1d')
+  }
+
+  isRefreshTokenExpired(token: string) {
+    return this.refreshJwtService.isExpired(token)
+  }
+
+  isRefreshTokenValid(token: string) {
+    return this.refreshJwtService.verify(token)
   }
 
   createQueryToken(payload: object) {
-    return this.jwtService.sign(payload, QUERY_SECRET, '5m')
+    return this.queryJwtService.sign(payload, '5m')
   }
 }

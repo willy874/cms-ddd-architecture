@@ -1,15 +1,13 @@
-import { jwtVerify } from 'jose';
+import { jwtVerify, errors } from 'jose';
 import { to } from 'await-to-js';
 import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
 import { ACCESS_SECRET } from '@packages/shared';
-import { getRedis } from './redis';
 
 const AuthInfoSchema = z.object({})
 
 export function createAuthMiddleware() {
   const secret = new TextEncoder().encode(ACCESS_SECRET);
-  const redis = getRedis();
   return async (req: Request, res: Response, next: NextFunction) => {
     const authorization = req.headers['authorization'];
     if (!authorization) {
@@ -23,24 +21,14 @@ export function createAuthMiddleware() {
     }
     const [jwtError, result] = await to(jwtVerify(token, secret))
     if (jwtError) {
+      if (jwtError instanceof errors.JWTExpired) {
+        res.status(401).send('Unauthorized');
+        return;
+      }
       res.status(401).send('Unauthorized');
       return;
     }
     if (!result) {
-      res.status(401).send('Unauthorized');
-      return;
-    }
-    const [redisError, info] = await to(redis.get(authorization))
-    if (redisError) {
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    if (!info) {
-      res.status(401).send('Unauthorized');
-      return;
-    }
-    const [parseError] = await to(Promise.resolve().then(() => AuthInfoSchema.parse(JSON.parse(info))))
-    if (parseError) {
       res.status(401).send('Unauthorized');
       return;
     }
