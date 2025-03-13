@@ -1,4 +1,5 @@
 import { FindOperator, Like, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm'
+import { z } from 'zod'
 
 export type QueryFn<T extends ObjectLiteral> = (query: SelectQueryBuilder<T>) => SelectQueryBuilder<T>
 export type QueryPipeFn<T extends ObjectLiteral> = (...args: QueryFn<T>[]) => SelectQueryBuilder<T>
@@ -21,7 +22,10 @@ const condOrder = (value: string) => {
   return 'ASC'
 }
 
-export function orderBy<T extends ObjectLiteral>(sorts: string | string[] = []): QueryFn<T> {
+export function orderBy<T extends ObjectLiteral>(sorts?: string | string[]): QueryFn<T> {
+  if (!sorts) {
+    return (query) => query
+  }
   const pipeData: [string, 'DESC' | 'ASC'][] = []
   for (const value of asArray(sorts)) {
     const order = condOrder(value)
@@ -37,38 +41,62 @@ export function orderBy<T extends ObjectLiteral>(sorts: string | string[] = []):
   }
 }
 
-export function searchBy<T extends ObjectLiteral>(fields: Record<string, unknown>): QueryFn<T> {
-  return (query) => {
-    const where: [string, unknown][] = []
-    for (const [field, value] of Object.entries(fields)) {
-      where.push([field, value])
+const KeywordMatch = z.tuple([
+  z.union([z.literal('like'), z.literal('equal')]),
+  z.string(),
+  z.union([z.string(), z.array(z.string())]),
+])
+
+export function searchBy<T extends ObjectLiteral>(mode: 'like' | 'equal', search: string, fields: string | string[]): QueryFn<T> {
+  if (mode === 'equal') {
+    return (query) => {
+      const where: [string, string][] = []
+      for (const [field, value] of Object.entries(fields)) {
+        where.push([field, value])
+      }
+      if (where.length) {
+        return query.andWhere(Object.fromEntries(where))
+      }
+      return query
     }
-    if (where.length) {
-      return query.andWhere(Object.fromEntries(where))
-    }
-    return query
   }
+  if (mode === 'like') {
+    return (query) => {
+      const where: [string, FindOperator<string>][] = []
+      for (const field of asArray(fields)) {
+        where.push([field, new FindOperator('like', `%${search}%`)])
+      }
+      if (search && where.length) {
+        return query.andWhere(Object.fromEntries(where))
+      }
+      return query
+    }
+  }
+  return (query) => query
 }
 
-export function likeSearchBy<T extends ObjectLiteral>(fields: string | string[], search?: string): QueryFn<T> {
-  return (query) => {
-    const where: [string, FindOperator<string>][] = []
-    for (const field of asArray(fields)) {
-      where.push([field, Like(`%${search}%`)])
-    }
-    if (search && where.length) {
-      return query.andWhere(Object.fromEntries(where))
-    }
-    return query
+export function filterBy<T extends ObjectLiteral>(fields?: string | string[]): QueryFn<T> {
+  if (!fields) {
+    return (query) => query
   }
-}
-
-export function filterBy<T extends ObjectLiteral>(fields: string | string[] = []): QueryFn<T> {
   return (query) => {
     const selection = asArray(fields)
     if (selection.length) {
       return query.select(selection)
     }
     return query
+  }
+}
+
+
+export function pageBy<T extends ObjectLiteral>(page?: number, pageSize?: number): QueryFn<T> {
+  if (!page) {
+    return (query) => query
+  }
+  if (!pageSize) {
+    return (query) => query
+  }
+  return (query) => {
+    return query.skip((page - 1) * pageSize).take(pageSize)
   }
 }

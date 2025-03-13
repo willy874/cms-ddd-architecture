@@ -7,3 +7,5 @@ export { Permission, Product, Role, User }
 export { Database } from './Database'
 export { Repository } from './Repository'
 export { repositoriesMap } from './cache'
+
+export type { QueryParams, QueryPageResult } from './utils/types'

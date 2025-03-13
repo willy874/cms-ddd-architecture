@@ -23,13 +23,13 @@ export class UserController {
     }
     return {
       code: 200,
-      data: await this.userService.queryPage(restQuery),
+      data: await this.userService.searchQuery(restQuery),
     }
   }
 
   @Post('/search')
   async searchUsers(@Body() body: QueryParams) {
-    const data = await this.userService.createCache(body, p => this.userService.queryPage(p))
+    const data = await this.userService.createCache(body, p => this.userService.searchQuery(p))
     return {
       code: 200,
       data,

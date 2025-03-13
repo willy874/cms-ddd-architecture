@@ -18,8 +18,8 @@ export class RoleService {
     return this.roleRepository.findOne({ where: { id } })
   }
 
-  queryPage(params: QueryParams) {
-    return this.roleRepository.queryPage(params)
+  searchQuery(params: QueryParams) {
+    return this.roleRepository.searchQuery(params)
   }
 
   insertRole(payload: CreateRoleDto) {

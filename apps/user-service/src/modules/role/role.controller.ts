@@ -16,7 +16,7 @@ export class RoleController {
   ) {
     return {
       code: 200,
-      data: await this.roleService.queryPage(query),
+      data: await this.roleService.searchQuery(query),
     }
   }
 

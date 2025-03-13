@@ -35,8 +35,8 @@ export class UserService {
     return this.userRepository.findOne({ where: { username } })
   }
 
-  queryPage(params: QueryParams): Promise<QueryPageResult> {
-    return this.userRepository.queryPage(params)
+  searchQuery(params: QueryParams): Promise<QueryPageResult> {
+    return this.userRepository.searchQuery(params)
   }
 
   async createCache<T extends QueryParams>(params: T, queryFn: (p: T) => Promise<unknown>) {

@@ -1,14 +1,8 @@
-import { QueryParams } from './utils/types'
+import { QueryPageResult, QueryParams } from './utils/types'
 import { repositoriesMap } from './cache'
 import { DeepPartial, FindManyOptions, FindOneOptions, FindOptionsWhere, Repository as OrmRepository, SaveOptions, ObjectLiteral, EntityTarget, FindOperator, FindOperatorType } from 'typeorm'
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { likeSearchBy, orderBy, queryPipe, filterBy, QueryPipeFn } from './query.util'
-
-export type QueryPageResult<T = any> = {
-  list: T[]
-  page: number
-  total: number
-}
+import { orderBy, queryPipe, filterBy, QueryPipeFn, pageBy, searchBy } from './query.util'
 
 export class Repository<Entity extends ObjectLiteral> {
   private fields: string[] = []
@@ -48,13 +42,14 @@ export class Repository<Entity extends ObjectLiteral> {
     await this.repository.delete(id)
   }
 
-  async queryPage(params: QueryParams): Promise<QueryPageResult<Entity>> {
-    const { page = 1, pageSize = 10, filter, searchField, search, sort } = params
+  async searchQuery(params: QueryParams): Promise<QueryPageResult<Entity>> {
+    const { page, pageSize, filter, searchMode = 'equal', search, searchField, sort } = params
+    const fields = searchField && searchField.length ? searchField : this.fields
     const [list, total] = await this.queryPipe(
       filterBy(filter),
-      likeSearchBy(searchField || this.fields, search),
+      searchBy(searchMode, search, fields),
       orderBy(sort),
-      query => query.skip((page - 1) * pageSize).take(pageSize),
+      pageBy(page, pageSize),
     ).getManyAndCount()
     return {
       list,
