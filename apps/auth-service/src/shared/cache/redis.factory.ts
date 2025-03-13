@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
-import { CacheRepository, CacheService } from './cache.repository'
-import { getEnvironment } from '../config/env'
+import { getEnvironment } from '@packages/shared'
+import { CacheRepository, ICacheRepository } from './cache.repository'
 
 export const cacheFactory = () => {
   const { CACHE_HOST, CACHE_PORT } = getEnvironment()
@@ -8,7 +8,7 @@ export const cacheFactory = () => {
     host: CACHE_HOST,
     port: CACHE_PORT,
   })
-  return new CacheService({
+  return new CacheRepository({
     get: async (key: string) => {
       return redis.get(key)
     },
@@ -23,5 +23,5 @@ export const cacheFactory = () => {
       await redis.del(key)
       return !!oldValue
     },
-  } satisfies CacheRepository)
+  } satisfies ICacheRepository)
 }

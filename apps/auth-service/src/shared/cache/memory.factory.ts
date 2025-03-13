@@ -1,9 +1,9 @@
 import { createCache } from 'cache-manager'
-import { CacheRepository, CacheService } from './cache.repository'
+import { CacheRepository, ICacheRepository } from './cache.repository'
 
 export const cacheFactory = () => {
   const cache = createCache()
-  return new CacheService({
+  return new CacheRepository({
     get: async (key: string) => {
       return cache.get(key)
     },
@@ -13,5 +13,5 @@ export const cacheFactory = () => {
     del: async (key: string) => {
       return cache.del(key)
     },
-  } satisfies CacheRepository)
+  } satisfies ICacheRepository)
 }

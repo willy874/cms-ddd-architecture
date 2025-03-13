@@ -1,11 +1,11 @@
-export type CacheRepository = {
+export interface ICacheRepository {
   set: (key: string, value: string, ttl?: number) => Promise<string>
   get: (key: string) => Promise<string | null>
   del: (key: string) => Promise<boolean>
 }
 
-export class CacheService {
-  constructor(private cache: CacheRepository) {}
+export class CacheRepository implements ICacheRepository{
+  constructor(private cache: ICacheRepository) {}
 
   set(key: string, value: string, ttl?: number): Promise<string> {
     return this.cache.set(key, value, ttl)
@@ -15,7 +15,7 @@ export class CacheService {
     return this.cache.get(key)
   }
 
-  async del(key: string): Promise<boolean> {
+  del(key: string): Promise<boolean> {
     return this.cache.del(key)
   }
 }

@@ -1,3 +1,6 @@
-export { DatabaseModule, DATABASE_PROVIDER } from './database.module'
-
 export { Database } from '@packages/database'
+export { DATABASE_PROVIDER } from './database.provider'
+export { ROLE_REPOSITORY, RoleRepository } from './role.repository'
+export { USER_REPOSITORY, UserRepository } from './user.repository'
+export { PERMISSION_REPOSITORY, PermissionRepository } from './permission.repository'
+export { DatabaseModule } from './database.module'

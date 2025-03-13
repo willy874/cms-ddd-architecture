@@ -1,4 +1,4 @@
-import { CacheService } from './cache.repository'
+import { CacheService } from './cache.service'
 
 const cacheRef: { current: CacheService } = { current: null }
 export function getCurrentCache(): CacheService {

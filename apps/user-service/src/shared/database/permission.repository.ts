@@ -1,5 +1,6 @@
-import { Permission } from '@packages/database'
-import { Database, DATABASE_PROVIDER } from '@/shared/database'
+import { Database, Permission } from '@packages/database'
+import { GetProviderType } from '../types'
+import { DATABASE_PROVIDER } from './database.provider'
 
 export const PERMISSION_REPOSITORY = 'PERMISSION_REPOSITORY'
 
@@ -10,3 +11,5 @@ export const PermissionRepositoryProvider = {
     return database.createRepository(Permission)
   },
 }
+
+export type PermissionRepository = GetProviderType<typeof PermissionRepositoryProvider>

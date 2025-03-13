@@ -19,6 +19,7 @@ const EnvironmentSchema = z.object({
   QUEUE_USER: z.string().default('guest'),
   QUEUE_PASSWORD: z.string().default('guest'),
   // cache service
+  CACHE_MODE: z.string().default('memory'),
   CACHE_HOST: z.string().default('localhost'),
   CACHE_PORT: z.string().transform((v) => parseInt(v, 10)).optional(),
   // gateway service

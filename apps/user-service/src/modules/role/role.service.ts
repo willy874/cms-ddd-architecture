@@ -1,17 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { ROLE_REPOSITORY, RoleRepositoryProvider } from './role.repository'
-import { GetProviderType, QueryParams } from '@/shared/types'
+import { QueryParams } from '@/shared/types'
 import { CreateRoleDto } from './create-role.dto'
 import { UpdateRoleDto } from './update-role.dto'
-import { UserRepository, ROLE_USER_REPOSITORY } from './user.repository'
-
-export type RoleRepository = GetProviderType<typeof RoleRepositoryProvider>
+import { ROLE_REPOSITORY, RoleRepository } from '@/shared/database'
 
 @Injectable()
 export class RoleService {
   constructor(
     @Inject(ROLE_REPOSITORY) private roleRepository: RoleRepository,
-    @Inject(ROLE_USER_REPOSITORY) private userRepository: UserRepository,
   ) {}
 
   getRoleById(id: number) {

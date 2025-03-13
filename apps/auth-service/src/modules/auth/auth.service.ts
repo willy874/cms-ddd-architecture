@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { Inject, Injectable } from '@nestjs/common'
-import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
+import { Injectable } from '@nestjs/common'
+import { CacheService } from '@/shared/cache'
 import { AuthUserService } from './user.service'
 import { RegisterDto } from './register.dto'
 import { TokenService } from './token.service'
@@ -35,7 +35,7 @@ type CachePayload = z.infer<typeof CachePayloadSchema>
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(CACHE_PROVIDER) private cacheService: CacheService,
+    private cacheService: CacheService,
     private tokenService: TokenService,
     private userService: AuthUserService,
   ) {}

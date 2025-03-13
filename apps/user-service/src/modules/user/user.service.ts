@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { CacheService, CACHE_PROVIDER } from '@/shared/cache'
+import { CacheService } from '@/shared/cache'
 import { QueryPageResult, QueryParams } from '@/shared/types'
+import { USER_REPOSITORY, UserRepository } from '@/shared/database'
 import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
-import { USER_REPOSITORY, UserRepository } from './user.repository'
-import { RoleRepository, USER_ROLE_REPOSITORY } from './role.repository'
 import { TokenService } from './token.service'
+import { RoleService } from './role.service'
 
 const jsonKeySort = (json: object) => {
   if (!json) return null
@@ -18,9 +18,9 @@ const jsonKeySort = (json: object) => {
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(CACHE_PROVIDER) private cacheService: CacheService,
     @Inject(USER_REPOSITORY) private userRepository: UserRepository,
-    @Inject(USER_ROLE_REPOSITORY) private roleRepository: RoleRepository,
+    private cacheService: CacheService,
+    private roleService: RoleService,
     private tokenService: TokenService,
   ) {}
 
@@ -71,15 +71,13 @@ export class UserService {
 
   async insertUser(payload: CreateUserDto) {
     const { roles: roleNames, ...rest } = payload
-    const findRoleNames = this.roleRepository.createFindOperator('in', roleNames,  true, true)
-    const roles = await this.roleRepository.findBy({ name: findRoleNames })
+    const roles = await this.roleService.getRolesByName(roleNames)
     return this.userRepository.save({ ...rest, roles })
   }
 
   async updateUser(id: number, payload: UpdateUserDto) {
     const { roles: roleNames, ...rest } = payload
-    const findRoleNames = this.roleRepository.createFindOperator('in', roleNames,  true, true)
-    const roles = await this.roleRepository.findBy({ name: findRoleNames })
+    const roles = await this.roleService.getRolesByName(roleNames)
     return this.userRepository.update(id, { ...rest, roles })
   }
 

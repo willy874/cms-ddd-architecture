@@ -1,11 +1,11 @@
-import { Role } from '@packages/database'
-import { Database, DATABASE_PROVIDER } from '@/shared/database'
+import { Database, Role } from '@packages/database'
 import { GetProviderType } from '@/shared/types'
+import { DATABASE_PROVIDER } from './database.provider'
 
-export const USER_ROLE_REPOSITORY = 'USER_ROLE_REPOSITORY'
+export const ROLE_REPOSITORY = 'ROLE_REPOSITORY'
 
 export const RoleRepositoryProvider = {
-  provide: USER_ROLE_REPOSITORY,
+  provide: ROLE_REPOSITORY,
   inject: [DATABASE_PROVIDER],
   useFactory: (database: Database) => {
     return database.createRepository(Role)

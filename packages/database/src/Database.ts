@@ -12,7 +12,7 @@ export class Database {
 
   async connection() {
     await this.instance.initialize()
-    return this.instance
+    return this
   }
 
   async createRepository<T extends ObjectLiteral>(target: EntityTarget<T>): Promise<Repository<T>> {

@@ -1,6 +1,6 @@
-import { User } from '@packages/database'
-import { Database, DATABASE_PROVIDER } from '@/shared/database'
+import { Database, User } from '@packages/database'
 import { GetProviderType } from '@/shared/types'
+import { DATABASE_PROVIDER } from './database.provider'
 
 export const USER_REPOSITORY = 'USER_REPOSITORY'
 
