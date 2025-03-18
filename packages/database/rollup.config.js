@@ -99,7 +99,7 @@ module.exports = [
   {
     input: path.resolve(rootPath, 'src/main.ts'),
     output: {
-      file: path.resolve(rootPath, 'dist/main.js'),
+      dir: 'dist/cjs',
       format: 'cjs',
       interop: 'auto',
       exports: 'named',
@@ -122,7 +122,28 @@ module.exports = [
   {
     input: path.resolve(rootPath, 'src/main.ts'),
     output: {
-      file: path.resolve(rootPath, 'dist/main.d.ts'),
+      dir: 'dist/esm',
+      format: 'es',
+      exports: 'named',
+      sourcemap: true,
+    },
+    plugins: [
+      aliasPlugin(),
+      resolve.default(),
+      commonjs.default(),
+      esbuild.default({
+        sourceMap: true,
+        target: 'es2015',
+        tsconfig: path.resolve(rootPath, 'tsconfig.json'),
+      }),
+    ],
+    external,
+    onwarn,
+  },
+  {
+    input: path.resolve(rootPath, 'src/main.ts'),
+    output: {
+      dir: 'dist/types',
       format: 'es',
     },
     plugins: [

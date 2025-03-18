@@ -9,11 +9,12 @@ interface PermissionModuleOptions {
 }
 
 export class PermissionModule {
-  static register(metadata: PermissionModuleOptions): DynamicModule {
+  static register(options: PermissionModuleOptions = {}): DynamicModule {
+    const { imports = [], providers = [] } = options
     return {
       module: PermissionModule,
-      imports: [...metadata.imports, DatabaseModule],
-      providers: [...metadata.providers, PermissionService],
+      imports: [...imports, DatabaseModule],
+      providers: [...providers, PermissionService],
       controllers: [PermissionController],
     }
   }

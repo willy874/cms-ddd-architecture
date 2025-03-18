@@ -1,43 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { jwtVerify, SignJWT, errors } from 'jose'
-import { ACCESS_SECRET, QUERY_SECRET, REFRESH_SECRET } from '@packages/shared'
+import { ACCESS_SECRET, Jwt, QUERY_SECRET, REFRESH_SECRET } from '@packages/shared'
  
-class JwtService {
-  private secret: Uint8Array
-  constructor(secret: string) {
-    this.secret = new TextEncoder().encode(secret)
-  }
-
-  async isExpired(token: string) {
-    try {
-      await jwtVerify(token, this.secret)
-      return false
-    } catch (error) {
-      if (error instanceof errors.JWTExpired) {
-        return true
-      }
-      throw error
-    }
-  }
-
-  verify(token: string) {
-    return jwtVerify(token, this.secret)
-  }
-
-  sign(payload: object, expiresIn: string) {
-    return new SignJWT({ ...payload })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime(expiresIn)
-      .sign(this.secret);
-  }
-}
-
 @Injectable()
 export class TokenService {
-  private accessJwtService = new JwtService(ACCESS_SECRET)
-  private refreshJwtService = new JwtService(REFRESH_SECRET)
-  private queryJwtService = new JwtService(QUERY_SECRET)
+  private accessJwtService = new Jwt(ACCESS_SECRET)
+  private refreshJwtService = new Jwt(REFRESH_SECRET)
+  private queryJwtService = new Jwt(QUERY_SECRET)
 
   createAccessToken(payload: object) {
     return this.accessJwtService.sign(payload,  '1h')

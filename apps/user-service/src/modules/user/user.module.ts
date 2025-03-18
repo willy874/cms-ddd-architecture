@@ -12,11 +12,12 @@ interface UserModuleOptions {
 }
 
 export class UserModule {
-  static register(options: UserModuleOptions) {
+  static register(options: UserModuleOptions = {}) {
+    const { imports = [], providers = [] } = options
     return {
       module: UserModule,
-      imports: [...options.imports, DatabaseModule, CacheModule],
-      providers: [...options.providers, RoleService, TokenService, UserService],
+      imports: [...imports, DatabaseModule, CacheModule],
+      providers: [...providers, RoleService, TokenService, UserService],
       controllers: [UserController],
     }
   }

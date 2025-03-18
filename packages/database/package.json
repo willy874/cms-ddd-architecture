@@ -1,8 +1,9 @@
 {
   "name": "@packages/database",
   "version": "1.0.0",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "main": "dist/cjs/main.js",
+  "module": "dist/esm/main.js",
+  "types": "dist/types/main.d.ts",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w"

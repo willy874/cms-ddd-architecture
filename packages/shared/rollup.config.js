@@ -69,7 +69,11 @@ function createAlias(options) {
 const external = [
   ...NODEJS_EXTERNALS,
   /^node:/,
-  ...Object.keys(pkg?.dependencies || {}),
+  ...(() => {
+    const dependencies = { ...pkg?.dependencies || {} }
+    delete dependencies['jose']
+    return Object.keys(dependencies)
+  })(),
   ...Object.keys(pkg?.peerDependencies || {}),
 ];
 
@@ -89,7 +93,7 @@ module.exports = [
   {
     input: path.resolve(rootPath, 'src/main.ts'),
     output: {
-      file: path.resolve(rootPath, 'dist/main.js'),
+      dir: 'dist/cjs',
       format: 'cjs',
       interop: 'auto',
       exports: 'named',
@@ -111,7 +115,27 @@ module.exports = [
   {
     input: path.resolve(rootPath, 'src/main.ts'),
     output: {
-      file: path.resolve(rootPath, 'dist/main.d.ts'),
+      dir: 'dist/esm',
+      format: 'es',
+      exports: 'named',
+      sourcemap: true,
+    },
+    plugins: [
+      aliasPlugin(),
+      resolve.default(),
+      commonjs.default(),
+      esbuild.default({
+        sourceMap: true,
+        target: 'es2015',
+        tsconfig: path.resolve(rootPath, 'tsconfig.json'),
+      }),
+    ],
+    external,
+  },
+  {
+    input: path.resolve(rootPath, 'src/main.ts'),
+    output: {
+      dir: 'dist/types',
       format: 'es',
     },
     plugins: [

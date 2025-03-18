@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "env-sync": "bash ./scripts/env-sync.sh"
+    "env-sync": "bash ./scripts/env-sync.sh",
+    "start": "bash scripts/start.sh"
   },
   "author": "",
   "license": "ISC",

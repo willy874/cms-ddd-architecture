@@ -9,11 +9,12 @@ interface RoleModuleOptions {
 }
 
 export class RoleModule {
-  static register(metadata: RoleModuleOptions): DynamicModule {
+  static register(options: RoleModuleOptions = {}): DynamicModule {
+    const { imports = [], providers = [] } = options
     return {
       module: RoleModule,
-      imports: [...metadata.imports, DatabaseModule],
-      providers: [...metadata.providers, RoleService],
+      imports: [...imports, DatabaseModule],
+      providers: [...providers, RoleService],
       controllers: [RoleController],
     }
   }
