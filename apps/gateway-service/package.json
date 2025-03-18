@@ -5,7 +5,8 @@
   "scripts": {
     "build": "rollup -c",
     "serve": "node dist/main.js",
-    "start": "nodemon"
+    "start": "npm run serve",
+    "start:dev": "nodemon"
   },
   "author": "",
   "license": "ISC",

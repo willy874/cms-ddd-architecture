@@ -15,8 +15,6 @@ export class Permission {
   })
   name: string
 
-  @ManyToMany(() => Role, roles => roles.permissions, {
-    cascade: true,
-  })
+  @ManyToMany(() => Role, roles => roles.permissions)
   roles: Role[]
 }
