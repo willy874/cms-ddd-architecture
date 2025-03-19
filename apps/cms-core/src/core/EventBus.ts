@@ -1,16 +1,10 @@
 import { ClientContext } from './ClientContext'
 import { AnyFunction, debounce, throttle } from './utils'
 
-interface IBaseEvent<Name, Params> {
-  name: Name
-  context: unknown & {}
-  params: Params
-}
-
 const EVENT_SYMBOL = Symbol.for('EVENT_SYMBOL')
 const EVENT_RESULT = Symbol.for('EVENT_RESULT')
 
-export class BaseEvent<Name, Params extends unknown[]> implements IBaseEvent<Name, Params> {
+export class BaseEvent<Name, Params extends unknown[]> {
   [EVENT_SYMBOL] = true
   context: unknown & {} = {}
   params: Params
@@ -36,20 +30,20 @@ interface EventOptions {
 }
 
 export class EventBus<Dict extends Record<string, AnyFunction>> {
-  _ctx!: ClientContext
+  #ctx!: ClientContext
 
   private get ctx() {
-    if (!this._ctx) {
+    if (!this.#ctx) {
       throw new Error('EventBus not initialized')
     }
-    return this._ctx
+    return this.#ctx
   }
 
   init(cache: ClientContext) {
-    if (this._ctx) {
+    if (this.#ctx) {
       throw new Error('EventBus already initialized')
     }
-    this._ctx = cache
+    this.#ctx = cache
   }
 
   dynamicOn(
@@ -86,22 +80,17 @@ export class EventBus<Dict extends Record<string, AnyFunction>> {
     }
   }
 
-  dynamicEmit(event: IBaseEvent<string, any>): unknown[] {
+  dynamicEmit(event: BaseEvent<string, unknown[]>): unknown[] {
     const eventType = `event:${String(event.name)}`
-    if (event instanceof BaseEvent) {
-      this.ctx.emitter.emit(eventType, event)
-    }
-    else {
-      this.ctx.emitter.emit(eventType, new BaseEvent(event.name, ...event.params))
-    }
+    this.ctx.emitter.emit(eventType, event)
     return Reflect.get(event.context, EVENT_RESULT) as unknown[]
   }
 
-  on<T extends keyof Dict>(name: T, callback: (e: BaseEvent<T, Parameters<Dict[T]>>) => ReturnType<Dict[T]>): () => void {
-    return this.dynamicOn(name as string, callback as any)
+  on<T extends keyof Dict>(name: T, callback: (e: BaseEvent<T, Parameters<Dict[T]>>) => ReturnType<Dict[T]>, options: EventOptions = {}): () => void {
+    return this.dynamicOn(name as string, callback as any, options)
   }
 
-  emit<T extends keyof Dict>(event: IBaseEvent<T, Parameters<Dict[T]>>): ReturnType<Dict[T]>[] {
+  emit<T extends keyof Dict>(event: BaseEvent<T, Parameters<Dict[T]>>): ReturnType<Dict[T]>[] {
     return this.dynamicEmit(event as any) as ReturnType<Dict[T]>[]
   }
 }

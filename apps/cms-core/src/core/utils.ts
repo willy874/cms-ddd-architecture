@@ -18,3 +18,46 @@ export const throttle = <T extends AnyFunction>(fn: T, delay: number): T => {
     }
   } as any
 }
+
+function hasObjectPrototype(o: any): o is object {
+  return Object.prototype.toString.call(o) === '[object Object]'
+}
+
+function isPlainObject(o: unknown): o is object {
+  if (!hasObjectPrototype(o)) {
+    return false
+  }
+
+  const ctor = o.constructor
+  if (ctor === undefined) {
+    return true
+  }
+
+  const prot = ctor.prototype
+  if (!hasObjectPrototype(prot)) {
+    return false
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(ctor, 'isPrototypeOf')) {
+    return false
+  }
+
+  if (Object.getPrototypeOf(o) !== Object.prototype) {
+    return false
+  }
+
+  return true
+}
+
+export function hashKey(queryKey: unknown[]): string {
+  return JSON.stringify(queryKey, (_, val) =>
+    isPlainObject(val)
+      ? Object.keys(val)
+          .sort()
+          .reduce((result, key) => {
+            result[key] = Reflect.get(val, key)
+            return result
+          }, {} as any)
+      : val,
+  )
+}

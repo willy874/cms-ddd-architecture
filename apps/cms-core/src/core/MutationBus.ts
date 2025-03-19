@@ -1,19 +1,19 @@
 import { ClientContext } from './ClientContext'
 
 export class MutationBus {
-  _ctx!: ClientContext
+  #ctx!: ClientContext
 
   private get ctx() {
-    if (!this._ctx) {
+    if (!this.#ctx) {
       throw new Error('EventBus not initialized')
     }
-    return this._ctx
+    return this.#ctx
   }
 
   init(cache: ClientContext) {
-    if (this._ctx) {
+    if (this.#ctx) {
       throw new Error('EventBus already initialized')
     }
-    this._ctx = cache
+    this.#ctx = cache
   }
 }
