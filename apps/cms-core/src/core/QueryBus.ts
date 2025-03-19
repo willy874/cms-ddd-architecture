@@ -1,7 +1,12 @@
 import { ClientContext } from './ClientContext'
 import { AnyFunction, debounce, throttle } from './utils'
 
+const QUERY_SYMBOL = Symbol.for('QUERY_SYMBOL')
+const QUERY_RESULT = Symbol.for('QUERY_RESULT')
+
 export class BaseQuery<Name, Params extends unknown[]> {
+  [QUERY_SYMBOL] = true
+  context: unknown & {} = {}
   params: Params
 
   isRefetch = false
@@ -61,7 +66,8 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
       else {
         result = handler(...query.params)
       }
-      this.ctx.emitter.emit('query:emit', result)
+      Reflect.set(query.context, QUERY_RESULT, result)
+      this.ctx.emitter.emit('query:result', query)
     }
     if (options.debounce) {
       listener = debounce(listener, options.debounce)
@@ -69,22 +75,24 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
     if (options.throttle) {
       listener = throttle(listener, options.throttle)
     }
-    this.ctx.emitter.on('query:result', listener)
+    this.ctx.emitter.on('query:emit', listener)
     return () => {
-      this.ctx.emitter.off('query:result', listener)
+      this.ctx.emitter.off('query:emit', listener)
     }
   }
 
   dynamicQuery(query: BaseQuery<string, unknown[]>) {
     const empty = Symbol('empty')
     let result: unknown = empty
-    const listener = (value: unknown) => {
-      result = value
-      this.ctx.emitter.off('query:emit', listener)
+    const listener = (q: BaseQuery<string, unknown[]>) => {
+      if (query === q) {
+        result = Reflect.get(q.context, QUERY_RESULT)
+        this.ctx.emitter.off('query:result', listener)
+      }
     }
-    this.ctx.emitter.on('query:emit', listener)
-    this.ctx.emitter.emit('query:result', query)
-    this.ctx.emitter.off('query:emit', listener)
+    this.ctx.emitter.on('query:result', listener)
+    this.ctx.emitter.emit('query:emit', query)
+    this.ctx.emitter.off('query:result', listener)
     if (empty === result) {
       throw new Error('Query result not found')
     }
