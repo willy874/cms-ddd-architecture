@@ -47,6 +47,9 @@ const EnvironmentSchema = z.object({
 let env: Record<string, string | undefined> | null = null
 
 export function loadEnv() {
+  if (env) {
+    return env
+  }
   const output = config({ path: resolve(cwd(), '.env') })
   env = Object.assign({}, output.parsed, process.env)
   return output.parsed

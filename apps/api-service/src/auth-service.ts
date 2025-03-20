@@ -1,7 +1,9 @@
 import { NestFactory } from '@nestjs/core'
 import { AuthModule } from './modules/auth'
+import { loadEnv } from '@packages/shared'
 
 async function bootstrap() {
+  await loadEnv()
   const app = await NestFactory.create({
     module: class AuthAppModule {},
     imports: [

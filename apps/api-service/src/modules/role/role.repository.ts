@@ -1,4 +1,4 @@
-import { Role } from '@packages/database'
+import { Role } from '@/entities/role.entity'
 import { Database, DATABASE_PROVIDER } from '@/shared/database'
 
 export const ROLE_REPOSITORY = 'ROLE_REPOSITORY'
