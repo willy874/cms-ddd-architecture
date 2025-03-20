@@ -67,12 +67,7 @@ function createAlias(options) {
 }
 const external = [
   ...NODEJS_EXTERNALS,
-  /^node:/,
-  ...(() => {
-    const dependencies = { ...pkg?.dependencies || {} }
-    delete dependencies['jose']
-    return Object.keys(dependencies)
-  })(),
+  ...Object.keys(pkg?.dependencies || {}),
   ...Object.keys(pkg?.peerDependencies || {}),
 ];
 
