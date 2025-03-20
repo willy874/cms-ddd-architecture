@@ -1,10 +1,11 @@
-import { jwtVerify, errors } from 'jose';
+import { Jwt } from '@packages/shared';
 import { to } from 'await-to-js';
 import type { Request, Response, NextFunction } from 'express';
 import { ACCESS_SECRET } from '@packages/shared';
 
+const jwt = new Jwt(ACCESS_SECRET);
+
 export function createAuthMiddleware() {
-  const secret = new TextEncoder().encode(ACCESS_SECRET);
   return async (req: Request, res: Response, next: NextFunction) => {
     const authorization = req.headers['authorization'];
     if (!authorization) {
@@ -16,14 +17,15 @@ export function createAuthMiddleware() {
       res.status(401).send('Unauthorized');
       return;
     }
-    const [jwtError, result] = await to(jwtVerify(token, secret))
+    const [jwtError, result] = await to(jwt.verify(token));
     if (jwtError) {
-      if (jwtError instanceof errors.JWTExpired) {
-        res.status(401).send('Unauthorized');
-        return;
-      }
       res.status(401).send('Unauthorized');
       return;
+    }
+    const [, isTokenExpired] = await to(jwt.isExpired(token));
+    if (isTokenExpired) {
+      res.status(401).send('Unauthorized');
+      return; 
     }
     if (!result) {
       res.status(401).send('Unauthorized');
