@@ -79,7 +79,7 @@ export class CommandBus {
     return new Promise((resolve) => {
       const listener = (c: BaseCommand<string, unknown[]>) => {
         if (command === c) {
-          const result = Reflect.get(c, 'params')
+          const result = Reflect.get(c.context, COMMAND_RESULT)
           resolve(result)
           this.ctx.emitter.off('command:result', listener)
         }
