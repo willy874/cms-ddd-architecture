@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import js from '@eslint/js'
 import { FlatCompat } from '@eslint/eslintrc'
 import stylistic from '@stylistic/eslint-plugin'
+import { rules } from 'eslint-plugin-import'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -14,6 +15,13 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all,
 })
+
+const importPlugin = {
+  meta: {
+    name: 'eslint-plugin-import',
+  },
+  rules,
+}
 
 export default [
   {
@@ -48,4 +56,11 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
     },
-  }]
+  },
+  {
+    plugins: {
+      import: importPlugin,
+    },
+    rules: {},
+  },
+]
