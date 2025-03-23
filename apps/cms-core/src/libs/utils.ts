@@ -18,3 +18,19 @@ export const throttle = <T extends AnyFunction>(fn: T, delay: number): T => {
     }
   } as any
 }
+
+export const getGlobal = (): object => {
+  if (typeof globalThis !== 'undefined') {
+    return globalThis
+  }
+  if (typeof window !== 'undefined') {
+    return window
+  }
+  if (typeof global !== 'undefined') {
+    return global
+  }
+  if (typeof self !== 'undefined') {
+    return self
+  }
+  return {}
+}

@@ -1,14 +1,16 @@
 import { AxiosInstance, AxiosResponse } from 'axios'
-import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from '../libs/apis'
-import { ClientContext } from '../core/ClientContext'
-import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '../core/query'
+import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
+import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from '@/libs/apis'
+import type { CoreContext } from '@/libs/CoreContext'
+
+const TOKEN_TYPE = 'Bearer'
 
 interface TokenInfo {
   accessToken: string
   refreshToken: string
 }
 
-export function contextHttpPlugin(): (context: ClientContext) => void {
+export function contextHttpPlugin(): (context: CoreContext) => void {
   return (context) => {
     let tokenInfo: TokenInfo | null = null
     const createBaseHttpConfig = () => ({})
@@ -24,7 +26,7 @@ export function contextHttpPlugin(): (context: ClientContext) => void {
               if (!tokenInfo) {
                 throw new Error('Token not found')
               }
-              return `Bearer ${tokenInfo.accessToken}`
+              return `${TOKEN_TYPE} ${tokenInfo.accessToken}`
             },
           }),
           refreshTokenPlugin({
@@ -33,7 +35,7 @@ export function contextHttpPlugin(): (context: ClientContext) => void {
             },
             fetchRefreshToken: (dto: TokenInfo) => {
               return createHttpInstance({
-                headers: { Authorization: `Bearer ${dto.accessToken}` },
+                headers: { Authorization: `${TOKEN_TYPE} ${dto.accessToken}` },
               }).post<TokenInfo>(
                 '/refresh-token',
                 { refreshToken: dto.refreshToken },
@@ -57,7 +59,7 @@ export function contextHttpPlugin(): (context: ClientContext) => void {
   }
 }
 
-declare module '../core/ClientContext' {
+declare module '../core/PortalContext' {
   export interface CustomQueryBusDict {
     [CREATE_BASE_HTTP_INSTANCE]: () => AxiosInstance
     [CREATE_AUTH_HTTP_INSTANCE]: () => AxiosInstance

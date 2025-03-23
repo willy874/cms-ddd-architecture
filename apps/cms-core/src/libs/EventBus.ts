@@ -1,4 +1,4 @@
-import { ClientContext } from '../core/ClientContext'
+import { EventEmitter } from './EventEmitter'
 import { AnyFunction, debounce, throttle } from './utils'
 
 const EVENT_SYMBOL = Symbol.for('EVENT_SYMBOL')
@@ -30,21 +30,7 @@ interface EventOptions {
 }
 
 export class EventBus<Dict extends Record<string, AnyFunction>> {
-  #ctx!: ClientContext
-
-  private get ctx() {
-    if (!this.#ctx) {
-      throw new Error('EventBus not initialized')
-    }
-    return this.#ctx
-  }
-
-  init(cache: ClientContext) {
-    if (this.#ctx) {
-      throw new Error('EventBus already initialized')
-    }
-    this.#ctx = cache
-  }
+  emitter = new EventEmitter()
 
   dynamicOn(
     name: string,
@@ -65,7 +51,7 @@ export class EventBus<Dict extends Record<string, AnyFunction>> {
       Reflect.set(event.context, EVENT_RESULT, [...results, result])
 
       if (--count === 0) {
-        this.ctx.emitter.off(eventType, listener)
+        this.emitter.off(eventType, listener)
       }
     }
     if (options.debounce) {
@@ -74,15 +60,15 @@ export class EventBus<Dict extends Record<string, AnyFunction>> {
     if (options.throttle) {
       listener = throttle(listener, options.throttle)
     }
-    this.ctx.emitter.on(eventType, listener)
+    this.emitter.on(eventType, listener)
     return () => {
-      this.ctx.emitter.off(eventType, listener)
+      this.emitter.off(eventType, listener)
     }
   }
 
   dynamicEmit(event: BaseEvent<string, unknown[]>): unknown[] {
     const eventType = `event:${String(event.name)}`
-    this.ctx.emitter.emit(eventType, event)
+    this.emitter.emit(eventType, event)
     return Reflect.get(event.context, EVENT_RESULT) as unknown[]
   }
 
