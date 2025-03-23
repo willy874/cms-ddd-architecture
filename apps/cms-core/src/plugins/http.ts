@@ -1,9 +1,10 @@
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosInstance, AxiosResponse, CreateAxiosDefaults } from 'axios'
 import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
+import { BASE_URL } from '@/constants/env'
 import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from '@/libs/apis'
+import { HttpErrorCode, HttpResult, TOKEN_TYPE } from '@/core/http'
+import { StorageKey } from '@/core/storage'
 import type { CoreContext } from '@/libs/CoreContext'
-
-const TOKEN_TYPE = 'Bearer'
 
 interface TokenInfo {
   accessToken: string
@@ -12,8 +13,34 @@ interface TokenInfo {
 
 export function contextHttpPlugin(): (context: CoreContext) => void {
   return (context) => {
-    let tokenInfo: TokenInfo | null = null
-    const createBaseHttpConfig = () => ({})
+    const tokenCache = {
+      get: () => {
+        const accessToken = context.localStorage.getItem(StorageKey.ACCESS_TOKEN)
+        const refreshToken = context.localStorage.getItem(StorageKey.REFRESH_TOKEN)
+        if (!accessToken) {
+          throw new Error('accessToken not found')
+        }
+        if (!refreshToken) {
+          throw new Error('refreshToken not found')
+        }
+        return { accessToken, refreshToken }
+      },
+      set: (tokenInfo: TokenInfo) => {
+        context.localStorage.setItem(StorageKey.ACCESS_TOKEN, tokenInfo.accessToken)
+        context.localStorage.setItem(StorageKey.REFRESH_TOKEN, tokenInfo.refreshToken)
+      },
+      remove: () => {
+        context.localStorage.removeItem(StorageKey.ACCESS_TOKEN)
+        context.localStorage.removeItem(StorageKey.REFRESH_TOKEN)
+      },
+    }
+    const getAuthorization = () => {
+      const tokenInfo = tokenCache.get()
+      return `${TOKEN_TYPE} ${tokenInfo.accessToken}`
+    }
+    const createBaseHttpConfig = () => ({
+      baseURL: BASE_URL,
+    } satisfies CreateAxiosDefaults)
     context.queryBus.provide(CREATE_BASE_HTTP_INSTANCE, () => {
       return createHttpInstance(createBaseHttpConfig())
     })
@@ -22,16 +49,11 @@ export function contextHttpPlugin(): (context: CoreContext) => void {
         createBaseHttpConfig(),
         [
           authTokenPlugin({
-            getAuthorization: () => {
-              if (!tokenInfo) {
-                throw new Error('Token not found')
-              }
-              return `${TOKEN_TYPE} ${tokenInfo.accessToken}`
-            },
+            getAuthorization,
           }),
           refreshTokenPlugin({
-            isTokenExpired: (res: AxiosResponse) => {
-              return res.data.code === 'TOKEN_EXPIRED'
+            isTokenExpired: (res: AxiosResponse<HttpResult>) => {
+              return res.data.code === HttpErrorCode.TOKEN_EXPIRED
             },
             fetchRefreshToken: (dto: TokenInfo) => {
               return createHttpInstance({
@@ -41,18 +63,9 @@ export function contextHttpPlugin(): (context: CoreContext) => void {
                 { refreshToken: dto.refreshToken },
               )
             },
-            getRefreshToken: () => {
-              if (!tokenInfo) {
-                throw new Error('Token not found')
-              }
-              return tokenInfo
-            },
-            setRefreshToken: (token: TokenInfo) => {
-              tokenInfo = token
-            },
-            removeRefreshToken: () => {
-              tokenInfo = null
-            },
+            getRefreshToken: tokenCache.get,
+            setRefreshToken: tokenCache.set,
+            removeRefreshToken: tokenCache.remove,
           }),
         ])
     })

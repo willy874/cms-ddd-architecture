@@ -4,6 +4,7 @@ import { StateManager } from '@/libs/StateManager'
 import { EventBus } from '@/libs/EventBus'
 import { QueryBus } from '@/libs/QueryBus'
 import { CommandBus } from '@/libs/CommandBus'
+import { StorageManager } from '@/libs/StorageManager'
 import { getGlobal } from '@/libs/utils'
 import { CoreContext } from '@/libs/CoreContext'
 
@@ -31,6 +32,8 @@ export class PortalContext implements CoreContext {
   queryBus = new QueryBus<QueryBusDict>()
   commandBus = new CommandBus<CommandBusDict>()
   eventBus = new EventBus<EventBusDict>()
+  localStorage = new StorageManager(localStorage)
+  sessionStorage = new StorageManager(sessionStorage)
 
   constructor() {
     this.queryBus.emitter = this.emitter
@@ -64,5 +67,7 @@ declare module '@/libs/CoreContext' {
     queryBus: QueryBus<QueryBusDict>
     commandBus: CommandBus<CommandBusDict>
     eventBus: EventBus<EventBusDict>
+    localStorage: StorageManager
+    sessionStorage: StorageManager
   }
 }
