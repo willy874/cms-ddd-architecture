@@ -1,12 +1,10 @@
-import { ClientContext } from './ClientContext'
+import { EventEmitter } from './EventEmitter'
 import { QueueMap } from './Queue'
-import { debounce, throttle } from './utils'
+import { AnyFunction, debounce, throttle } from './utils'
 
-const COMMAND_SYMBOL = Symbol.for('COMMAND_SYMBOL')
 const COMMAND_RESULT = Symbol.for('COMMAND_RESULT')
 
 export class BaseCommand<Name, Params extends unknown[]> {
-  [COMMAND_SYMBOL] = true
   params: Params
   context: unknown & {} = {}
 
@@ -24,23 +22,8 @@ interface CommandOptions {
   throttle?: number
 }
 
-export class CommandBus {
-  #ctx!: ClientContext
-
-  private get ctx() {
-    if (!this.#ctx) {
-      throw new Error('EventBus not initialized')
-    }
-    return this.#ctx
-  }
-
-  init(cache: ClientContext) {
-    if (this.#ctx) {
-      throw new Error('EventBus already initialized')
-    }
-    this.#ctx = cache
-  }
-
+export class CommandBus<Dict extends Record<string, AnyFunction>> {
+  emitter = new EventEmitter()
   queueMap = new QueueMap()
 
   dynamicProvide(name: string, handler: (...params: unknown[]) => unknown, options: CommandOptions = {}) {
@@ -59,7 +42,7 @@ export class CommandBus {
       }
       promise.then((result) => {
         Reflect.set(command.context, COMMAND_RESULT, result)
-        this.ctx.emitter.emit('command:result', command)
+        this.emitter.emit('command:result', command)
       })
         .catch(() => {})
     }
@@ -69,9 +52,9 @@ export class CommandBus {
     if (options.throttle) {
       listener = throttle(listener, options.throttle)
     }
-    this.ctx.emitter.on('command:emit', listener)
+    this.emitter.on('command:emit', listener)
     return () => {
-      this.ctx.emitter.off('command:emit', listener)
+      this.emitter.off('command:emit', listener)
     }
   }
 
@@ -81,11 +64,19 @@ export class CommandBus {
         if (command === c) {
           const result = Reflect.get(c.context, COMMAND_RESULT)
           resolve(result)
-          this.ctx.emitter.off('command:result', listener)
+          this.emitter.off('command:result', listener)
         }
       }
-      this.ctx.emitter.on('command:result', listener)
-      this.ctx.emitter.emit('command:emit', command)
+      this.emitter.on('command:result', listener)
+      this.emitter.emit('command:emit', command)
     })
+  }
+
+  provide<T extends keyof Dict>(name: T, handler: Dict[T], options: CommandOptions = {}): () => void {
+    return this.dynamicProvide(name as string, handler, options)
+  }
+
+  query<T extends keyof Dict>(query: BaseCommand<T, Parameters<Dict[T]>>): ReturnType<Dict[T]> {
+    return this.dynamicCommand(query as any) as ReturnType<Dict[T]>
   }
 }

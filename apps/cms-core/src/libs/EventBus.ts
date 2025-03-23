@@ -1,4 +1,4 @@
-import { ClientContext } from './ClientContext'
+import { ClientContext } from '../core/ClientContext'
 import { AnyFunction, debounce, throttle } from './utils'
 
 const EVENT_SYMBOL = Symbol.for('EVENT_SYMBOL')

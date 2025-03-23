@@ -1,11 +1,10 @@
-import { ClientContext } from './ClientContext'
+import { QueryClient } from '@tanstack/react-query'
 import { AnyFunction, debounce, throttle } from './utils'
+import { EventEmitter } from './EventEmitter'
 
-const QUERY_SYMBOL = Symbol.for('QUERY_SYMBOL')
 const QUERY_RESULT = Symbol.for('QUERY_RESULT')
 
 export class BaseQuery<Name, Params extends unknown[]> {
-  [QUERY_SYMBOL] = true
   context: unknown & {} = {}
   params: Params
 
@@ -31,21 +30,8 @@ interface QueryOptions {
 }
 
 export class QueryBus<Dict extends Record<string, AnyFunction>> {
-  #ctx!: ClientContext
-
-  private get ctx() {
-    if (!this.#ctx) {
-      throw new Error('EventBus not initialized')
-    }
-    return this.#ctx
-  }
-
-  init(cache: ClientContext) {
-    if (this.#ctx) {
-      throw new Error('EventBus already initialized')
-    }
-    this.#ctx = cache
-  }
+  emitter = new EventEmitter()
+  queryClient = new QueryClient()
 
   dynamicProvide(name: string, handler: (...params: unknown[]) => unknown, options: QueryOptions = {}) {
     let listener = (query: BaseQuery<string, unknown[]>) => {
@@ -53,13 +39,13 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
         return
       }
       const queryKeys = [name, ...query.params]
-      let result = this.ctx.query.getQueryData(queryKeys)
+      let result = this.queryClient.getQueryData(queryKeys)
       if (options.cache) {
         if (typeof result === 'undefined' || query.isRefetch) {
           const newResult = handler(...query.params)
           if (!Object.is(result, newResult)) {
             result = newResult
-            this.ctx.query.setQueryData(queryKeys, result)
+            this.queryClient.setQueryData(queryKeys, result)
           }
         }
       }
@@ -67,7 +53,7 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
         result = handler(...query.params)
       }
       Reflect.set(query.context, QUERY_RESULT, result)
-      this.ctx.emitter.emit('query:result', query)
+      this.emitter.emit('query:result', query)
     }
     if (options.debounce) {
       listener = debounce(listener, options.debounce)
@@ -75,9 +61,9 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
     if (options.throttle) {
       listener = throttle(listener, options.throttle)
     }
-    this.ctx.emitter.on('query:emit', listener)
+    this.emitter.on('query:emit', listener)
     return () => {
-      this.ctx.emitter.off('query:emit', listener)
+      this.emitter.off('query:emit', listener)
     }
   }
 
@@ -87,12 +73,12 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
     const listener = (q: BaseQuery<string, unknown[]>) => {
       if (query === q) {
         result = Reflect.get(q.context, QUERY_RESULT)
-        this.ctx.emitter.off('query:result', listener)
+        this.emitter.off('query:result', listener)
       }
     }
-    this.ctx.emitter.on('query:result', listener)
-    this.ctx.emitter.emit('query:emit', query)
-    this.ctx.emitter.off('query:result', listener)
+    this.emitter.on('query:result', listener)
+    this.emitter.emit('query:emit', query)
+    this.emitter.off('query:result', listener)
     if (empty === result) {
       throw new Error('Query result not found')
     }
