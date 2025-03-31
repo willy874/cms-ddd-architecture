@@ -1,8 +1,8 @@
-import { AxiosInstance, AxiosResponse, CreateAxiosDefaults } from 'axios'
+import { AxiosInstance, CreateAxiosDefaults } from 'axios'
 import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
 import { BASE_URL } from '@/constants/env'
 import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from '@/libs/apis'
-import { HttpErrorCode, HttpResult, TOKEN_TYPE } from '@/core/http'
+import { HttpErrorCode, TOKEN_TYPE } from '@/core/http'
 import { StorageKey } from '@/core/storage'
 import type { CoreContext } from '@/libs/CoreContext'
 
@@ -52,7 +52,7 @@ export function contextHttpPlugin(): (context: CoreContext) => void {
             getAuthorization,
           }),
           refreshTokenPlugin({
-            isTokenExpired: (res: AxiosResponse<HttpResult>) => {
+            isTokenExpired: (res) => {
               return res.data.code === HttpErrorCode.TOKEN_EXPIRED
             },
             fetchRefreshToken: (dto: TokenInfo) => {
