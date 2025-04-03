@@ -6,14 +6,15 @@ import { EventBus } from '@/libs/EventBus'
 import { QueryBus } from '@/libs/QueryBus'
 import { CommandBus } from '@/libs/CommandBus'
 import { StorageManager } from '@/libs/StorageManager'
+import { Registry } from '@/libs/Registry'
 import { getGlobal } from '@/libs/utils'
 import { CoreContext, CoreContextHooks, CoreContextPlugin } from '@/libs/CoreContext'
-import { ComponentRegistry } from '@/libs/ComponentRegistry'
 
 export interface CustomQueryBusDict {}
 export interface CustomCommandBusDict {}
 export interface CustomEventBusDict {}
 export interface CustomComponentDict {}
+export interface CustomRouteDict {}
 
 type QueryBusDict = {
   [K in keyof CustomQueryBusDict]: CustomQueryBusDict[K]
@@ -27,6 +28,9 @@ type EventBusDict = {
 type ComponentDict = {
   [K in keyof CustomComponentDict]: CustomComponentDict[K]
 }
+type RouteDict = {
+  [K in keyof CustomRouteDict]: CustomRouteDict[K]
+}
 
 export class PortalContext implements CoreContext {
   queryClient = new QueryClient()
@@ -37,9 +41,10 @@ export class PortalContext implements CoreContext {
   eventBus = new EventBus<EventBusDict>()
   localStorage = new StorageManager(localStorage)
   sessionStorage = new StorageManager(sessionStorage)
-  componentRegistry = new ComponentRegistry<ComponentDict>()
+  componentRegistry = new Registry<ComponentDict>()
   router!: AnyRouter
   rootRoute!: RootRoute
+  routes = new Registry<RouteDict>()
 
   constructor() {
     this.queryBus.emitter = this.emitter
@@ -98,8 +103,7 @@ declare module '@/libs/CoreContext' {
     eventBus: EventBus<EventBusDict>
     localStorage: StorageManager
     sessionStorage: StorageManager
-    componentRegistry: ComponentRegistry<ComponentDict>
-    router: AnyRouter
-    rootRoute: RootRoute
+    componentRegistry: Registry<ComponentDict>
+    routes: Registry<RouteDict>
   }
 }

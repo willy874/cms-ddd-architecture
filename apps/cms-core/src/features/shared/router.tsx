@@ -1,35 +1,38 @@
-import { ADD_ROUTES } from '@/constants/command'
+import { FC } from 'react'
+import { createRootRoute, createRouter, Outlet } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import { createRootRoute, createRouter, Outlet, RootRoute } from '@tanstack/react-router'
+
+const rootRoute = createRootRoute({
+  component: () => <Outlet />,
+})
+
+let NotFound: FC
+const router = createRouter({
+  routeTree: rootRoute,
+  defaultNotFoundComponent: () => <NotFound />,
+})
 
 export function contextRouterPlugin(): CoreContextPlugin {
   return (context) => {
-    const rootRoute = createRootRoute({
-      component: () => <Outlet />,
-    })
-    const router = createRouter({
-      routeTree: rootRoute,
-      defaultNotFoundComponent: () => {
-        const NotFound = context.componentRegistry.get('NotFound')
-        return <NotFound />
-      },
-    })
-
-    router.subscribe('onBeforeNavigate', (data) => {
-      console.log('onBeforeNavigate', data)
-    })
-    context.commandBus.provide(ADD_ROUTES, async (handler) => {
-      await handler(rootRoute)
-      await Promise.resolve()
-      router.buildRouteTree()
+    context.componentRegistry.subscribe(() => {
+      NotFound = context.componentRegistry.get('NotFound')
+    }, {
+      immediate: true,
     })
     context.router = router
     context.rootRoute = rootRoute
   }
 }
 
-declare module '@/core/PortalContext' {
-  export interface CustomCommandBusDict {
-    [ADD_ROUTES]: (handler: (route: RootRoute) => any) => Promise<void>
+declare module '@/libs/CoreContext' {
+  export interface CoreContext {
+    router: typeof router
+    rootRoute: typeof rootRoute
+  }
+}
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
   }
 }
