@@ -2,16 +2,17 @@ import { AxiosInstance, CreateAxiosDefaults } from 'axios'
 import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
 import { BASE_URL } from '@/constants/env'
 import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from '@/libs/apis'
-import { HttpErrorCode, TOKEN_TYPE } from '@/core/http'
-import { StorageKey } from '@/core/storage'
-import type { CoreContext } from '@/libs/CoreContext'
+import { HttpErrorCode, TOKEN_TYPE } from '@/constants/http'
+import { StorageKey } from '@/constants/storage'
+import { BaseQuery } from '@/libs/QueryBus'
+import { CoreContextPlugin } from '@/libs/CoreContext'
 
 interface TokenInfo {
   accessToken: string
   refreshToken: string
 }
 
-export function contextHttpPlugin(): (context: CoreContext) => void {
+export function contextHttpPlugin(): CoreContextPlugin {
   return (context) => {
     const tokenCache = {
       get: () => {
@@ -72,7 +73,19 @@ export function contextHttpPlugin(): (context: CoreContext) => void {
   }
 }
 
-declare module '../core/PortalContext' {
+export class CreateBaseHttpQuery extends BaseQuery<typeof CREATE_BASE_HTTP_INSTANCE, []> {
+  constructor() {
+    super(CREATE_BASE_HTTP_INSTANCE)
+  }
+}
+
+export class CreateAuthHttpQuery extends BaseQuery<typeof CREATE_AUTH_HTTP_INSTANCE, []> {
+  constructor() {
+    super(CREATE_AUTH_HTTP_INSTANCE)
+  }
+}
+
+declare module '@/core/PortalContext' {
   export interface CustomQueryBusDict {
     [CREATE_BASE_HTTP_INSTANCE]: () => AxiosInstance
     [CREATE_AUTH_HTTP_INSTANCE]: () => AxiosInstance

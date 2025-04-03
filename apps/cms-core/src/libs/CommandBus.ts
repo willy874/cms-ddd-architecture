@@ -76,7 +76,7 @@ export class CommandBus<Dict extends Record<string, AnyFunction>> {
     return this.dynamicProvide(name as string, handler, options)
   }
 
-  query<T extends keyof Dict>(query: BaseCommand<T, Parameters<Dict[T]>>): ReturnType<Dict[T]> {
+  command<T extends keyof Dict>(query: BaseCommand<T, Parameters<Dict[T]>>): ReturnType<Dict[T]> {
     return this.dynamicCommand(query as any) as ReturnType<Dict[T]>
   }
 }

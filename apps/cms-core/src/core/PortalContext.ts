@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
+import { AnyRouter, RootRoute } from '@tanstack/react-router'
 import { EventEmitter } from '@/libs/EventEmitter'
 import { StateManager } from '@/libs/StateManager'
 import { EventBus } from '@/libs/EventBus'
@@ -6,14 +7,13 @@ import { QueryBus } from '@/libs/QueryBus'
 import { CommandBus } from '@/libs/CommandBus'
 import { StorageManager } from '@/libs/StorageManager'
 import { getGlobal } from '@/libs/utils'
-import { CoreContext } from '@/libs/CoreContext'
+import { CoreContext, CoreContextHooks, CoreContextPlugin } from '@/libs/CoreContext'
+import { ComponentRegistry } from '@/libs/ComponentRegistry'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CustomQueryBusDict {}
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CustomCommandBusDict {}
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CustomEventBusDict {}
+export interface CustomComponentDict {}
 
 type QueryBusDict = {
   [K in keyof CustomQueryBusDict]: CustomQueryBusDict[K]
@@ -23,6 +23,9 @@ type CommandBusDict = {
 }
 type EventBusDict = {
   [K in keyof CustomEventBusDict]: CustomEventBusDict[K]
+}
+type ComponentDict = {
+  [K in keyof CustomComponentDict]: CustomComponentDict[K]
 }
 
 export class PortalContext implements CoreContext {
@@ -34,6 +37,9 @@ export class PortalContext implements CoreContext {
   eventBus = new EventBus<EventBusDict>()
   localStorage = new StorageManager(localStorage)
   sessionStorage = new StorageManager(sessionStorage)
+  componentRegistry = new ComponentRegistry<ComponentDict>()
+  router!: AnyRouter
+  rootRoute!: RootRoute
 
   constructor() {
     this.queryBus.emitter = this.emitter
@@ -41,13 +47,34 @@ export class PortalContext implements CoreContext {
     this.commandBus.emitter = this.emitter
     this.eventBus.emitter = this.emitter
   }
+
+  private pluginHooks: Partial<CoreContextHooks>[] = []
+
+  use(plugin: CoreContextPlugin): this {
+    const result = plugin(this)
+    if (result) {
+      this.pluginHooks.push(result)
+    }
+    return this
+  }
+
+  async run() {
+    for (const hooks of this.pluginHooks) {
+      await hooks.init?.()
+    }
+  }
 }
 
 const PORTAL_CONTEXT = Symbol.for('PORTAL_CONTEXT')
 
-export const init = () => {
+export const portalInit = (): PortalContext => {
   const globalTarget = getGlobal()
-  Reflect.set(globalTarget, PORTAL_CONTEXT, new PortalContext())
+  if (Reflect.has(globalTarget, PORTAL_CONTEXT)) {
+    return Reflect.get(globalTarget, PORTAL_CONTEXT)
+  }
+  const context = new PortalContext()
+  Reflect.set(globalTarget, PORTAL_CONTEXT, context)
+  return context
 }
 
 export const getPortalContext = (): PortalContext => {
@@ -69,5 +96,10 @@ declare module '@/libs/CoreContext' {
     eventBus: EventBus<EventBusDict>
     localStorage: StorageManager
     sessionStorage: StorageManager
+    componentRegistry: ComponentRegistry<ComponentDict>
+    router: AnyRouter
+    rootRoute: RootRoute
+    use(plugin: CoreContextPlugin): CoreContext
+    run(): Promise<void>
   }
 }

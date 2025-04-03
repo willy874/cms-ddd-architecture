@@ -1,5 +1,7 @@
 export type AnyFunction = (...args: any[]) => any
 
+export type MaybePromise<T> = T | Promise<T>
+
 export const debounce = <T extends AnyFunction>(fn: T, delay: number): T => {
   let timeoutId: ReturnType<typeof setTimeout>
   return function (this: any, ...args: any[]) {
