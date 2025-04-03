@@ -2,7 +2,7 @@ import { lazy, StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createRoute, RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import { AddRouteCommand } from '../shared/router.tsx'
+import { AddRouteCommand } from '@/core/commands'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {

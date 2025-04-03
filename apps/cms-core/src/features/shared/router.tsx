@@ -1,6 +1,4 @@
 import { ADD_ROUTES } from '@/constants/command'
-import { CustomCommandBusDict } from '@/core/PortalContext'
-import { BaseCommand } from '@/libs/CommandBus'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { createRootRoute, createRouter, Outlet, RootRoute } from '@tanstack/react-router'
 
@@ -27,12 +25,6 @@ export function contextRouterPlugin(): CoreContextPlugin {
     })
     context.router = router
     context.rootRoute = rootRoute
-  }
-}
-
-export class AddRouteCommand extends BaseCommand<typeof ADD_ROUTES, Parameters<CustomCommandBusDict['ADD_ROUTES']>> {
-  constructor(handler: (route: RootRoute) => any) {
-    super(ADD_ROUTES, handler)
   }
 }
 

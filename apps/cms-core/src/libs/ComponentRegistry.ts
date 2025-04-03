@@ -15,6 +15,10 @@ export class ComponentRegistry<Dict extends Record<string, FC>> {
   }
 
   get<T extends keyof Dict>(name: T): Dict[T] {
-    return this.dict[name]
+    const component = this.dict[name]
+    if (!component) {
+      throw new Error(`Component ${String(name)} is not registered.`)
+    }
+    return component
   }
 }

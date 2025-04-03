@@ -88,6 +88,8 @@ export const getPortalContext = (): PortalContext => {
 
 declare module '@/libs/CoreContext' {
   export interface CoreContext {
+    use(plugin: CoreContextPlugin): CoreContext
+    run(): Promise<void>
     queryClient: QueryClient
     emitter: EventEmitter
     store: StateManager
@@ -99,7 +101,5 @@ declare module '@/libs/CoreContext' {
     componentRegistry: ComponentRegistry<ComponentDict>
     router: AnyRouter
     rootRoute: RootRoute
-    use(plugin: CoreContextPlugin): CoreContext
-    run(): Promise<void>
   }
 }
