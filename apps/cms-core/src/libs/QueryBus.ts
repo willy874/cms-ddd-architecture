@@ -7,7 +7,6 @@ const QUERY_RESULT = Symbol.for('QUERY_RESULT')
 export class BaseQuery<Name, Params extends unknown[]> {
   context: unknown & {} = {}
   params: Params
-
   isRefetch = false
 
   constructor(
@@ -33,25 +32,36 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
   emitter = new EventEmitter()
   queryClient = new QueryClient()
 
+  private cacheHandler(query: BaseQuery<string, unknown[]>, handler: (...params: unknown[]) => unknown) {
+    const queryKeys = [query.name, ...query.params]
+    const diffValue = (oldValue: unknown, newValue: unknown) => {
+      if (Object.is(oldValue, newValue)) {
+        return oldValue
+      }
+      this.queryClient.setQueryData(queryKeys, newValue)
+      return newValue
+    }
+    const cache = this.queryClient.getQueryData(queryKeys)
+    if (typeof cache === 'undefined' || query.isRefetch) {
+      const result = handler()
+      if (result instanceof Promise) {
+        return Promise.resolve(result).then(res => diffValue(cache, res))
+      }
+      else {
+        return diffValue(cache, result)
+      }
+    }
+    return cache
+  }
+
   dynamicProvide(name: string, handler: (...params: unknown[]) => unknown, options: QueryOptions = {}) {
     let listener = (query: BaseQuery<string, unknown[]>) => {
       if (query.name !== name) {
         return
       }
-      const queryKeys = [name, ...query.params]
-      let result = this.queryClient.getQueryData(queryKeys)
-      if (options.cache) {
-        if (typeof result === 'undefined' || query.isRefetch) {
-          const newResult = handler(...query.params)
-          if (!Object.is(result, newResult)) {
-            result = newResult
-            this.queryClient.setQueryData(queryKeys, result)
-          }
-        }
-      }
-      else {
-        result = handler(...query.params)
-      }
+      const result = options.cache
+        ? this.cacheHandler(query, handler)
+        : handler(...query.params)
       Reflect.set(query.context, QUERY_RESULT, result)
       this.emitter.emit('query:result', query)
     }
