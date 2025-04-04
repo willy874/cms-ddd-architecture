@@ -7,7 +7,7 @@ export function contextPlugin(): CoreContextPlugin {
   }
 }
 
-declare module '@/core/PortalContext' {
+declare module '@/core/custom' {
   export interface CustomComponentDict {
     Layout: (props: { children: React.ReactNode }) => React.ReactNode
   }

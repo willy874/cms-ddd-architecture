@@ -46,7 +46,7 @@ async function appInit() {
 }
 appInit()
 
-declare module '@/core/PortalContext' {
+declare module '@/core/custom' {
   export interface CustomComponentDict {
     NotFound: () => React.ReactNode
   }

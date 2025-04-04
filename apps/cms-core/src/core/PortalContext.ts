@@ -1,5 +1,4 @@
 import { QueryClient } from '@tanstack/react-query'
-import { AnyRouter, RootRoute } from '@tanstack/react-router'
 import { EventEmitter } from '@/libs/EventEmitter'
 import { StateManager } from '@/libs/StateManager'
 import { EventBus } from '@/libs/EventBus'
@@ -10,12 +9,7 @@ import { Registry } from '@/libs/Registry'
 import { getGlobal } from '@/libs/utils'
 import { CoreContext, CoreContextHooks, CoreContextPlugin } from '@/libs/CoreContext'
 import { PortalConfig } from './config'
-
-export interface CustomQueryBusDict {}
-export interface CustomCommandBusDict {}
-export interface CustomEventBusDict {}
-export interface CustomComponentDict {}
-export interface CustomRouteDict {}
+import { CustomQueryBusDict, CustomCommandBusDict, CustomEventBusDict, CustomRouteDict, CustomComponentDict } from './custom'
 
 type QueryBusDict = {
   [K in keyof CustomQueryBusDict]: CustomQueryBusDict[K]
@@ -33,7 +27,7 @@ type RouteDict = {
   [K in keyof CustomRouteDict]: CustomRouteDict[K]
 }
 
-export class PortalContext implements CoreContext {
+export class PortalContext {
   config: PortalConfig = {}
   queryClient = new QueryClient()
   emitter = new EventEmitter()
@@ -44,8 +38,6 @@ export class PortalContext implements CoreContext {
   localStorage = new StorageManager(localStorage)
   sessionStorage = new StorageManager(sessionStorage)
   componentRegistry = new Registry<ComponentDict>()
-  router!: AnyRouter
-  rootRoute!: RootRoute
   routes = new Registry<RouteDict>()
 
   constructor() {
@@ -58,7 +50,7 @@ export class PortalContext implements CoreContext {
   private pluginHooks: Partial<CoreContextHooks>[] = []
 
   use(plugin: CoreContextPlugin): this {
-    const result = plugin(this)
+    const result = plugin(this as unknown as CoreContext)
     if (result) {
       this.pluginHooks.push(result)
     }
@@ -111,6 +103,5 @@ declare module '@/libs/CoreContext' {
     localStorage: StorageManager
     sessionStorage: StorageManager
     componentRegistry: Registry<ComponentDict>
-    routes: Registry<RouteDict>
   }
 }

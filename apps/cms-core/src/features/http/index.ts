@@ -72,7 +72,7 @@ export function contextPlugin(): CoreContextPlugin {
   }
 }
 
-declare module '@/core/PortalContext' {
+declare module '@/core/custom' {
   export interface CustomQueryBusDict {
     [CREATE_BASE_HTTP_INSTANCE]: () => AxiosInstance
     [CREATE_AUTH_HTTP_INSTANCE]: () => AxiosInstance
