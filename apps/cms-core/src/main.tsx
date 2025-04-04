@@ -1,13 +1,14 @@
 import './index.css'
-import { portalInit } from './core/PortalContext'
+import { createPortal } from './core/PortalContext'
 import { contextPlugin as shared } from './features/shared'
+import { contextPlugin as ui } from './features/ui'
 import { contextPlugin as app } from './features/app'
 
 async function init() {
-  const context = portalInit()
-  context.componentRegistry.register('NotFound', () => <div>NotFound</div>)
+  const context = createPortal()
   await context
     .use(shared())
+    .use(ui())
     .use(app())
     .run()
 }

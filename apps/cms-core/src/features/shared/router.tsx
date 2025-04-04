@@ -14,8 +14,8 @@ const router = createRouter({
 
 export function contextRouterPlugin(): CoreContextPlugin {
   return (context) => {
-    context.componentRegistry.subscribe(() => {
-      NotFound = context.componentRegistry.get('NotFound')
+    context.componentRegistry.subscribe('NotFound', (Component) => {
+      NotFound = Component
     }, {
       immediate: true,
     })

@@ -72,7 +72,7 @@ export class PortalContext implements CoreContext {
 
 const PORTAL_CONTEXT = Symbol.for('PORTAL_CONTEXT')
 
-export const portalInit = (): PortalContext => {
+export const createPortal = (): PortalContext => {
   const globalTarget = getGlobal()
   if (Reflect.has(globalTarget, PORTAL_CONTEXT)) {
     return Reflect.get(globalTarget, PORTAL_CONTEXT)

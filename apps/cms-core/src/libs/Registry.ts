@@ -28,10 +28,12 @@ export class Registry<Dict extends Record<string, any>> {
     }
   }
 
-  subscribe(callback: () => void, options?: { immediate?: boolean }) {
-    if (options?.immediate) {
-      callback()
+  subscribe<T extends keyof Dict>(property: T, listener: (value: Dict[T]) => void, options?: { immediate?: boolean }) {
+    const value = this.dict[property]
+    if (value && options?.immediate) {
+      listener(value)
     }
+    const callback = () => listener(this.dict[property])
     this.listeners.push(callback)
     return () => {
       this.listeners = this.listeners.filter(l => l !== callback)
