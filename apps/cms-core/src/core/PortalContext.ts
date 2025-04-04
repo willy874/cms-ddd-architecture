@@ -9,6 +9,7 @@ import { StorageManager } from '@/libs/StorageManager'
 import { Registry } from '@/libs/Registry'
 import { getGlobal } from '@/libs/utils'
 import { CoreContext, CoreContextHooks, CoreContextPlugin } from '@/libs/CoreContext'
+import { PortalConfig } from './config'
 
 export interface CustomQueryBusDict {}
 export interface CustomCommandBusDict {}
@@ -33,6 +34,7 @@ type RouteDict = {
 }
 
 export class PortalContext implements CoreContext {
+  config: PortalConfig = {}
   queryClient = new QueryClient()
   emitter = new EventEmitter()
   store = new StateManager()
@@ -72,12 +74,13 @@ export class PortalContext implements CoreContext {
 
 const PORTAL_CONTEXT = Symbol.for('PORTAL_CONTEXT')
 
-export const createPortal = (): PortalContext => {
+export const createPortal = (config: PortalConfig): PortalContext => {
   const globalTarget = getGlobal()
   if (Reflect.has(globalTarget, PORTAL_CONTEXT)) {
     return Reflect.get(globalTarget, PORTAL_CONTEXT)
   }
   const context = new PortalContext()
+  context.config = config
   Reflect.set(globalTarget, PORTAL_CONTEXT, context)
   return context
 }
@@ -95,6 +98,7 @@ declare module '@/libs/CoreContext' {
   export interface CoreContext {
     use(plugin: CoreContextPlugin): CoreContext
     run(): Promise<void>
+    config: PortalConfig
     queryClient: QueryClient
     emitter: EventEmitter
     store: StateManager
