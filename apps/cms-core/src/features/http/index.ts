@@ -11,7 +11,7 @@ interface TokenInfo {
   refreshToken: string
 }
 
-export function contextHttpPlugin(): CoreContextPlugin {
+export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     const tokenCache = {
       get: () => {

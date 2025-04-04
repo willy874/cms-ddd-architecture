@@ -21,7 +21,7 @@ const router = createRouter({
   },
 })
 
-export function contextRouterPlugin(): CoreContextPlugin {
+export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     context.router = router
     context.rootRoute = rootRoute

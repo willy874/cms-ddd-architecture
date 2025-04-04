@@ -8,3 +8,7 @@ export interface CoreContextHooks {
 }
 
 export type CoreContextPlugin = (context: CoreContext) => void | Partial<CoreContextHooks>
+
+export interface FeatureModule {
+  contextPlugin: (options?: unknown) => CoreContextPlugin
+}
