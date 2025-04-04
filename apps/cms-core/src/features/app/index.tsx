@@ -1,21 +1,20 @@
-import { lazy, StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRoute } from '@tanstack/react-router'
-import { CoreContext, CoreContextPlugin } from '@/libs/CoreContext'
+import { CoreContextPlugin } from '@/libs/CoreContext'
+import { getPortalContext } from '@/core/PortalContext'
+import App from './App'
 
-let rootRoute: CoreContext['rootRoute']
-
-const appRoute = createRoute({
-  getParentRoute: () => rootRoute,
+const AppRoute = createRoute({
+  getParentRoute: () => getPortalContext().rootRoute,
   path: '/',
-  component: lazy(() => import('./App.tsx')),
+  component: App,
 })
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
-    rootRoute = context.rootRoute
-    context.routes.register('app', appRoute)
-    context.rootRoute.addChildren([appRoute])
+    context.routes.register('app', AppRoute)
+    context.rootRoute.addChildren([AppRoute])
     return {
       init() {
         context.router.buildRouteTree()
@@ -31,6 +30,6 @@ export function contextPlugin(): CoreContextPlugin {
 
 declare module '@/core/PortalContext' {
   export interface CustomRouteDict {
-    app: typeof appRoute
+    app: typeof AppRoute
   }
 }
