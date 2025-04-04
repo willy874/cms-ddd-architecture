@@ -7,9 +7,9 @@ export class Registry<Dict extends Record<string, any>> {
   }
 
   register(name: string, value: Dict[string]) {
-    if (this.dict[name]) {
-      throw new Error(`The ${name} is already registered.`)
-    }
+    // if (this.dict[name]) {
+    //   throw new Error(`The ${name} is already registered.`)
+    // }
     Reflect.set(this.dict, name, value)
     this.emit()
   }

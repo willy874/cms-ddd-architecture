@@ -2,6 +2,7 @@ import './index.css'
 import { createPortal } from './core/PortalContext'
 import { PortalConfig } from './core/config'
 import { contextPlugin as shared } from './features/shared'
+import { contextPlugin as layout } from './features/layout'
 import { contextPlugin as ui } from './features/ui'
 import { contextPlugin as app } from './features/app'
 
@@ -10,6 +11,7 @@ async function init() {
   await createPortal(config)
     .use(shared())
     .use(ui())
+    .use(layout())
     .use(app())
     .run()
 }

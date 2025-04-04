@@ -1,24 +1,28 @@
-import { FC } from 'react'
 import { createRootRoute, createRouter, Outlet } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
+import { getPortalContext } from '@/core/PortalContext'
 
 const rootRoute = createRootRoute({
-  component: () => <Outlet />,
+  component: () => {
+    const Layout = getPortalContext().componentRegistry.get('Layout')
+    return (
+      <Layout>
+        <Outlet />
+      </Layout>
+    )
+  },
 })
 
-let NotFound: FC
 const router = createRouter({
   routeTree: rootRoute,
-  defaultNotFoundComponent: () => <NotFound />,
+  defaultNotFoundComponent: () => {
+    const NotFound = getPortalContext().componentRegistry.get('NotFound')
+    return <NotFound />
+  },
 })
 
 export function contextRouterPlugin(): CoreContextPlugin {
   return (context) => {
-    context.componentRegistry.subscribe('NotFound', (Component) => {
-      NotFound = Component
-    }, {
-      immediate: true,
-    })
     context.router = router
     context.rootRoute = rootRoute
   }

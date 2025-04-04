@@ -69,6 +69,9 @@ export class PortalContext implements CoreContext {
     for (const hooks of this.pluginHooks) {
       await hooks.init?.()
     }
+    await Promise.all(
+      this.pluginHooks.map(hooks => hooks.mount?.()),
+    )
   }
 }
 
