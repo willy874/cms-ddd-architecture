@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { unstableSetRender } from 'antd'
+import { ConfigProvider, unstableSetRender } from 'antd'
 import { createRoot, Root } from 'react-dom/client'
 import { RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
@@ -8,7 +8,7 @@ export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     return {
       async init() {
-        import('@ant-design/v5-patch-for-react-19')
+        await import('@ant-design/v5-patch-for-react-19')
       },
       mount() {
         context.router.buildRouteTree()
@@ -23,7 +23,9 @@ export function contextPlugin(): CoreContextPlugin {
         })
         createRoot(document.getElementById('root')!).render(
           <StrictMode>
-            <RouterProvider router={context.router} />
+            <ConfigProvider theme={{ cssVar: true }}>
+              <RouterProvider router={context.router} />
+            </ConfigProvider>
           </StrictMode>,
         )
       },
@@ -32,7 +34,10 @@ export function contextPlugin(): CoreContextPlugin {
 }
 
 declare global {
-  export interface Node {
+  export interface Element {
+    _reactRoot?: Root
+  }
+  export interface DocumentFragment {
     _reactRoot?: Root
   }
 }
