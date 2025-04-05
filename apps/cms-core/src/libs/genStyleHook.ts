@@ -6,7 +6,7 @@ export function genStyleHook<T extends Record<string, CSSObject>>(name: string, 
   return () => {
     const { theme, token, hashId } = AntdTheme.useToken()
     const css = fn(token)
-    const [styles, setStyles] = useState<Record<string, string>>({})
+    const [styles] = useState<Record<string, string>>({})
     const wrap = useStyleRegister({
       path: [name],
       theme,
@@ -22,7 +22,7 @@ export function genStyleHook<T extends Record<string, CSSObject>>(name: string, 
         result[`.${className}`] = style
         dict[key] = className
       })
-      setStyles(dict)
+      Object.assign(styles, dict)
       return result
     })
     return [wrap, hashId, styles as any] as const

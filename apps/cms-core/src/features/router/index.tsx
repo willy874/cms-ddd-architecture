@@ -20,7 +20,6 @@ const router = createRouter({
     return <NotFound />
   },
 })
-
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     context.router = router
