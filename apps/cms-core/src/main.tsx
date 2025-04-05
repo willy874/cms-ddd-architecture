@@ -3,10 +3,10 @@ import { init, loadRemote } from '@module-federation/enhanced/runtime'
 import { CoreContextPlugin, FeatureModule } from './libs/CoreContext'
 import { createPortal } from './core/PortalContext'
 import { PortalConfig } from './core/config'
-import { contextPlugin as http } from './features/http'
-import { contextPlugin as router } from './features/router'
-import { contextPlugin as ui } from './features/ui'
-import { contextPlugin as app } from './features/app'
+import { contextPlugin as http } from './modules/http'
+import { contextPlugin as router } from './modules/router'
+import { contextPlugin as ui } from './modules/ui'
+import { contextPlugin as app } from './modules/app'
 
 init({
   name: 'cms_core',
