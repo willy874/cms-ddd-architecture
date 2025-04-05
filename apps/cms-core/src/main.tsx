@@ -1,7 +1,5 @@
 import './index.css'
 import { init, loadRemote } from '@module-federation/enhanced/runtime'
-import initUnocssRuntime from '@unocss/runtime'
-import config from './uno.config'
 import { CoreContextPlugin, FeatureModule } from './libs/CoreContext'
 import { createPortal } from './core/PortalContext'
 import { PortalConfig } from './core/config'
@@ -9,8 +7,6 @@ import { contextPlugin as http } from './features/http'
 import { contextPlugin as router } from './features/router'
 import { contextPlugin as ui } from './features/ui'
 import { contextPlugin as app } from './features/app'
-
-initUnocssRuntime({ defaults: config })
 
 init({
   name: 'cms_core',
@@ -37,6 +33,7 @@ const getRemote = () => {
 }
 
 async function appInit() {
+  await import('@master/css')
   const config = await Promise.resolve({} as PortalConfig)
   const portal = createPortal(config)
   const remote = await getRemote()

@@ -15,9 +15,10 @@ export function genStyleHook<T extends Record<string, CSSObject>>(name: string, 
     }, () => {
       const result: Record<string, CSSObject> = {}
       const dict: Record<string, string> = {}
+      const hash = hashId.match(/-([a-zA-Z0-9]+$)/)?.[1] || ''
       Object.keys(css).forEach((key) => {
         const style = css[key]
-        const className = `${name}__${key}`
+        const className = `${name}__${key}__${hash}`
         result[`.${className}`] = style
         dict[key] = className
       })

@@ -1,11 +1,13 @@
 import { StrictMode } from 'react'
 import { ConfigProvider, unstableSetRender } from 'antd'
+import { StyleProvider, createCache } from '@ant-design/cssinjs'
 import { createRoot, Root } from 'react-dom/client'
 import { RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
+    const cache = createCache()
     return {
       async init() {
         await import('@ant-design/v5-patch-for-react-19')
@@ -23,9 +25,11 @@ export function contextPlugin(): CoreContextPlugin {
         })
         createRoot(document.getElementById('root')!).render(
           <StrictMode>
-            <ConfigProvider theme={{ cssVar: true }}>
-              <RouterProvider router={context.router} />
-            </ConfigProvider>
+            <StyleProvider cache={cache}>
+              <ConfigProvider theme={{ cssVar: true }}>
+                <RouterProvider router={context.router} />
+              </ConfigProvider>
+            </StyleProvider>
           </StrictMode>,
         )
       },

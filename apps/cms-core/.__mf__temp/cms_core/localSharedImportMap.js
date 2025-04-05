@@ -8,13 +8,13 @@
           return pkg
         }
       ,
-        "react/jsx-runtime": async () => {
-          let pkg = await import("__mf__virtual/cms_core__prebuild__react_mf_1_jsx_mf_2_runtime__prebuild__.js")
+        "react": async () => {
+          let pkg = await import("__mf__virtual/cms_core__prebuild__react__prebuild__.js")
           return pkg
         }
       ,
-        "react": async () => {
-          let pkg = await import("__mf__virtual/cms_core__prebuild__react__prebuild__.js")
+        "react/jsx-runtime": async () => {
+          let pkg = await import("__mf__virtual/cms_core__prebuild__react_mf_1_jsx_mf_2_runtime__prebuild__.js")
           return pkg
         }
       ,
@@ -52,15 +52,15 @@
             }
           }
         ,
-          "react/jsx-runtime": {
-            name: "react/jsx-runtime",
+          "react": {
+            name: "react",
             version: "19.0.0",
             scope: ["default"],
             loaded: false,
             from: "cms_core",
             async get () {
-              usedShared["react/jsx-runtime"].loaded = true
-              const {"react/jsx-runtime": pkgDynamicImport} = importMap 
+              usedShared["react"].loaded = true
+              const {"react": pkgDynamicImport} = importMap 
               const res = await pkgDynamicImport()
               const exportModule = {...res}
               // All npm packages pre-built by vite will be converted to esm
@@ -78,15 +78,15 @@
             }
           }
         ,
-          "react": {
-            name: "react",
+          "react/jsx-runtime": {
+            name: "react/jsx-runtime",
             version: "19.0.0",
             scope: ["default"],
             loaded: false,
             from: "cms_core",
             async get () {
-              usedShared["react"].loaded = true
-              const {"react": pkgDynamicImport} = importMap 
+              usedShared["react/jsx-runtime"].loaded = true
+              const {"react/jsx-runtime": pkgDynamicImport} = importMap 
               const res = await pkgDynamicImport()
               const exportModule = {...res}
               // All npm packages pre-built by vite will be converted to esm
