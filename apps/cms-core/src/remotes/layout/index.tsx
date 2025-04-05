@@ -1,3 +1,1 @@
-import { contextPlugin } from './plugin'
-
-export { contextPlugin }
+export { contextPlugin } from './plugin'

@@ -1,21 +1,28 @@
 export class Registry<Dict extends Record<string, any>> {
   private dict: Dict
   private listeners: (() => void)[] = []
+  private defaultValue?: Dict[string]
 
-  constructor(partialDict: Partial<Dict> = {}) {
+  constructor(partialDict: Partial<Dict> = {}, options: { defaultValue?: Dict[string] } = {}) {
+    const { defaultValue } = options
     this.dict = partialDict as Dict
+    if (defaultValue) {
+      this.defaultValue = defaultValue
+    }
   }
 
-  register(name: string, value: Dict[string]) {
-    // if (this.dict[name]) {
-    //   throw new Error(`The ${name} is already registered.`)
-    // }
+  register(name: string, value: Dict[string], options: { override?: boolean } = {}) {
+    const { override = true } = options
+    const isDuplicate = Reflect.has(this.dict, name)
+    if (isDuplicate && !override) {
+      return
+    }
     Reflect.set(this.dict, name, value)
     this.emit()
   }
 
   get<T extends keyof Dict>(name: T): Dict[T] {
-    const value = this.dict[name]
+    const value = this.dict[name] || this.defaultValue
     if (!value) {
       throw new Error(`The ${String(name)} is not registered.`)
     }

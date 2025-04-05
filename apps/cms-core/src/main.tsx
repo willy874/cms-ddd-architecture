@@ -26,7 +26,7 @@ const getRemote = () => {
   ]) => {
     return (): CoreContextPlugin => {
       return (context) => {
-        context.use(layoutRemoteModules!.contextPlugin())
+        context.useModule(layoutRemoteModules, {})
       }
     }
   })

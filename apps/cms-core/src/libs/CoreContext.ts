@@ -3,6 +3,7 @@ import { MaybePromise } from './utils'
 export interface CoreContext {}
 
 export interface CoreContextHooks {
+  name: string
   init: () => MaybePromise<void>
   mount: () => MaybePromise<void>
 }
@@ -10,5 +11,6 @@ export interface CoreContextHooks {
 export type CoreContextPlugin = (context: CoreContext) => void | Partial<CoreContextHooks>
 
 export interface FeatureModule {
-  contextPlugin: (options?: unknown) => CoreContextPlugin
+  dependencies?: string[]
+  contextPlugin?: (options?: unknown) => CoreContextPlugin
 }

@@ -7,7 +7,7 @@ import { CommandBus } from '@/libs/CommandBus'
 import { StorageManager } from '@/libs/StorageManager'
 import { Registry } from '@/libs/Registry'
 import { getGlobal } from '@/libs/utils'
-import { CoreContext, CoreContextHooks, CoreContextPlugin } from '@/libs/CoreContext'
+import { CoreContext, CoreContextHooks, CoreContextPlugin, FeatureModule } from '@/libs/CoreContext'
 import { PortalConfig } from './config'
 import { CustomQueryBusDict, CustomCommandBusDict, CustomEventBusDict, CustomRouteDict, CustomComponentDict } from './custom'
 
@@ -37,7 +37,7 @@ export class PortalContext {
   eventBus = new EventBus<EventBusDict>()
   localStorage = new StorageManager(localStorage)
   sessionStorage = new StorageManager(sessionStorage)
-  componentRegistry = new Registry<ComponentDict>()
+  componentRegistry = new Registry<ComponentDict>({}, { defaultValue: () => null })
   routes = new Registry<RouteDict>()
 
   constructor() {
@@ -55,6 +55,20 @@ export class PortalContext {
       this.pluginHooks.push(result)
     }
     return this
+  }
+
+  useModule<T extends object>(module?: FeatureModule | null, options?: T): this {
+    if (!module) {
+      throw new Error('Module is not defined')
+    }
+    const { dependencies, contextPlugin } = module
+    if (!contextPlugin) {
+      throw new Error('Module contextPlugin is not defined')
+    }
+    if (dependencies && dependencies.every((dep) => this.pluginHooks.some(hook => hook.name === dep))) {
+      throw new Error(`Module dependencies not met`)
+    }
+    return this.use(contextPlugin(options))
   }
 
   async run() {
@@ -92,6 +106,7 @@ export const getPortalContext = (): PortalContext => {
 declare module '@/libs/CoreContext' {
   export interface CoreContext {
     use(plugin: CoreContextPlugin): CoreContext
+    useModule<T extends object>(module?: FeatureModule | null, options?: T): CoreContext
     run(): Promise<void>
     config: PortalConfig
     queryClient: QueryClient

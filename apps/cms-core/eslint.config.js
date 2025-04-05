@@ -21,6 +21,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      '@stylistic/arrow-parens': 'off',
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
