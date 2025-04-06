@@ -3,7 +3,6 @@ import { init as moduleFederationInit, loadRemote } from '@module-federation/enh
 import { CoreContextPlugin, FeatureModule } from './libs/CoreContext'
 import { contextPlugin as http } from './modules/http'
 import { contextPlugin as router } from './modules/router'
-import { contextPlugin as ui } from './modules/ui'
 import { contextPlugin as cqrs } from './modules/cqrs'
 import { createPortal } from './core/PortalContext'
 import { PortalConfig } from './core/config'
@@ -20,14 +19,17 @@ const getConfig = () => Promise.resolve({
 
 const getRemote = () => {
   return Promise.all([
+    loadRemote<FeatureModule>('cms_core/ui'),
     loadRemote<FeatureModule>('cms_core/layout'),
     loadRemote<FeatureModule>('cms_core/auth'),
   ]).then(([
+    uiRemoteModules,
     layoutRemoteModules,
     authRemoteModules,
   ]) => {
     return (): CoreContextPlugin => {
       return (context) => {
+        context.useModule(uiRemoteModules, {})
         context.useModule(layoutRemoteModules, {})
         context.useModule(authRemoteModules, {})
       }
@@ -48,7 +50,6 @@ async function appInit() {
     .use(cqrs())
     .use(http())
     .use(router())
-    .use(ui())
     .use(remote())
     .use(app())
     .run()

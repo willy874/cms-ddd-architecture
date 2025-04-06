@@ -13,14 +13,12 @@ export default defineConfig({
       name: 'cms_core',
       manifest: true,
       exposes: {
+        './ui': './src/remotes/ui',
         './layout': './src/remotes/layout',
         './auth': './src/remotes/auth',
       },
       shared: {
         'react': {
-          singleton: true,
-        },
-        'react/': {
           singleton: true,
         },
         'react-dom': {
