@@ -6,7 +6,7 @@ import { MODULE_NAME } from './constants'
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     context.componentRegistry.register('Layout', Layout)
-    context.router.subscribe('onBeforeLoad', () => {
+    context.router.subscribe('onBeforeNavigate', () => {
       context.store.set(STORE_LAYOUT_TYPE, 'default')
     })
     return {

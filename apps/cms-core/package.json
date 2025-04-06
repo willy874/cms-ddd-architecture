@@ -17,6 +17,7 @@
     "@tanstack/query-core": "5.71.10",
     "@tanstack/react-query": "5.71.10",
     "@tanstack/react-router": "^1.114.29",
+    "@tanstack/react-router-devtools": "^1.115.0",
     "antd": "~5.24.6",
     "axios": "1.8.2",
     "classnames": "2.5.1",
@@ -25,9 +26,9 @@
     "vue": "~3.5.13"
   },
   "devDependencies": {
-    "@packages/shared": "workspace:*",
     "@eslint/js": "9.21.0",
     "@module-federation/vite": "1.2.6",
+    "@packages/shared": "workspace:*",
     "@stylistic/eslint-plugin": "2.12.1",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",

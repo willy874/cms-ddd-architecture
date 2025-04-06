@@ -1,12 +1,10 @@
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
 import { getCoreContext } from '@/libs/CoreContext'
 import { useComputed } from '@/libs/proxy'
-import { Outlet } from '@tanstack/react-router'
-
-function Layout() {
+function Layout({ children }: { children: React.ReactNode }) {
   const layoutType = useComputed(() => getCoreContext().store.get(STORE_LAYOUT_TYPE))
   if (layoutType !== 'default') {
-    return <Outlet />
+    return children
   }
   const AppHeader = getCoreContext().componentRegistry.get('Header')
   const LeftAside = getCoreContext().componentRegistry.get('LeftAside')
@@ -22,7 +20,7 @@ function Layout() {
           <LeftAside />
         </aside>
         <main className="flex flex:column flex-grow:1">
-          <Outlet />
+          {children}
         </main>
         <aside className="flex-shrink:1">
           <RightAside />

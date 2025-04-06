@@ -1,4 +1,5 @@
-import { createRootRoute, createRouter, Outlet } from '@tanstack/react-router'
+import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { CoreContextPlugin, getCoreContext } from '@/libs/CoreContext'
 import { Registry } from '@/libs/Registry'
 
@@ -14,16 +15,32 @@ const rootRoute = createRootRoute({
   component: () => {
     const Layout = getCoreContext().componentRegistry.get('Layout')
     return (
-      <Layout>
-        <Outlet />
-      </Layout>
+      <>
+        <Layout>
+          <Outlet />
+        </Layout>
+        <TanStackRouterDevtools />
+      </>
     )
   },
 })
 
+const routeTree = rootRoute.addChildren([
+  createRoute({
+    path: '/',
+    getParentRoute: () => rootRoute,
+    component: () => {
+      const HomePage = getCoreContext().componentRegistry.get('HomePage')
+      return <HomePage />
+    },
+  }),
+])
+
 const router = createRouter({
-  routeTree: rootRoute,
+  routeTree,
   defaultNotFoundComponent: () => {
+    console.log('Rendering Not Found Page', router)
+
     const NotFound = getCoreContext().componentRegistry.get('NotFound')
     return <NotFound />
   },
