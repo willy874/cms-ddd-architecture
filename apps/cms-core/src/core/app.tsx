@@ -5,14 +5,17 @@ import { createRoot, Root } from 'react-dom/client'
 import { RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 
+export const MODULE_NAME = 'cms_core/app'
+
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     const cache = createCache()
     return {
-      async init() {
+      name: MODULE_NAME,
+      async onInit() {
         await import('@ant-design/v5-patch-for-react-19')
       },
-      mount() {
+      onMount() {
         context.router.buildRouteTree()
         unstableSetRender((node, container) => {
           container._reactRoot ||= createRoot(container)

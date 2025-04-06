@@ -1,17 +1,17 @@
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
-import { getPortalContext } from '@/core/PortalContext'
+import { getCoreContext } from '@/libs/CoreContext'
 import { useComputed } from '@/libs/proxy'
 import { Outlet } from '@tanstack/react-router'
 
 function Layout() {
-  const layoutType = useComputed(() => getPortalContext().store.get(STORE_LAYOUT_TYPE))
+  const layoutType = useComputed(() => getCoreContext().store.get(STORE_LAYOUT_TYPE))
   if (layoutType !== 'default') {
     return <Outlet />
   }
-  const AppHeader = getPortalContext().componentRegistry.get('Header')
-  const LeftAside = getPortalContext().componentRegistry.get('LeftAside')
-  const RightAside = getPortalContext().componentRegistry.get('RightAside')
-  const AppFooter = getPortalContext().componentRegistry.get('Footer')
+  const AppHeader = getCoreContext().componentRegistry.get('Header')
+  const LeftAside = getCoreContext().componentRegistry.get('LeftAside')
+  const RightAside = getCoreContext().componentRegistry.get('RightAside')
+  const AppFooter = getCoreContext().componentRegistry.get('Footer')
   return (
     <div className="flex flex:column flex-grow:1">
       <header className="flex-shrink:1">
@@ -36,12 +36,3 @@ function Layout() {
 }
 
 export default Layout
-
-declare module '@/core/custom' {
-  export interface CustomComponentDict {
-    Header: () => React.ReactNode
-    LeftAside: () => React.ReactNode
-    RightAside: () => React.ReactNode
-    Footer: () => React.ReactNode
-  }
-}

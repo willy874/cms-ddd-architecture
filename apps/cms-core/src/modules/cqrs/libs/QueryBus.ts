@@ -1,10 +1,10 @@
-import { QueryClient } from '@tanstack/react-query'
-import { AnyFunction, debounce, throttle } from './utils'
-import { EventEmitter } from './EventEmitter'
+import { QueryClient } from '@tanstack/query-core'
+import { AnyFunction, debounce, throttle } from '@/libs/utils'
+import { EventEmitter } from '@/libs/EventEmitter'
 
 const QUERY_RESULT = Symbol.for('QUERY_RESULT')
 
-export class BaseQuery<Name, Params extends unknown[]> {
+class Query<Name, Params extends unknown[]> {
   context: unknown & {} = {}
   params: Params
   isRefetch = false
@@ -15,24 +15,24 @@ export class BaseQuery<Name, Params extends unknown[]> {
   ) {
     this.params = params
   }
-
-  refetch() {
-    this.isRefetch = true
-    return this
-  }
 }
 
-interface QueryOptions {
+interface QueryProvideOptions {
   cache?: boolean
   debounce?: number
   throttle?: number
+}
+interface QueryOptions<Name, Params extends unknown[]> {
+  name: Name
+  params: Params
+  isRefetch?: boolean
 }
 
 export class QueryBus<Dict extends Record<string, AnyFunction>> {
   emitter = new EventEmitter()
   queryClient = new QueryClient()
 
-  private cacheHandler(query: BaseQuery<string, unknown[]>, handler: (...params: unknown[]) => unknown) {
+  #cacheHandler(query: Query<string, unknown[]>, handler: (...params: unknown[]) => unknown) {
     const queryKeys = [query.name, ...query.params]
     const diffValue = (oldValue: unknown, newValue: unknown) => {
       if (Object.is(oldValue, newValue)) {
@@ -54,13 +54,13 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
     return cache
   }
 
-  dynamicProvide(name: string, handler: (...params: unknown[]) => unknown, options: QueryOptions = {}) {
-    let listener = (query: BaseQuery<string, unknown[]>) => {
+  #provide(name: string, handler: (...params: unknown[]) => unknown, options: QueryProvideOptions = {}) {
+    let listener = (query: Query<string, unknown[]>) => {
       if (query.name !== name) {
         return
       }
       const result = options.cache
-        ? this.cacheHandler(query, handler)
+        ? this.#cacheHandler(query, handler)
         : handler(...query.params)
       Reflect.set(query.context, QUERY_RESULT, result)
       this.emitter.emit('query:result', query)
@@ -77,10 +77,13 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
     }
   }
 
-  dynamicQuery(query: BaseQuery<string, unknown[]>) {
+  #query(args: QueryOptions<unknown, unknown[]>) {
+    const { name, params, isRefetch = false } = args
     const empty = Symbol('empty')
     let result: unknown = empty
-    const listener = (q: BaseQuery<string, unknown[]>) => {
+    const query = new Query(name, ...params)
+    query.isRefetch = isRefetch
+    const listener = (q: Query<string, unknown[]>) => {
       if (query === q) {
         result = Reflect.get(q.context, QUERY_RESULT)
         this.emitter.off('query:result', listener)
@@ -95,11 +98,20 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
     return result
   }
 
-  provide<T extends keyof Dict>(name: T, handler: Dict[T], options: QueryOptions = {}): () => void {
-    return this.dynamicProvide(name as string, handler, options)
+  provide<T extends keyof Dict>(name: T, handler: Dict[T], options: QueryProvideOptions = {}): () => void {
+    return this.#provide(name as string, handler, options)
   }
 
-  query<T extends keyof Dict>(query: BaseQuery<T, Parameters<Dict[T]>>): ReturnType<Dict[T]> {
-    return this.dynamicQuery(query as any) as ReturnType<Dict[T]>
+  query<T extends keyof Dict>(name: T, ...params: Parameters<Dict[T]>): ReturnType<Dict[T]>
+  query<T extends keyof Dict>(params: QueryOptions<T, Parameters<Dict[T]>>): ReturnType<Dict[T]>
+  query<T extends keyof Dict>(...args: unknown[]): ReturnType<Dict[T]> {
+    if (args.length === 1 && typeof args[0] === 'object') {
+      return this.#query(args[0] as QueryOptions<T, Parameters<Dict[T]>>) as ReturnType<Dict[T]>
+    }
+    if (typeof args[0] === 'string') {
+      const [name, params] = args as [T, Parameters<Dict[T]>]
+      return this.#query({ name, params }) as ReturnType<Dict[T]>
+    }
+    throw new Error('Invalid arguments for query')
   }
 }

@@ -1,12 +1,13 @@
 import './index.css'
-import { init, loadRemote } from '@module-federation/enhanced/runtime'
+import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
 import { CoreContextPlugin, FeatureModule } from './libs/CoreContext'
-import { createPortal } from './core/PortalContext'
-import { PortalConfig } from './core/config'
 import { contextPlugin as http } from './modules/http'
 import { contextPlugin as router } from './modules/router'
 import { contextPlugin as ui } from './modules/ui'
-import { contextPlugin as app } from './modules/app'
+import { contextPlugin as cqrs } from './modules/cqrs'
+import { createPortal } from './core/PortalContext'
+import { PortalConfig } from './core/config'
+import { contextPlugin as app } from './core/app'
 
 const getConfig = () => Promise.resolve({
   remotes: [
@@ -23,10 +24,12 @@ const getRemote = () => {
     loadRemote<FeatureModule>('cms_core/auth'),
   ]).then(([
     layoutRemoteModules,
+    authRemoteModules,
   ]) => {
     return (): CoreContextPlugin => {
       return (context) => {
         context.useModule(layoutRemoteModules, {})
+        context.useModule(authRemoteModules, {})
       }
     }
   })
@@ -35,13 +38,14 @@ const getRemote = () => {
 async function appInit() {
   const config = await getConfig()
   await import('@master/css')
-  init({
+  moduleFederationInit({
     name: 'cms_core',
     remotes: config.remotes,
   })
   const portal = createPortal(config)
   const remote = await getRemote()
   await portal
+    .use(cqrs())
     .use(http())
     .use(router())
     .use(ui())
@@ -50,9 +54,3 @@ async function appInit() {
     .run()
 }
 appInit()
-
-declare module '@/core/custom' {
-  export interface CustomComponentDict {
-    NotFound: () => React.ReactNode
-  }
-}

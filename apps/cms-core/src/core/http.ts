@@ -1,10 +1,10 @@
-import { getPortalContext } from './PortalContext'
-import { CreateBaseHttpQuery, CreateAuthHttpQuery } from './queries'
+import { getCoreContext } from '@/libs/CoreContext'
+import { CreateAuthHttpQuery, CreateBaseHttpQuery } from './queries'
 
 export function http() {
-  return getPortalContext().queryBus.query(new CreateBaseHttpQuery())
+  return getCoreContext().queryBus.query(new CreateBaseHttpQuery())
 }
 
 export function httpAuth() {
-  return getPortalContext().queryBus.query(new CreateAuthHttpQuery())
+  return getCoreContext().queryBus.query(new CreateAuthHttpQuery())
 }

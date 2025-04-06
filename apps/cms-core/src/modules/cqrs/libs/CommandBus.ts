@@ -1,10 +1,10 @@
-import { EventEmitter } from './EventEmitter'
+import { EventEmitter } from '@/libs/EventEmitter'
 import { QueueMap } from './Queue'
-import { AnyFunction, debounce, throttle } from './utils'
+import { AnyFunction, debounce, throttle } from '@/libs/utils'
 
 const COMMAND_RESULT = Symbol.for('COMMAND_RESULT')
 
-export class BaseCommand<Name, Params extends unknown[]> {
+class Command<Name, Params extends unknown[]> {
   params: Params
   context: unknown & {} = {}
 
@@ -16,18 +16,23 @@ export class BaseCommand<Name, Params extends unknown[]> {
   }
 }
 
-interface CommandOptions {
+interface CommandProvideOptions {
   isBlacking?: boolean
   debounce?: number
   throttle?: number
+}
+
+interface CommandOptions<Name, Params extends unknown[]> {
+  name: Name
+  params: Params
 }
 
 export class CommandBus<Dict extends Record<string, AnyFunction>> {
   emitter = new EventEmitter()
   queueMap = new QueueMap()
 
-  dynamicProvide(name: string, handler: (...params: unknown[]) => unknown, options: CommandOptions = {}) {
-    let listener = (command: BaseCommand<string, unknown[]>) => {
+  #provide(name: string, handler: (...params: unknown[]) => unknown, options: CommandProvideOptions = {}) {
+    let listener = (command: Command<string, unknown[]>) => {
       if (command.name !== name) {
         return
       }
@@ -58,9 +63,11 @@ export class CommandBus<Dict extends Record<string, AnyFunction>> {
     }
   }
 
-  dynamicCommand(command: BaseCommand<string, unknown[]>) {
+  #command(args: CommandOptions<unknown, unknown[]>): Promise<unknown> {
+    const { name, params } = args
+    const command = new Command(name, ...params)
     return new Promise((resolve) => {
-      const listener = (c: BaseCommand<string, unknown[]>) => {
+      const listener = (c: Command<string, unknown[]>) => {
         if (command === c) {
           const result = Reflect.get(c.context, COMMAND_RESULT)
           resolve(result)
@@ -72,11 +79,20 @@ export class CommandBus<Dict extends Record<string, AnyFunction>> {
     })
   }
 
-  provide<T extends keyof Dict>(name: T, handler: Dict[T], options: CommandOptions = {}): () => void {
-    return this.dynamicProvide(name as string, handler, options)
+  provide<T extends keyof Dict>(name: T, handler: Dict[T], options: CommandProvideOptions = {}): () => void {
+    return this.#provide(name as string, handler, options)
   }
 
-  command<T extends keyof Dict>(query: BaseCommand<T, Parameters<Dict[T]>>): ReturnType<Dict[T]> {
-    return this.dynamicCommand(query as any) as ReturnType<Dict[T]>
+  command<T extends keyof Dict>(name: T, ...params: Parameters<Dict[T]>): ReturnType<Dict[T]>
+  command<T extends keyof Dict>(params: CommandOptions<T, Parameters<Dict[T]>>): ReturnType<Dict[T]>
+  command<T extends keyof Dict>(...args: unknown[]): ReturnType<Dict[T]> {
+    if (args.length === 1 && typeof args[0] === 'object') {
+      return this.#command(args[0] as CommandOptions<T, Parameters<Dict[T]>>) as ReturnType<Dict[T]>
+    }
+    if (typeof args[0] === 'string') {
+      const [name, params] = args as [T, Parameters<Dict[T]>]
+      return this.#command({ name, params }) as ReturnType<Dict[T]>
+    }
+    throw new Error('Invalid arguments for command')
   }
 }
