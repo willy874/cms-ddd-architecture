@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { ConfigProvider, unstableSetRender } from 'antd'
 import { StyleProvider, createCache } from '@ant-design/cssinjs'
 import { createRoot, Root } from 'react-dom/client'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { Link, RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 
@@ -39,7 +40,9 @@ export function contextPlugin(): CoreContextPlugin {
           <StrictMode>
             <StyleProvider cache={cache}>
               <ConfigProvider theme={{ cssVar: true }}>
-                <RouterProvider router={context.router} />
+                <QueryClientProvider client={context.queryClient}>
+                  <RouterProvider router={context.router} />
+                </QueryClientProvider>
               </ConfigProvider>
             </StyleProvider>
           </StrictMode>,
