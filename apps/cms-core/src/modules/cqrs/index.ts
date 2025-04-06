@@ -27,7 +27,6 @@ export const contextPlugin = (): CoreContextPlugin => {
     const commandBus = new CommandBus<CommandBusDict>()
     commandBus.emitter = context.emitter
     const eventBus = new EventBus<EventBusDict>()
-    eventBus.emitter = context.emitter
 
     context.queryBus = queryBus
     context.commandBus = commandBus
