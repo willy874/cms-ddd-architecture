@@ -10,7 +10,7 @@ async function bootstrap() {
       AuthModule.register(),
     ],
   })
-  await app.listen(process.env.PORT ?? 5001)
+  await app.listen(process.env.AUTH_API_PORT ?? 3000)
 }
 
 bootstrap()

@@ -14,7 +14,7 @@ async function bootstrap() {
       UserModule.register(),
     ],
   })
-  await app.listen(process.env.PORT ?? 5001)
+  await app.listen(process.env.USER_API_PORT ?? 3000)
 }
 
 bootstrap()
