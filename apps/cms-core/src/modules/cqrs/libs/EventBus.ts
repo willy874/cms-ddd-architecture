@@ -1,18 +1,20 @@
-import { AnyFunction } from '@/libs/utils'
+import { AnyFunction, debounce, throttle } from '@/libs/utils'
 
 const EVENT_SYMBOL = Symbol.for('EVENT_SYMBOL')
 const EVENT_RESULT = Symbol.for('EVENT_RESULT')
 
-class BaseEvent<Name, Params extends unknown[]> {
+class BaseEvent<Name, Handler extends AnyFunction> {
   [EVENT_SYMBOL] = true
   context: unknown & {} = {}
-  params: Params
+  params: Parameters<Handler>
+  results: ReturnType<Handler>[]
 
   constructor(
     public name: Name,
-    ...params: Params
+    ...params: Parameters<Handler>
   ) {
     this.params = params
+    this.results = []
   }
 
   #cancelable = false
@@ -27,77 +29,96 @@ class BaseEvent<Name, Params extends unknown[]> {
 
 interface EventOptions {
   maxHandler?: number
+}
+
+interface ChannelOptions {
   debounce?: number
   throttle?: number
   noack?: boolean
 }
 
-export class EventBus<Dict extends Record<string, AnyFunction>> {
-  listenerMap: Map<string, AnyFunction[]> = new Map()
+class EventChannel<Name, Handler extends AnyFunction> {
+  listeners: ((event: BaseEvent<Name, Handler>) => ReturnType<Handler>)[] = []
+  emit: (...args: Parameters<Handler>) => ReturnType<Handler>[]
 
-  #off(event: string, listener: AnyFunction) {
-    const listeners = this.listenerMap.get(event) || []
-    this.listenerMap.set(event, listeners.filter(l => l !== listener))
+  constructor(private name: Name, options: ChannelOptions = {}) {
+    const emit: this['emit'] = (...params) => {
+      const event = new BaseEvent<Name, Handler>(this.name, ...params)
+      for (const listener of this.listeners) {
+        listener(event)
+      }
+      return [] as any
+    }
+    this.emit = emit
+    if (options.debounce) {
+      this.emit = debounce(emit, options.debounce)
+    }
+    if (options.throttle) {
+      this.emit = throttle(emit, options.throttle)
+    }
   }
 
-  #on(event: string, listener: AnyFunction) {
-    const listeners = this.listenerMap.get(event) || []
-    this.listenerMap.set(event, [...listeners, listener])
+  on(callback: (event: BaseEvent<Name, Handler>) => ReturnType<Handler>) {
+    this.listeners.push(callback)
     return () => {
-      this.#off(event, listener)
+      this.listeners = this.listeners.filter(l => l !== callback)
     }
   }
 
-  #emit(event: string, ...args: unknown[]) {
-    const listeners = this.listenerMap.get(event) || []
-    for (const listener of listeners) {
-      listener(...args)
-    }
+  off(callback: (event: BaseEvent<Name, Handler>) => ReturnType<Handler>) {
+    this.listeners = this.listeners.filter(l => l !== callback)
   }
 
-  #subscribe(
-    name: string,
-    callback: (e: BaseEvent<unknown, any>) => unknown,
-    options: EventOptions = {},
-  ): () => void {
+  subscribe(callback: Handler, options: EventOptions = {}): () => void {
     let count = options.maxHandler || Infinity
-    const eventType = `event:${name}`
-    const listener = (event: BaseEvent<any, any>) => {
+    const listener = (event: BaseEvent<any, AnyFunction>) => {
       if (event.cancelable) {
         return
       }
-      if (options.noack) {
-        callback(event)
+      const result = callback(event)
+      if (!Reflect.has(event.context, EVENT_RESULT)) {
+        Reflect.set(event.context, EVENT_RESULT, [])
       }
-      else {
-        const result = callback(event)
-        if (!Reflect.has(event.context, EVENT_RESULT)) {
-          Reflect.set(event.context, EVENT_RESULT, [])
-        }
-        const results = Reflect.get(event.context, EVENT_RESULT) as unknown[]
-        Reflect.set(event.context, EVENT_RESULT, [...results, result])
-      }
+      const results = Reflect.get(event.context, EVENT_RESULT) as unknown[]
+      Reflect.set(event.context, EVENT_RESULT, [...results, result])
       if (--count === 0) {
-        this.#off(eventType, listener)
+        this.off(listener)
       }
+      return result
     }
-    this.#on(eventType, listener)
-    return () => {
-      this.#off(eventType, listener)
+    return this.on(listener)
+  }
+
+  publish(event: BaseEvent<Name, Handler>) {
+    return this.emit(...event.params)
+  }
+}
+
+export class EventBus<Dict extends Record<string, AnyFunction>> {
+  private channels: Map<any, EventChannel<any, AnyFunction>> = new Map()
+
+  channel<T extends keyof Dict>(name: T, options: ChannelOptions) {
+    if (this.channels.has(name as string)) {
+      return this.channels.get(name as string) as EventChannel<T, Dict[T]>
     }
+    const channel = new EventChannel<T, Dict[T]>(name, options)
+    this.channels.set(name, channel)
+    return this
   }
 
-  #publish(event: BaseEvent<string, unknown[]>): unknown[] {
-    const eventType = `event:${String(event.name)}`
-    this.#emit(eventType, event)
-    return Reflect.get(event.context, EVENT_RESULT) as unknown[]
+  subscribe<T extends keyof Dict>(name: T, callback: (e: BaseEvent<T, Dict[T]>) => ReturnType<Dict[T]>, options: EventOptions = {}): () => void {
+    const channel = this.channels.get(name)
+    if (!channel) {
+      throw new Error(`Channel ${String(name)} not found`)
+    }
+    return channel.subscribe(callback, options)
   }
 
-  subscribe<T extends keyof Dict>(name: T, callback: (e: BaseEvent<T, Parameters<Dict[T]>>) => ReturnType<Dict[T]>, options: EventOptions = {}): () => void {
-    return this.#subscribe(name as string, callback as any, options)
-  }
-
-  publish<T extends keyof Dict>(event: BaseEvent<T, Parameters<Dict[T]>>): ReturnType<Dict[T]>[] {
-    return this.#publish(event as any) as ReturnType<Dict[T]>[]
+  publish<T extends keyof Dict>(event: BaseEvent<T, Dict[T]>): ReturnType<Dict[T]>[] {
+    const channel = this.channels.get(event.name)
+    if (!channel) {
+      throw new Error(`Channel ${String(event.name)} not found`)
+    }
+    return channel.emit(...event.params)
   }
 }
