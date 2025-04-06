@@ -15,7 +15,7 @@ export function contextPlugin(): CoreContextPlugin {
   }
 }
 
-declare module '@/core/custom' {
+declare module '@/modules/core' {
   export interface CustomComponentDict {
     Layout: (props: { children: React.ReactNode }) => React.ReactNode
     Header: () => React.ReactNode

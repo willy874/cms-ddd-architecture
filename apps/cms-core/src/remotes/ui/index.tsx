@@ -12,7 +12,7 @@ export function contextPlugin(): CoreContextPlugin {
   }
 }
 
-declare module '@/core/custom' {
+declare module '@/modules/core' {
   export interface CustomComponentDict {
     NotFound: () => React.ReactNode
   }

@@ -1,10 +1,10 @@
 import { AxiosInstance } from 'axios'
 import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
 import { BASE_URL } from '@/constants/env'
-import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from '@/libs/apis'
 import { HttpErrorCode, TOKEN_TYPE } from '@/constants/http'
 import { StorageKey } from '@/constants/storage'
 import { CoreContextPlugin } from '@/libs/CoreContext'
+import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from './libs'
 
 export const MODULE_NAME = 'cms_core/http'
 

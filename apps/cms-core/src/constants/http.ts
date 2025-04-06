@@ -1,9 +1,3 @@
-export interface HttpResult<T = unknown> {
-  code: number
-  message: string
-  data: T
-}
-
 export enum HttpErrorCode {
   TOKEN_EMPTY = 40101,
   TOKEN_INVALID = 40102,
