@@ -2,6 +2,7 @@ import { ROOT_ROUTE, HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants
 import { CoreContextPlugin, getCoreContext } from '@/libs/CoreContext'
 import { Registry } from '@/libs/Registry'
 import { createRootRoute, createRoute, Outlet } from '@tanstack/react-router'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 const rootRoute = createRootRoute({
@@ -12,7 +13,12 @@ const rootRoute = createRootRoute({
         <Layout>
           <Outlet />
         </Layout>
-        <TanStackRouterDevtools />
+        {import.meta.env.DEV && (
+          <>
+            <ReactQueryDevtools buttonPosition="bottom-left" />
+            <TanStackRouterDevtools position="bottom-right" />
+          </>
+        )}
       </>
     )
   },
