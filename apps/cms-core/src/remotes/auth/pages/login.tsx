@@ -1,5 +1,4 @@
-import { getCoreContext } from '@/libs/CoreContext'
-import { createRoute, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 function LoginPage() {
   return (
@@ -14,8 +13,4 @@ function LoginPage() {
   )
 }
 
-export const LoginRoute = createRoute({
-  getParentRoute: () => getCoreContext().rootRoute,
-  path: '/login',
-  component: LoginPage,
-})
+export default LoginPage

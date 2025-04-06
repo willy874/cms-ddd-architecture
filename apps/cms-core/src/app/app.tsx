@@ -26,7 +26,6 @@ export function contextPlugin(): CoreContextPlugin {
         await import('@ant-design/v5-patch-for-react-19')
       },
       onMount() {
-        context.router.buildRouteTree()
         unstableSetRender((node, container) => {
           container._reactRoot ||= createRoot(container)
           const root = container._reactRoot

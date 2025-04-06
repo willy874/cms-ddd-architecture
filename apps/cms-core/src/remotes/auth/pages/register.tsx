@@ -1,5 +1,4 @@
-import { getCoreContext } from '@/libs/CoreContext'
-import { createRoute, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 function RegisterPage() {
   return (
@@ -14,8 +13,4 @@ function RegisterPage() {
   )
 }
 
-export const RegisterRoute = createRoute({
-  getParentRoute: () => getCoreContext().rootRoute,
-  path: '/register',
-  component: RegisterPage,
-})
+export default RegisterPage

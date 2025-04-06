@@ -2,10 +2,11 @@ import './index.css'
 import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
 import { CoreContextPlugin, FeatureModule } from '@/libs/CoreContext'
 import { contextPlugin as http } from '@/modules/http'
-import { contextPlugin as router } from '@/modules/router'
 import { contextPlugin as cqrs } from '@/modules/cqrs'
-import { createPortal } from '@/app/PortalContext'
 import { PortalConfig } from '@/libs/PortalConfig'
+import { createPortal } from './PortalContext'
+import { contextPlugin as router } from './router'
+import { contextPlugin as routes } from './routes'
 import { contextPlugin as app } from './app'
 
 const getConfig = () => Promise.resolve({
@@ -49,6 +50,7 @@ export async function appInit() {
   await portal
     .use(cqrs())
     .use(http())
+    .use(routes())
     .use(router())
     .use(remote())
     .use(app())

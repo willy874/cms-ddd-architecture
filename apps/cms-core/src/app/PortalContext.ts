@@ -4,7 +4,7 @@ import { StateManager } from '@/libs/StateManager'
 import { StorageManager } from '@/libs/StorageManager'
 import { Registry } from '@/libs/Registry'
 import { BaseCoreContext, CoreContext, createContext } from '@/libs/CoreContext'
-import { PortalConfig } from '../libs/PortalConfig'
+import { PortalConfig } from '@/libs/PortalConfig'
 import { CustomComponentDict } from '@/modules/core'
 
 type ComponentDict = {
