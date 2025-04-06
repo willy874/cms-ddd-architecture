@@ -49,13 +49,13 @@ export class UserController {
 
   @Get('/login-check')
   async getUserByLogin(
-    @Body() body: LoginDto,
+    @Query() query: LoginDto,
   ) {
     return {
       code: 200,
       data: await this.userService.getUserByNameAndPassword({
-        username: body.username,
-        password: body.password,
+        username: query.username,
+        password: query.password,
       }),
     }
   }

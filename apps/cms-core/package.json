@@ -25,6 +25,7 @@
     "vue": "~3.5.13"
   },
   "devDependencies": {
+    "@packages/shared": "workspace:*",
     "@eslint/js": "9.21.0",
     "@module-federation/vite": "1.2.6",
     "@stylistic/eslint-plugin": "2.12.1",

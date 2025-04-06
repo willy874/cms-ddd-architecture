@@ -7,9 +7,11 @@ import { RegisterDto } from './register.dto'
 
 const UserSchema = z.object({
   id: z.number(),
+  username: z.string(),
 })
 
 const HttpResultSchema = z.object({
+  code: z.number(),
   data: UserSchema,
 })
 
@@ -30,13 +32,22 @@ export class AuthUserService {
       password: dto.password,
     }
     const { data } = await this.http.get('/login-check', { params: query })
-    const result = HttpResultSchema.parse(data)
-    return UserSchema.or(z.null()).parse(result.data)
+    try {
+      const result = HttpResultSchema.parse(JSON.parse(data))
+      return result.data
+    }
+    catch (error) {
+      if (error instanceof z.ZodError) {
+        // Handle validation error
+      }
+      return null
+    }
   }
 
   async getUserById(id: number) {
-    const res = await this.http.get(`/${id}`)
-    return UserSchema.parse(res.data.data)
+    const { data } = await this.http.get(`/${id}`)
+    const res = HttpResultSchema.parse(JSON.parse(data))
+    return res.data
   }
 
   async insertUser(dto: RegisterDto) {
@@ -46,7 +57,7 @@ export class AuthUserService {
       roles: [],
     }
     const { data } = await this.http.post('/', command)
-    const result = HttpResultSchema.parse(data)
-    return UserSchema.parse(result.data)
+    const result = HttpResultSchema.parse(JSON.parse(data))
+    return result.data
   }
 }
