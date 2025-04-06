@@ -8,19 +8,19 @@ import { contextPlugin as router } from './modules/router'
 import { contextPlugin as ui } from './modules/ui'
 import { contextPlugin as app } from './modules/app'
 
-init({
-  name: 'cms_core',
+const getConfig = () => Promise.resolve({
   remotes: [
     {
       name: 'cms_core',
       entry: '/mf-manifest.json',
     },
   ],
-})
+} satisfies PortalConfig)
 
 const getRemote = () => {
   return Promise.all([
     loadRemote<FeatureModule>('cms_core/layout'),
+    loadRemote<FeatureModule>('cms_core/auth'),
   ]).then(([
     layoutRemoteModules,
   ]) => {
@@ -33,8 +33,12 @@ const getRemote = () => {
 }
 
 async function appInit() {
+  const config = await getConfig()
   await import('@master/css')
-  const config = await Promise.resolve({} as PortalConfig)
+  init({
+    name: 'cms_core',
+    remotes: config.remotes,
+  })
   const portal = createPortal(config)
   const remote = await getRemote()
   await portal

@@ -11,6 +11,7 @@ export default defineConfig({
       manifest: true,
       exposes: {
         './layout': './src/remotes/layout',
+        './auth': './src/remotes/auth',
       },
       shared: {
         'react': {
