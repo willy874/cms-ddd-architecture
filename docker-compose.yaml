@@ -42,15 +42,16 @@ services:
     container_name: backend-service
     volumes:
       - .:/app
-    # ports:
-    #   - "4000:4000"
+    ports:
+      - "4201:4201"
+      - "4202:4202"
     env_file:
       - ./.env
     depends_on:
       - database-service
       - cache-service
       - queue-service
-    command: pnpm --filter api-nest-app start:dev
+    command: pnpm --filter api-service start:dev
   frontend-service:
     build:
       context: .
@@ -61,18 +62,39 @@ services:
     container_name: frontend-service
     volumes:
       - .:/app
+    ports:
+      - "4100:4100"
+    env_file:
+      - ./.env
     environment:
-      PORT: 3000
+      PORT: 4100
     depends_on:
       - backend-service
-    command: pnpm --filter web-next-app dev
+    command: pnpm --filter cms-core dev
+  gateway-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cms-ddd-architecture
+    networks:
+      - app-network
+    container_name: gateway-service
+    volumes:
+      - .:/app
+    ports:
+      - "4200:4200"
+    env_file:
+      - ./.env
+    depends_on:
+      - backend-service
+    command: pnpm --filter gateway-service start:dev
   web-service:
     container_name: app-web-service
     image: nginx:latest
     depends_on:
       - frontend-service
     environment:
-    - NGINX_PORT=8765
+      - NGINX_PORT=8765
     ports:
       - "8765:8765"
     volumes:
