@@ -1,10 +1,17 @@
-import { AxiosInstance } from 'axios'
 import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
 import { BASE_URL } from '@/constants/env'
 import { HttpErrorCode, TOKEN_TYPE } from '@/constants/http'
 import { StorageKey } from '@/constants/storage'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from './libs'
+import { apiFetcherTransform } from './libs/apiFetcherTransform'
+import { ApiFetcher } from './libs/interface'
+
+export type {
+  FetcherConfig,
+  FetcherResponse,
+  HttpResult,
+} from './libs/interface'
 
 export const MODULE_NAME = 'cms_core/http'
 
@@ -49,28 +56,32 @@ export function contextPlugin(): CoreContextPlugin {
       )
     }
     context.queryBus.provide(CREATE_BASE_HTTP_INSTANCE, () => {
-      return createHttpInstance({
-        baseURL: BASE_URL,
-      })
+      return apiFetcherTransform(
+        createHttpInstance({
+          baseURL: BASE_URL,
+        }),
+      )
     })
     context.queryBus.provide(CREATE_AUTH_HTTP_INSTANCE, () => {
-      return createHttpInstance({
-        baseURL: BASE_URL,
-      },
-      [
-        authTokenPlugin({
-          getAuthorization,
-        }),
-        refreshTokenPlugin({
-          isTokenExpired: (res) => {
-            return res.data.code === HttpErrorCode.TOKEN_EXPIRED
-          },
-          fetchRefreshToken,
-          getRefreshToken: tokenCache.get,
-          setRefreshToken: tokenCache.set,
-          removeRefreshToken: tokenCache.remove,
-        }),
-      ])
+      return apiFetcherTransform(
+        createHttpInstance({
+          baseURL: BASE_URL,
+        },
+        [
+          authTokenPlugin({
+            getAuthorization,
+          }),
+          refreshTokenPlugin({
+            isTokenExpired: (res) => {
+              return res.data.code === HttpErrorCode.TOKEN_EXPIRED
+            },
+            fetchRefreshToken,
+            getRefreshToken: tokenCache.get,
+            setRefreshToken: tokenCache.set,
+            removeRefreshToken: tokenCache.remove,
+          }),
+        ]),
+      )
     })
     return {
       name: MODULE_NAME,
@@ -80,7 +91,7 @@ export function contextPlugin(): CoreContextPlugin {
 
 declare module '@/modules/cqrs' {
   export interface CustomQueryBusDict {
-    [CREATE_BASE_HTTP_INSTANCE]: () => AxiosInstance
-    [CREATE_AUTH_HTTP_INSTANCE]: () => AxiosInstance
+    [CREATE_BASE_HTTP_INSTANCE]: () => ApiFetcher
+    [CREATE_AUTH_HTTP_INSTANCE]: () => ApiFetcher
   }
 }

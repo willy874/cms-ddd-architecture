@@ -1,8 +1,9 @@
-import { Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { Form, Input, Button } from 'antd'
-import { useZodToAntdForm } from '../useZodToAntdForm'
 import { useMutation } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
+import { useZodToAntdForm } from '../useZodToAntdForm'
+import { useApiLogin } from '../services/login'
 
 function LoginPage() {
   const LoginFormSchema = z.object({
@@ -15,19 +16,15 @@ function LoginPage() {
     password: '',
   } satisfies LoginFormType
   const { form, rules } = useZodToAntdForm({ schema: LoginFormSchema })
-  const { mutateAsync: onFinish } = useMutation({
+  const apiLogin = useApiLogin()
+  const { mutateAsync: onFinish, isPending } = useMutation({
     mutationFn: async (value: LoginFormType) => {
-
+      await apiLogin(value)
     },
   })
   return (
-    <div>
+    <div className="flex flex:column padding:16px">
       <h1>Login Page</h1>
-      <p>Please enter your credentials to login.</p>
-      <div className="flex flex:column">
-        <Link to="/">Go to Home</Link>
-        <Link to="/register">Go to Register</Link>
-      </div>
       <Form
         form={form}
         initialValues={initialValues}
@@ -41,8 +38,12 @@ function LoginPage() {
             <Input type="password" />
           </Form.Item>
           <Form.Item>
-            <Button htmlType="submit">Login</Button>
+            <Button htmlType="submit" loading={isPending}>Login</Button>
           </Form.Item>
+        </div>
+        <div className="flex flex:column">
+          <Link to="/">Go to Home</Link>
+          <Link to="/register">Go to Register</Link>
         </div>
       </Form>
     </div>
