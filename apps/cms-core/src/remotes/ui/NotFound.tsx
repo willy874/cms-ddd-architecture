@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import { genStyleHook } from '@/libs/genStyleHook'
+import { genStyleHook } from '@/libs/hooks/genStyleHook'
 
 const useStyle = genStyleHook('NotFound', () => ({
   root: {

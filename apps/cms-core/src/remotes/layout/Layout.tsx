@@ -1,6 +1,7 @@
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
 import { getCoreContext } from '@/libs/CoreContext'
-import { useComputed } from '@/libs/proxy'
+import { useComputed } from '@/libs/hooks/useComputed'
+
 function Layout({ children }: { children: React.ReactNode }) {
   const layoutType = useComputed(() => getCoreContext().store.get(STORE_LAYOUT_TYPE))
   if (layoutType !== 'default') {
