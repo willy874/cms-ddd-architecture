@@ -5,6 +5,7 @@ import LoginPage from './pages/login'
 import RegisterPage from './pages/register'
 import { apiCheckLogin } from './services/login'
 import { StorageKey } from '@/constants/storage'
+import { ROUTER_INIT } from '@/constants/event'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
@@ -22,7 +23,7 @@ export function contextPlugin(): CoreContextPlugin {
       RegisterRoute.to,
     ] as string[]
 
-    const channel = context.eventBus.channel('router-init')
+    const channel = context.eventBus.channel(ROUTER_INIT)
     channel.subscribe(() => {
       const accessToken = context.localStorage.getItem(StorageKey.ACCESS_TOKEN)
       if (accessToken) {
@@ -44,15 +45,12 @@ export function contextPlugin(): CoreContextPlugin {
 
     return {
       name: MODULE_NAME,
-      onInit: () => {
-        channel.publish()
-      },
     }
   }
 }
 
 declare module '@/modules/cqrs' {
   export interface CustomEventBusDict {
-    'router-init': () => void
+    [ROUTER_INIT]: () => void
   }
 }

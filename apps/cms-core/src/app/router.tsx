@@ -3,6 +3,7 @@ import { routeTree } from './routes'
 import { CoreContextPlugin, getCoreContext } from '@/libs/CoreContext'
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
 import { LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
+import { ROUTER_INIT } from '@/constants/event'
 
 export const MODULE_NAME = 'cms_core/router'
 
@@ -36,6 +37,10 @@ export function contextPlugin(): CoreContextPlugin {
     })
     return {
       name: MODULE_NAME,
+      onInit: () => {
+        const channel = context.eventBus.channel(ROUTER_INIT)
+        channel.publish()
+      },
     }
   }
 }
