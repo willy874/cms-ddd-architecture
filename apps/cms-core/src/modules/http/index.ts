@@ -49,6 +49,7 @@ export function contextPlugin(): CoreContextPlugin {
     }
     const fetchRefreshToken = (dto: TokenInfo) => {
       return createHttpInstance({
+        baseURL: BASE_URL,
         headers: { Authorization: `${TOKEN_TYPE} ${dto.accessToken}` },
       }).post<TokenInfo>(
         '/refresh-token',

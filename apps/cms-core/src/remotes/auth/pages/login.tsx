@@ -2,10 +2,17 @@ import { z } from 'zod'
 import { Form, Input, Button } from 'antd'
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { getCoreContext } from '@/libs/CoreContext'
+import { StorageKey } from '@/constants/storage'
+import { HOME_ROUTE, LOGIN_ROUTE } from '@/constants/routes'
 import { useZodToAntdForm } from '../useZodToAntdForm'
-import { useApiLogin } from '../services/login'
+import { apiLogin } from '../services/login'
 
 function LoginPage() {
+  const ctx = getCoreContext()
+  const Route = ctx.routes.get(LOGIN_ROUTE)
+  const HomeRoute = ctx.routes.get(HOME_ROUTE)
+  const navigate = Route.useNavigate()
   const LoginFormSchema = z.object({
     username: z.string().nonempty('Please enter username!'),
     password: z.string().nonempty('Please enter password!'),
@@ -16,10 +23,13 @@ function LoginPage() {
     password: '',
   } satisfies LoginFormType
   const { form, rules } = useZodToAntdForm({ schema: LoginFormSchema })
-  const apiLogin = useApiLogin()
   const { mutateAsync: onFinish, isPending } = useMutation({
-    mutationFn: async (value: LoginFormType) => {
-      await apiLogin(value)
+    mutationFn: apiLogin,
+    onSuccess: ({ data }) => {
+      ctx.localStorage.setItem(StorageKey.ACCESS_TOKEN, data.accessToken)
+      ctx.localStorage.setItem(StorageKey.REFRESH_TOKEN, data.refreshToken)
+      ctx.localStorage.setItem(StorageKey.TOKEN_TYPE, data.tokenType)
+      navigate({ to: HomeRoute.to })
     },
   })
   return (

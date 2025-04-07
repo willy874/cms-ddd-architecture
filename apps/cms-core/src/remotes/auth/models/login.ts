@@ -10,6 +10,7 @@ export type LoginRequestDTO = z.infer<typeof LoginRequestDTOSchema>
 export const LoginResponseDTOSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
+  tokenType: z.string(),
 })
 
 export type LoginResponseDTO = z.infer<typeof LoginResponseDTOSchema>

@@ -109,7 +109,7 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
       return this.#query(args[0] as QueryOptions<T, Parameters<Dict[T]>>) as ReturnType<Dict[T]>
     }
     if (typeof args[0] === 'string') {
-      const [name, params] = args as [T, Parameters<Dict[T]>]
+      const [name, params = []] = args as [T, Parameters<Dict[T]>]
       return this.#query({ name, params }) as ReturnType<Dict[T]>
     }
     throw new Error('Invalid arguments for query')
