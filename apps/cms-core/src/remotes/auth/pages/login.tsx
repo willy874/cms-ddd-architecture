@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { getCoreContext } from '@/libs/CoreContext'
 import { StorageKey } from '@/constants/storage'
-import { HOME_ROUTE, LOGIN_ROUTE } from '@/constants/routes'
+import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
 import { useZodToAntdForm } from '../useZodToAntdForm'
 import { apiLogin } from '../services/login'
 
@@ -12,6 +12,7 @@ function LoginPage() {
   const ctx = getCoreContext()
   const Route = ctx.routes.get(LOGIN_ROUTE)
   const HomeRoute = ctx.routes.get(HOME_ROUTE)
+  const RegisterRoute = ctx.routes.get(REGISTER_ROUTE)
   const navigate = Route.useNavigate()
   const LoginFormSchema = z.object({
     username: z.string().nonempty('Please enter username!'),
@@ -48,12 +49,11 @@ function LoginPage() {
             <Input type="password" />
           </Form.Item>
           <Form.Item>
-            <Button htmlType="submit" loading={isPending}>Login</Button>
+            <Button htmlType="submit" loading={isPending}>Submit</Button>
           </Form.Item>
         </div>
         <div className="flex flex:column">
-          <Link to="/">Go to Home</Link>
-          <Link to="/register">Go to Register</Link>
+          <Link to={RegisterRoute.to}>Go to Register</Link>
         </div>
       </Form>
     </div>

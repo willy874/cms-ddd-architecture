@@ -1,23 +1,31 @@
 import { Form } from 'antd'
 import { FormInstance, Rule } from 'antd/es/form'
-import { UnknownKeysParam, z } from 'zod'
+import { z } from 'zod'
+
+type AnyObject = z.ZodObject<Record<string, z.ZodType>>
+type AnyObjectEffect = z.ZodEffects<AnyObject>
 
 interface FormOptions<
-  Schema extends z.ZodObject<Record<string, z.ZodType>, UnknownKeysParam, z.ZodTypeAny, Record<string, any>, Record<string, any>>,
+  Schema extends AnyObject | AnyObjectEffect,
 > {
   schema: Schema
   form?: FormInstance<z.infer<Schema>>
 }
 
 export function useZodToAntdForm<
-  Schema extends z.ZodObject<Record<string, z.ZodType>, UnknownKeysParam, z.ZodTypeAny, Record<string, any>, Record<string, any>>,
+  Schema extends AnyObject | AnyObjectEffect,
 >(options: FormOptions<Schema>): {
   form: FormInstance<z.infer<Schema>>
-  rules: { [K in keyof Schema['shape']]: Rule[] }
+  rules: { [K in keyof (
+    Schema extends AnyObjectEffect ? Schema['_def']['schema']['shape'] :
+      Schema extends AnyObject ? Schema['shape'] : never
+  )]: Rule[] }
 } {
   const [form] = Form.useForm<z.infer<Schema>>(options.form)
   const rules: { [k: string]: Rule[] } = {}
-  const shape = options.schema instanceof z.ZodType ? options.schema.shape : options.schema
+  const shape = options.schema instanceof z.ZodEffects
+    ? options.schema._def.schema.shape
+    : options.schema.shape
   for (const key in shape) {
     const propertySchema = shape[key]
     rules[key] = [{
@@ -33,6 +41,6 @@ export function useZodToAntdForm<
   }
   return {
     form,
-    rules: rules as { [K in keyof Schema['shape']]: Rule[] },
+    rules: rules as any,
   }
 }

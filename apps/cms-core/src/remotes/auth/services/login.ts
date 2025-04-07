@@ -1,5 +1,5 @@
 import { http, httpAuth } from '@/libs/http'
-import { LoginRequestDTO, LoginResponseDTO } from '../models/login'
+import { LoginRequestDTO, LoginResponseDTO, RegisterRequestDTO } from '../models/login'
 import { HttpResult } from '@/modules/http'
 
 export function apiLogin(body: LoginRequestDTO): Promise<HttpResult<LoginResponseDTO>> {
@@ -16,4 +16,13 @@ export function apiCheckLogin(): Promise<void> {
     url: '/auth/check',
     method: 'GET',
   }).then(() => {})
+}
+
+export function apiRegister(body: RegisterRequestDTO): Promise<void> {
+  return http().request({
+    url: '/auth/register',
+    method: 'POST',
+    body,
+  })
+    .then(() => {})
 }
