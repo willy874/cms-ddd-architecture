@@ -97,13 +97,27 @@ class EventChannel<Name, Handler extends AnyFunction> {
 export class EventBus<Dict extends Record<string, AnyFunction>> {
   private channels: Map<any, EventChannel<any, AnyFunction>> = new Map()
 
-  channel<T extends keyof Dict>(name: T, options: ChannelOptions) {
+  channel<T extends keyof Dict>(name: T, options: ChannelOptions = {}): ({
+    subscribe: (callback: Dict[T], options?: EventOptions) => () => void
+    publish: (...params: Parameters<Dict[T]>) => ReturnType<Dict[T]>[]
+  }) {
+    let channel: EventChannel<T, Dict[T]>
     if (this.channels.has(name as string)) {
-      return this.channels.get(name as string) as EventChannel<T, Dict[T]>
+      channel = this.channels.get(name as string) as any
     }
-    const channel = new EventChannel<T, Dict[T]>(name, options)
-    this.channels.set(name, channel)
-    return this
+    else {
+      channel = new EventChannel(name, options) as any
+      this.channels.set(name, channel)
+    }
+    return {
+      subscribe: (callback: Dict[T], options: EventOptions = {}) => {
+        return channel.subscribe(callback, options)
+      },
+      publish: (...params: Parameters<Dict[T]>) => {
+        const event = new BaseEvent(name, ...params)
+        return channel.publish(event)
+      },
+    }
   }
 
   subscribe<T extends keyof Dict>(name: T, callback: (e: BaseEvent<T, Dict[T]>) => ReturnType<Dict[T]>, options: EventOptions = {}): () => void {
@@ -114,11 +128,12 @@ export class EventBus<Dict extends Record<string, AnyFunction>> {
     return channel.subscribe(callback, options)
   }
 
-  publish<T extends keyof Dict>(event: BaseEvent<T, Dict[T]>): ReturnType<Dict[T]>[] {
-    const channel = this.channels.get(event.name)
+  publish<T extends keyof Dict>(name: T, ...params: Parameters<Dict[T]>): ReturnType<Dict[T]>[] {
+    const channel = this.channels.get(name)
     if (!channel) {
-      throw new Error(`Channel ${String(event.name)} not found`)
+      throw new Error(`Channel ${String(name)} not found`)
     }
-    return channel.emit(...event.params)
+    const event = new BaseEvent(name, ...params)
+    return channel.publish(event)
   }
 }

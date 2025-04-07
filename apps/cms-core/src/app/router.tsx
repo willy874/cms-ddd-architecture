@@ -17,16 +17,22 @@ const router = createRouter({
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     context.router = router
-    router.subscribe('onBeforeNavigate', (event) => {
-      const loginPaths = [
-        context.routes.get(LOGIN_ROUTE).fullPath,
-        context.routes.get(REGISTER_ROUTE).fullPath,
-      ]
-      if ((loginPaths as string[]).includes(event.toLocation.pathname)) {
-        context.store.set(STORE_LAYOUT_TYPE, '')
+
+    const LoginRoute = context.routes.get(LOGIN_ROUTE)
+    const RegisterRoute = context.routes.get(REGISTER_ROUTE)
+    const LOGIN_PATHS = [
+      LoginRoute.to,
+      RegisterRoute.to,
+    ] as string[]
+    context.router.subscribe('onBeforeNavigate', (event) => {
+      let layoutType = 'default'
+      if (LOGIN_PATHS.includes(event.toLocation.pathname)) {
+        layoutType = 'login'
+      }
+      if (layoutType === context.store.get(STORE_LAYOUT_TYPE)) {
         return
       }
-      context.store.set(STORE_LAYOUT_TYPE, 'default')
+      context.store.set(STORE_LAYOUT_TYPE, layoutType)
     })
     return {
       name: MODULE_NAME,

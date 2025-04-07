@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
     if (isExpired) {
       throw new TokenExpiredException()
     }
-    const [redisError, info] = await to(this.cacheService.get(authorization))
+    const [redisError, info] = await to(this.cacheService.get(token))
     if (redisError) {
       throw new InvalidTokenException()
     }
