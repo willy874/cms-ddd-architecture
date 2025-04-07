@@ -36,11 +36,29 @@ export class InvalidTokenException extends HttpException {
   }
 }
 
+export class TokenNotInfoException extends HttpException {
+  constructor() {
+    super({
+      code: HttpStatus.UNAUTHORIZED,
+      message: 'Token not info',
+    }, HttpStatus.UNAUTHORIZED)
+  }
+}
+
 export class TokenExpiredException extends HttpException {
   constructor() {
     super({
       code: HttpStatus.UNAUTHORIZED,
       message: 'Token expired',
+    }, HttpStatus.UNAUTHORIZED)
+  }
+}
+
+export class RedisException extends HttpException {
+  constructor() {
+    super({
+      code: HttpStatus.UNAUTHORIZED,
+      message: 'Redis error',
     }, HttpStatus.UNAUTHORIZED)
   }
 }

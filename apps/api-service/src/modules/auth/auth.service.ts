@@ -65,8 +65,6 @@ export class AuthService {
       accessToken,
       refreshToken,
     } satisfies CachePayload)
-    console.log('accessToken', accessToken)
-    console.log('refreshToken', refreshToken)
 
     await Promise.all([
       this.cacheService.set(accessToken, JSON.stringify(cachePayload)),

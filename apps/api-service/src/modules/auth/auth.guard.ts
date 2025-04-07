@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common'
 import { to } from 'await-to-js'
 import type { Request } from 'express'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/errors'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, RedisException, TokenExpiredException, TokenNotInfoException } from '@/shared/errors'
 import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
 import { TokenService } from './token.service'
 
@@ -22,13 +22,6 @@ export class AuthGuard implements CanActivate {
     if (type !== 'Bearer') {
       throw new InvalidTokenException()
     }
-    const [jwtError, result] = await to(this.tokenService.isAccessTokenValid(token))
-    if (jwtError) {
-      throw new InvalidTokenException()
-    }
-    if (!result) {
-      throw new InvalidTokenException()
-    }
     const [jwtExpiredError, isExpired] = await to(this.tokenService.isAccessTokenExpired(token))
     if (jwtExpiredError) {
       throw new InvalidTokenException()
@@ -38,10 +31,10 @@ export class AuthGuard implements CanActivate {
     }
     const [redisError, info] = await to(this.cacheService.get(token))
     if (redisError) {
-      throw new InvalidTokenException()
+      throw new RedisException()
     }
     if (!info) {
-      throw new InvalidTokenException()
+      throw new TokenNotInfoException()
     }
     return true
   }

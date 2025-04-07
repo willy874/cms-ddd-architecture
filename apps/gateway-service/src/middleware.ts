@@ -17,17 +17,12 @@ export function createAuthMiddleware() {
       res.status(401).send('Unauthorized');
       return;
     }
-    const [jwtError, result] = await to(jwt.verify(token));
-    if (jwtError) {
-      res.status(401).send('Unauthorized');
-      return;
-    }
-    const [, isTokenExpired] = await to(jwt.isExpired(token));
+    const [jwtError, isTokenExpired] = await to(jwt.isExpired(token));
     if (isTokenExpired) {
       res.status(401).send('Unauthorized');
       return; 
     }
-    if (!result) {
+    if (jwtError) {
       res.status(401).send('Unauthorized');
       return;
     }
