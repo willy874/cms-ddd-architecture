@@ -15,6 +15,12 @@ const HttpResultSchema = z.object({
   data: UserSchema,
 })
 
+interface HttpResult {
+  code: number
+  data?: unknown
+  message?: string
+}
+
 @Injectable()
 export class AuthUserService {
   private http: Axios
@@ -23,6 +29,16 @@ export class AuthUserService {
     const env = getEnvironment()
     this.http = new Axios({
       baseURL: `http://${env.USER_API_HOST}:${env.USER_API_PORT}/${env.USER_API_PREFIX}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      transformRequest: [
+        (data, headers) => {
+          if (headers['Content-Type']?.toString().includes('application/json')) {
+            return JSON.stringify(data)
+          }
+        },
+      ],
     })
   }
 
@@ -32,8 +48,12 @@ export class AuthUserService {
       password: dto.password,
     }
     const { data } = await this.http.get('/login-check', { params: query })
+    const response = JSON.parse(data) as HttpResult
+    if (response.code >= 400) {
+      throw new Error(response.message)
+    }
     try {
-      const result = HttpResultSchema.parse(JSON.parse(data))
+      const result = HttpResultSchema.parse(response)
       return result.data
     }
     catch (error) {
@@ -57,7 +77,11 @@ export class AuthUserService {
       roles: [],
     }
     const { data } = await this.http.post('/', command)
-    const result = HttpResultSchema.parse(JSON.parse(data))
+    const response = JSON.parse(data) as HttpResult
+    if (response.code >= 400) {
+      throw new Error(response.message)
+    }
+    const result = HttpResultSchema.parse(response)
     return result.data
   }
 }

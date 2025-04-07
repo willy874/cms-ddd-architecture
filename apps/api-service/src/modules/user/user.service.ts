@@ -75,6 +75,7 @@ export class UserService {
   async insertUser(payload: CreateUserDto) {
     const { roles: roleNames, ...rest } = payload
     const roles = await this.roleService.getRolesByName(roleNames)
+    console.log('roles', { ...rest, roles })
     return this.userRepository.save({ ...rest, roles })
   }
 

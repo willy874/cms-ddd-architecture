@@ -42,12 +42,15 @@ function RegisterPage() {
     password: '',
     confirmPassword: '',
   } satisfies RegisterFormType
-  const { form, rules } = useZodToAntdForm({
+  const { form: formElement, rules } = useZodToAntdForm({
     form: formInstance,
     schema: RegisterFormSchema,
   })
   const { mutateAsync: onFinish, isPending } = useMutation({
-    mutationFn: apiRegister,
+    mutationFn: (data: z.infer<typeof RegisterFormSchema>) => apiRegister({
+      username: data.username,
+      password: data.password,
+    }),
     onSuccess: () => {
       navigate({ to: LoginRoute.to })
     },
@@ -56,7 +59,7 @@ function RegisterPage() {
     <div className="flex flex:column padding:16px">
       <h1>Register Page</h1>
       <Form
-        form={form}
+        form={formElement}
         initialValues={initialValues}
         onFinish={onFinish}
       >

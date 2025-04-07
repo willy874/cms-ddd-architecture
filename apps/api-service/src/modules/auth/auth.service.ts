@@ -45,7 +45,7 @@ export class AuthService {
   }
 
   createUser(dto: RegisterDto) {
-    this.userService.insertUser(dto)
+    return this.userService.insertUser(dto)
   }
 
   async generateTokens(uid: number) {

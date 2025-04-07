@@ -5,6 +5,7 @@ import { CreateUserDto } from './create-user.dto'
 import { UpdateUserDto } from './update-user.dto'
 import { LoginDto } from './login.dto'
 import { UserAlreadyExistsException } from '@/shared/errors'
+import { hash } from '@packages/shared'
 
 const asArray = <T>(value?: T | T[]) => Array.isArray(value) ? [...value] : (value ? [value] : [])
 
@@ -75,7 +76,11 @@ export class UserController {
     if (user) {
       throw new UserAlreadyExistsException()
     }
-    const result = await this.userService.insertUser(body)
+    const result = await this.userService.insertUser({
+      username: body.username,
+      password: hash(body.password),
+      roles: body.roles,
+    })
     return {
       code: 201,
       data: result,

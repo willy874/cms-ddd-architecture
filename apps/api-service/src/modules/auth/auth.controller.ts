@@ -1,4 +1,5 @@
-import { Body, Controller, Post, Get, HttpCode, Headers, UseGuards } from '@nestjs/common'
+import { Body, Controller, Post, Get, HttpCode, Headers, UseGuards, HttpException, HttpStatus } from '@nestjs/common'
+import { to } from 'await-to-js'
 import { TOKEN_TYPE, hash } from '@packages/shared'
 import { ZodValidationPipe } from '@/shared/utils/validation'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException } from '@/shared/errors'
@@ -36,13 +37,16 @@ export class AuthController {
   @Post('/register')
   @HttpCode(201)
   async register(
-    @Body() body: RegisterDto,
+    @Body() body: RegisterDto
   ) {
     const createDto = {
       username: body.username,
-      password: hash(body.password),
+      password: body.password,
     }
-    await this.authService.createUser(createDto)
+    const [error] = await to(this.authService.createUser(createDto))
+    if (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+    }
     return {
       code: 201,
       message: 'User created successfully.',
