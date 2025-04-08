@@ -26,6 +26,7 @@ export function createAuthMiddleware() {
       res.status(401).send('Unauthorized');
       return;
     }
+    console.log(`Token Passed`);
     next();
   }
 }
