@@ -8,22 +8,31 @@ import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
 import { useZodToAntdForm } from '../useZodToAntdForm'
 import { apiLogin } from '../services/login'
 
+const LoginFormSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+})
+
+function useLoginForm() {
+  const [form] = Form.useForm<z.infer<typeof LoginFormSchema>>()
+  const schema = z.object({
+    username: LoginFormSchema.shape.username.nonempty('Please enter username!'),
+    password: LoginFormSchema.shape.password.nonempty('Please enter password!'),
+  })
+  return useZodToAntdForm({ form, schema })
+}
+
 function LoginPage() {
   const ctx = getCoreContext()
   const Route = ctx.routes.get(LOGIN_ROUTE)
   const HomeRoute = ctx.routes.get(HOME_ROUTE)
   const RegisterRoute = ctx.routes.get(REGISTER_ROUTE)
   const navigate = Route.useNavigate()
-  const LoginFormSchema = z.object({
-    username: z.string().nonempty('Please enter username!'),
-    password: z.string().nonempty('Please enter password!'),
-  })
-  type LoginFormType = z.infer<typeof LoginFormSchema>
+  const { form, rules } = useLoginForm()
   const initialValues = {
     username: '',
     password: '',
-  } satisfies LoginFormType
-  const { form, rules } = useZodToAntdForm({ schema: LoginFormSchema })
+  } satisfies z.infer<typeof LoginFormSchema>
   const { mutateAsync: onFinish, isPending } = useMutation({
     mutationFn: apiLogin,
     onSuccess: ({ data }) => {

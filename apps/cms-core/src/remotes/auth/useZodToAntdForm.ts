@@ -12,15 +12,20 @@ interface FormOptions<
   form?: FormInstance<z.infer<Schema>>
 }
 
-export function useZodToAntdForm<
+interface FormResult<
   Schema extends AnyObject | AnyObjectEffect,
->(options: FormOptions<Schema>): {
+> {
   form: FormInstance<z.infer<Schema>>
   rules: { [K in keyof (
     Schema extends AnyObjectEffect ? Schema['_def']['schema']['shape'] :
       Schema extends AnyObject ? Schema['shape'] : never
   )]: Rule[] }
-} {
+  validate: (val: unknown) => z.infer<Schema>
+}
+
+export function useZodToAntdForm<
+  Schema extends AnyObject | AnyObjectEffect,
+>(options: FormOptions<Schema>): FormResult<Schema> {
   const [form] = Form.useForm<z.infer<Schema>>(options.form)
   const rules: { [k: string]: Rule[] } = {}
   const shape = options.schema instanceof z.ZodEffects
@@ -41,6 +46,9 @@ export function useZodToAntdForm<
   }
   return {
     form,
-    rules: rules as any,
+    rules: rules as FormResult<Schema>['rules'],
+    validate: async (val: unknown) => {
+      return options.schema.parse(val)
+    },
   }
 }
