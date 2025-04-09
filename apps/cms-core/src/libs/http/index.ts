@@ -1,4 +1,4 @@
-import { createFetcher, CreateFetcherOptions, HttpError, HttpInstance } from './createFetcher'
+import { createFetcher, CreateFetcherOptions, HttpError, HttpInstance, RequestConfig } from './createFetcher'
 import { defineRestResource } from './defineResource'
 
 export {
@@ -10,4 +10,5 @@ export {
 export type {
   CreateFetcherOptions,
   HttpInstance,
+  RequestConfig,
 }

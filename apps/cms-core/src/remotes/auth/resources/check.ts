@@ -17,5 +17,5 @@ export const apiCheckLogin = () => {
   const fetcher = createFetcher(resource,
     getCoreContext().queryBus.query(GET_AUTH_FETCHER_CONFIG),
   )
-  return fetcher({}).then((res) => res.data)
+  return fetcher().then((res) => res.data)
 }

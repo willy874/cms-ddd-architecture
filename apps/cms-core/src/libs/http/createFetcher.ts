@@ -4,6 +4,12 @@ import { bodyHandler, createHeaders, responseHandler } from './utils'
 import { createHttpUrl, ExtractParams } from './url'
 import { querySafetyCheck, schemaSafetyCheck } from './zod'
 
+export type RequestConfig = RequestInit & { url: string }
+
+export interface HttpInstance {
+  (config: RequestConfig): Promise<Response>
+}
+
 type InferParams<T extends string> =
   ExtractParams<T> extends never
     ? { params?: {} }
@@ -20,20 +26,18 @@ type InferQuery<T> =
     : { query?: {} }
 
 export class HttpError extends Error {
+  public config?: RequestConfig
   public request?: Request
   public response?: Response
   public resource?: RestResource<any, any>
+  public status?: number
   constructor(
-    message: string,
-    public status?: number,
+    error: Error,
   ) {
-    super(message)
+    super(error.message)
     this.name = 'HttpError'
+    this.stack = error.stack
   }
-}
-
-export interface HttpInstance {
-  (config: Request): Promise<Response>
 }
 
 interface HttpRestFetcher<
@@ -42,7 +46,7 @@ interface HttpRestFetcher<
   Query extends ZodSchema,
   Body extends ZodSchema,
 > {
-  (options: {
+  (options?: {
     signal?: AbortSignal
     headers?: HeadersInit
   } & InferBody<Body> & InferParams<Url> & InferQuery<Query>
@@ -53,7 +57,7 @@ export interface CreateFetcherOptions {
   baseURL?: string
   headers?: HeadersInit
   createInstance?: () => HttpInstance
-  onBeforeRequest?: (config: Request) => void
+  onBeforeRequest?: (config: RequestConfig) => void
   onRequestError?: (error: Error) => void
   onResponseError?: (error: Error) => void
 }
@@ -70,6 +74,7 @@ export function createFetcher<
 ): HttpRestFetcher<Url, Res, Query, Body> {
   const instance = options.createInstance?.()
   return async (config) => {
+    let requestConfig: RequestConfig
     let request: Request
     let response: Response
     let status: number
@@ -78,28 +83,35 @@ export function createFetcher<
       const bodySchema = resource.body
       const querySchema = resource.query
       if (bodySchema) {
-        schemaSafetyCheck(bodySchema, config.body)
+        schemaSafetyCheck(bodySchema, config?.body)
       }
-      const query = config.query instanceof URLSearchParams ? config.query : new URLSearchParams(config.query)
+      const query = config?.query instanceof URLSearchParams ? config.query : new URLSearchParams(config?.query)
       if (querySchema) {
-        querySafetyCheck(querySchema, config.query)
+        querySafetyCheck(querySchema, config?.query)
       }
-      const headers = createHeaders(options.headers, resource.headers, config.headers)
-      request = new Request(
-        createHttpUrl({
+      const headers = createHeaders(options.headers, resource.headers, config?.headers)
+      requestConfig = {
+        url: createHttpUrl({
           baseUrl: options.baseURL,
           url: resource.url,
-          params: config.params as any,
+          params: config?.params as any,
           query,
-        })
-        , {
-          method: resource.method,
-          headers,
-          body: bodyHandler(config.body, headers),
-          signal: config.signal,
-        })
-      options.onBeforeRequest?.(request)
-      response = await (instance || window.fetch)(request)
+        }),
+        method: resource.method,
+        headers,
+        body: bodyHandler(config?.body, headers),
+        signal: config?.signal,
+      }
+
+      options.onBeforeRequest?.(requestConfig)
+      response = await (() => {
+        if (instance) {
+          return instance(requestConfig)
+        }
+        const { url, ...init } = requestConfig
+        request = new Request(url, init)
+        return window.fetch(request)
+      })()
       if (response.status >= 400) {
         throw new Error('Response failed')
       }
@@ -108,15 +120,15 @@ export function createFetcher<
       })
       return responseData as z.infer<Res>
     }
-    catch (err) {
-      const error = err as Error
-      const httpError = new HttpError(error.message)
+    catch (error) {
+      const httpError = new HttpError(error as Error)
       httpError.resource = resource
+      httpError.config = requestConfig!
       httpError.request = request!
       httpError.response = response!
       httpError.status = status!
       if (httpError.response) {
-        options.onResponseError?.(error)
+        options.onResponseError?.(error as Error)
       }
       else {
         options.onRequestError?.(httpError)

@@ -10,30 +10,10 @@ export function createHeaders(...args: (HeadersInit | void)[]): Headers {
   return headers
 }
 
-export function getRequestBody(request: Request): Promise<BodyInit> {
-  if (request.headers.get('Content-Type')?.includes('application/json')) {
-    return request.json()
-  }
-  if (request.headers.get('Content-Type')?.includes('application/x-www-form-urlencoded')) {
-    return request.formData()
-  }
-  if (request.headers.get('Content-Type')?.includes('multipart/form-data')) {
-    return request.formData()
-  }
-  if (request.headers.get('Content-Type')?.includes('text/plain')) {
-    return request.text()
-  }
-  return request.blob()
-}
-
 export function bodyHandler(body: unknown, headers: Headers): BodyInit {
   if (body instanceof FormData) {
     headers.set('Content-Type', 'multipart/form-data')
     return body
-  }
-  if (typeof body === 'object') {
-    headers.set('Content-Type', 'application/json')
-    return JSON.stringify(body)
   }
   if (body instanceof URLSearchParams) {
     headers.set('Content-Type', 'application/x-www-form-urlencoded')
@@ -42,6 +22,10 @@ export function bodyHandler(body: unknown, headers: Headers): BodyInit {
   if (body instanceof Blob) {
     headers.set('Content-Type', body.type || 'application/octet-stream')
     return body
+  }
+  if (typeof body === 'object') {
+    headers.set('Content-Type', 'application/json')
+    return JSON.stringify(body)
   }
   if (typeof body === 'string') {
     headers.set('Content-Type', 'text/plain')

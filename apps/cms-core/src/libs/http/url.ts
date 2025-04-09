@@ -28,15 +28,26 @@ interface CreateUrlParams<T extends string> {
 
 export function createHttpUrl<T extends string>(options: CreateUrlParams<T>): string {
   const { url, baseUrl, params, query } = options
-  const urlParams = urlInjectParams(url, params || {} as any)
-  const searchParams = new URLSearchParams(query)
-  if (/^https?\/\/:/.test(urlParams)) {
-    return `${urlParams}?${searchParams}`
-  }
-  const result = `${baseUrl || ''}/${urlParams}?${searchParams}`
-  if (/^https?\/\/:/.test(result)) {
-    const [protocol, path] = result.split('://')
+  let result = urlInjectParams(url, params || {} as any)
+  const replaceSlash = (u: string) => {
+    const [protocol, path] = u.split('://')
     return `${protocol}://${path.replace(/\/+/g, '/')}`
   }
-  return result.replace(/\/+/g, '/')
+  const searchParams = new URLSearchParams(query)
+  if (searchParams.size) {
+    result += `?${searchParams}`
+  }
+  if (baseUrl) {
+    if (/^https?\/\/:/.test(result)) {
+      return replaceSlash(baseUrl)
+    }
+    if (/^https?\/\/:/.test(baseUrl)) {
+      return replaceSlash(`${baseUrl}/${result}`)
+    }
+    return replaceSlash(`${location.origin}/${baseUrl}/${result}`)
+  }
+  if (/^https?\/\/:/.test(result)) {
+    return replaceSlash(result)
+  }
+  return replaceSlash(`${location.origin}/${result}`)
 }

@@ -1,6 +1,5 @@
-import axios, { AxiosHeaders, AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from 'axios'
-import { HttpInstance } from '../../../libs/http/createFetcher'
-import { getRequestBody } from '../../../libs/http/utils'
+import { AxiosHeaders, AxiosInstance, AxiosRequestConfig, AxiosResponse, GenericAbortSignal } from 'axios'
+import { HttpInstance, RequestConfig } from '@/libs/http'
 
 export const flattenAxiosConfigHeaders = (config: AxiosRequestConfig): Record<string, string> => {
   const headers = config.headers
@@ -32,31 +31,46 @@ export const flattenAxiosResponseHeaders = (res: AxiosResponse) => {
   }
 }
 
-export type RestAxiosInstance = HttpInstance & AxiosInstance
+const transformDataToBodyByHeader = (data: unknown, headers: Headers): BodyInit => {
+  if (headers.get('Content-Type')?.includes('application/json')) {
+    return JSON.stringify(data as object)
+  }
+  if (headers.get('Content-Type')?.includes('text/plain')) {
+    return data as string
+  }
+  if (data instanceof Blob) {
+    return data
+  }
+  if (typeof data === 'string') {
+    return data
+  }
+  return data as BodyInit
+}
+export function createHttpInstanceFactor(instance: AxiosInstance): (() => HttpInstance) {
+  return () => {
+    const fetcher = instance.request.bind(instance)
+    return async (request: RequestConfig) => {
+      console.log('request', request.url)
 
-export const createAxiosInstance = ((config: CreateAxiosDefaults = {}): RestAxiosInstance => {
-  const instance = Object.assign(axios.create(config), {
-    use: (...plugins: ((inc: AxiosInstance) => void)[]) => {
-      plugins.forEach(plugin => {
-        plugin(instance)
-      })
-    },
-  })
-  const fetcher = instance.request.bind(instance)
-  return Object.assign(async (request: Request) => {
-    const url = new URL(request.url)
-    const res = await fetcher({
-      url: url.href,
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-      data: await getRequestBody(request),
-      params: new URLSearchParams(url.search),
-      signal: request.signal,
-    })
-    return new Response(res.data, {
-      status: res.status,
-      statusText: res.statusText,
-      headers: new Headers(flattenAxiosResponseHeaders(res)),
-    })
-  }, instance)
-}) satisfies (() => HttpInstance)
+      const url = new URL(request.url)
+      const fetcherConfig = {
+        url: url.href,
+        method: request.method,
+        headers: Object.fromEntries(new Headers(request.headers).entries()),
+        data: request.body,
+        params: new URLSearchParams(url.search),
+        signal: (request.signal || undefined) as GenericAbortSignal,
+      } satisfies AxiosRequestConfig
+      const res = await fetcher(fetcherConfig)
+      const headers = new Headers(flattenAxiosResponseHeaders(res))
+      const body = transformDataToBodyByHeader(res.data, headers)
+      return new Response(
+        body,
+        {
+          status: res.status,
+          statusText: res.statusText,
+          headers,
+        })
+    }
+  }
+}

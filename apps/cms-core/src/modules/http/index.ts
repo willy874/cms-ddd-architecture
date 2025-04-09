@@ -1,10 +1,11 @@
+import axios from 'axios'
 import { StorageKey } from '@/constants/storage'
 import { HttpErrorCode } from '@/constants/http'
 import { BASE_URL } from '@/constants/env'
 import { GET_BASE_FETCHER_CONFIG, GET_AUTH_FETCHER_CONFIG } from '@/constants/query'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { CreateFetcherOptions } from '@/libs/http'
-import { createAxiosInstance } from './libs/axios'
+import { createHttpInstanceFactor } from './libs/axios'
 import { refreshTokenPlugin } from './plugins/refreshTokenPlugin'
 import { authTokenPlugin } from './plugins/authTokenPlugin'
 
@@ -59,12 +60,12 @@ export function contextPlugin(): CoreContextPlugin {
 
     context.queryBus.provide(GET_BASE_FETCHER_CONFIG, () => ({
       ...baseConfig,
-      createInstance: () => createAxiosInstance(),
+      createInstance: createHttpInstanceFactor(axios.create()),
     }))
     context.queryBus.provide(GET_AUTH_FETCHER_CONFIG, () => ({
       ...baseConfig,
       createInstance: () => {
-        const instance = createAxiosInstance()
+        const instance = axios.create()
         const authPlugin = authTokenPlugin({
           getAuthorization,
         })
@@ -73,9 +74,9 @@ export function contextPlugin(): CoreContextPlugin {
             return res.data.code === HttpErrorCode.TOKEN_EXPIRED
           },
           fetchRefreshToken: (dto) => {
-            const instance = createAxiosInstance()
-            authPlugin(instance)
-            return instance.post(
+            const inc = axios.create()
+            authPlugin(inc)
+            return inc.post(
               '/refresh-token',
               { refreshToken: dto.refreshToken },
               {
@@ -88,7 +89,8 @@ export function contextPlugin(): CoreContextPlugin {
         })
         authPlugin(instance)
         refreshPlugin(instance)
-        return instance
+        const createHttpInstance = createHttpInstanceFactor(instance)
+        return createHttpInstance()
       },
     }))
 
