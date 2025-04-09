@@ -3,9 +3,9 @@ import { CoreContextPlugin } from '@/libs/CoreContext'
 import { MODULE_NAME } from './constants'
 import LoginPage from './pages/login'
 import RegisterPage from './pages/register'
-import { apiCheckLogin } from './services/login'
 import { StorageKey } from '@/constants/storage'
 import { ROUTER_INIT } from '@/constants/event'
+import { apiCheckLogin } from './resources/check'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {

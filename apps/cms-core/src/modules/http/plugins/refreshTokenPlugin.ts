@@ -1,29 +1,31 @@
-import { AxiosInstance, AxiosError, AxiosResponse, isAxiosError, HttpStatusCode } from 'axios'
-import { requestQueueFactory } from './requestQueue'
+import { AxiosError, AxiosResponse, isAxiosError, HttpStatusCode } from 'axios'
+import { requestQueueFactory } from '../libs/requestQueue'
+import { RestAxiosInstance } from '../libs/axios'
 
 interface RefreshTokenParams<Info> {
   isTokenExpired: (res: AxiosResponse) => boolean
-  fetchRefreshToken: (dto: Info) => Promise<AxiosResponse<Info>>
-  getRefreshToken: () => Info
-  setRefreshToken: (token: Info) => void
-  removeRefreshToken: () => void
+  fetchRefreshToken: (dto: Info) => Promise<Info>
+  getCache: () => ({
+    get: () => Info
+    set: (token: Info) => void
+    clear: () => void
+  })
 }
 
-export const refreshTokenPlugin = function<TokenInfo>(params: RefreshTokenParams<TokenInfo>): (instance: AxiosInstance) => void {
+export const refreshTokenPlugin = function<TokenInfo>(params: RefreshTokenParams<TokenInfo>): (instance: RestAxiosInstance) => void {
   const {
     isTokenExpired,
     fetchRefreshToken,
-    getRefreshToken,
-    setRefreshToken,
-    removeRefreshToken,
+    getCache,
   } = params
   return (instance) => {
     const emitRefreshToken = requestQueueFactory(
       (error: AxiosError, resolve: (res: AxiosResponse) => void, reject) => ({ error, resolve, reject }),
       (queue) => {
-        return fetchRefreshToken(getRefreshToken())
-          .then((res) => {
-            setRefreshToken(res.data)
+        const cache = getCache()
+        return fetchRefreshToken(cache.get())
+          .then((data) => {
+            cache.set(data)
             queue.forEach((ctx) => {
               if (ctx.error.config) {
                 instance
@@ -37,7 +39,7 @@ export const refreshTokenPlugin = function<TokenInfo>(params: RefreshTokenParams
             })
           })
           .catch((err) => {
-            removeRefreshToken()
+            cache.clear()
             queue.forEach(ctx => ctx.reject(ctx.error))
             return Promise.reject(err)
           })

@@ -3,5 +3,3 @@ export enum HttpErrorCode {
   TOKEN_INVALID = 40102,
   TOKEN_EXPIRED = 40103,
 }
-
-export const TOKEN_TYPE = 'Bearer'

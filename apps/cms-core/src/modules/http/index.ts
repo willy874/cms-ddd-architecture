@@ -1,24 +1,20 @@
-import { CREATE_AUTH_HTTP_INSTANCE, CREATE_BASE_HTTP_INSTANCE } from '@/constants/query'
-import { BASE_URL } from '@/constants/env'
-import { HttpErrorCode, TOKEN_TYPE } from '@/constants/http'
 import { StorageKey } from '@/constants/storage'
+import { HttpErrorCode } from '@/constants/http'
+import { BASE_URL } from '@/constants/env'
+import { GET_BASE_FETCHER_CONFIG, GET_AUTH_FETCHER_CONFIG } from '@/constants/query'
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import { authTokenPlugin, createHttpInstance, refreshTokenPlugin } from './libs'
-import { apiFetcherTransform } from './libs/apiFetcherTransform'
-import { ApiFetcher } from './libs/interface'
-
-export type {
-  FetcherConfig,
-  FetcherResponse,
-  HttpResult,
-} from './libs/interface'
-
-export const MODULE_NAME = 'cms_core/http'
+import { CreateFetcherOptions } from '@/libs/http'
+import { createAxiosInstance } from './libs/axios'
+import { refreshTokenPlugin } from './plugins/refreshTokenPlugin'
+import { authTokenPlugin } from './plugins/authTokenPlugin'
 
 interface TokenInfo {
   accessToken: string
   refreshToken: string
+  tokenType: string
 }
+
+export const MODULE_NAME = 'cms_core/http'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
@@ -26,64 +22,76 @@ export function contextPlugin(): CoreContextPlugin {
       get: () => {
         const accessToken = context.localStorage.getItem(StorageKey.ACCESS_TOKEN)
         const refreshToken = context.localStorage.getItem(StorageKey.REFRESH_TOKEN)
+        const tokenType = context.localStorage.getItem(StorageKey.TOKEN_TYPE)
         if (!accessToken) {
           throw new Error('accessToken not found')
         }
         if (!refreshToken) {
           throw new Error('refreshToken not found')
         }
-        return { accessToken, refreshToken }
+        if (!tokenType) {
+          throw new Error('tokenType not found')
+        }
+        return { accessToken, refreshToken, tokenType }
       },
       set: (tokenInfo: TokenInfo) => {
         context.localStorage.setItem(StorageKey.ACCESS_TOKEN, tokenInfo.accessToken)
         context.localStorage.setItem(StorageKey.REFRESH_TOKEN, tokenInfo.refreshToken)
+        context.localStorage.setItem(StorageKey.TOKEN_TYPE, tokenInfo.tokenType)
       },
-      remove: () => {
+      clear: () => {
         context.localStorage.removeItem(StorageKey.ACCESS_TOKEN)
         context.localStorage.removeItem(StorageKey.REFRESH_TOKEN)
+        context.localStorage.removeItem(StorageKey.TOKEN_TYPE)
       },
     }
+
     const getAuthorization = () => {
       const tokenInfo = tokenCache.get()
-      return `${TOKEN_TYPE} ${tokenInfo.accessToken}`
+      return `${tokenInfo.tokenType} ${tokenInfo.accessToken}`
     }
-    const fetchRefreshToken = (dto: TokenInfo) => {
-      return createHttpInstance({
-        baseURL: BASE_URL,
-        headers: { Authorization: `${TOKEN_TYPE} ${dto.accessToken}` },
-      }).post<TokenInfo>(
-        '/refresh-token',
-        { refreshToken: dto.refreshToken },
-      )
+    const baseConfig = {
+      baseURL: BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
-    context.queryBus.provide(CREATE_BASE_HTTP_INSTANCE, () => {
-      return apiFetcherTransform(
-        createHttpInstance({
-          baseURL: BASE_URL,
-        }),
-      )
-    })
-    context.queryBus.provide(CREATE_AUTH_HTTP_INSTANCE, () => {
-      return apiFetcherTransform(
-        createHttpInstance({
-          baseURL: BASE_URL,
-        },
-        [
-          authTokenPlugin({
-            getAuthorization,
-          }),
-          refreshTokenPlugin({
-            isTokenExpired: (res) => {
-              return res.data.code === HttpErrorCode.TOKEN_EXPIRED
-            },
-            fetchRefreshToken,
-            getRefreshToken: tokenCache.get,
-            setRefreshToken: tokenCache.set,
-            removeRefreshToken: tokenCache.remove,
-          }),
-        ]),
-      )
-    })
+
+    context.queryBus.provide(GET_BASE_FETCHER_CONFIG, () => ({
+      ...baseConfig,
+      createInstance: () => createAxiosInstance(),
+    }))
+    context.queryBus.provide(GET_AUTH_FETCHER_CONFIG, () => ({
+      ...baseConfig,
+      createInstance: () => {
+        const instance = createAxiosInstance()
+        const authPlugin = authTokenPlugin({
+          getAuthorization,
+        })
+        const refreshPlugin = refreshTokenPlugin({
+          isTokenExpired: (res) => {
+            return res.data.code === HttpErrorCode.TOKEN_EXPIRED
+          },
+          fetchRefreshToken: (dto) => {
+            const instance = createAxiosInstance()
+            authPlugin(instance)
+            return instance.post(
+              '/refresh-token',
+              { refreshToken: dto.refreshToken },
+              {
+                baseURL: BASE_URL,
+                headers: { Authorization: `${dto.tokenType} ${dto.accessToken}` },
+              },
+            ).then((res) => res.data)
+          },
+          getCache: () => tokenCache,
+        })
+        authPlugin(instance)
+        refreshPlugin(instance)
+        return instance
+      },
+    }))
+
     return {
       name: MODULE_NAME,
     }
@@ -92,7 +100,7 @@ export function contextPlugin(): CoreContextPlugin {
 
 declare module '@/modules/cqrs' {
   export interface CustomQueryBusDict {
-    [CREATE_BASE_HTTP_INSTANCE]: () => ApiFetcher
-    [CREATE_AUTH_HTTP_INSTANCE]: () => ApiFetcher
+    [GET_BASE_FETCHER_CONFIG]: () => CreateFetcherOptions
+    [GET_AUTH_FETCHER_CONFIG]: () => CreateFetcherOptions
   }
 }

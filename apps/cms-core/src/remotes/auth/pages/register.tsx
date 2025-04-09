@@ -5,7 +5,7 @@ import { Link } from '@tanstack/react-router'
 import { REGISTER_ROUTE, LOGIN_ROUTE } from '@/constants/routes'
 import { getCoreContext } from '@/libs/CoreContext'
 import { useZodToAntdForm } from '../useZodToAntdForm'
-import { apiRegister } from '../services/login'
+import { apiRegister } from '../resources/register'
 
 const RegisterFormSchema = z.object({
   username: z.string(),

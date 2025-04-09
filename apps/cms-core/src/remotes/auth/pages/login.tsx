@@ -6,7 +6,7 @@ import { getCoreContext } from '@/libs/CoreContext'
 import { StorageKey } from '@/constants/storage'
 import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
 import { useZodToAntdForm } from '../useZodToAntdForm'
-import { apiLogin } from '../services/login'
+import { apiLogin } from '../resources/login'
 
 const LoginFormSchema = z.object({
   username: z.string(),
@@ -35,7 +35,7 @@ function LoginPage() {
   } satisfies z.infer<typeof LoginFormSchema>
   const { mutateAsync: onFinish, isPending } = useMutation({
     mutationFn: apiLogin,
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       ctx.localStorage.setItem(StorageKey.ACCESS_TOKEN, data.accessToken)
       ctx.localStorage.setItem(StorageKey.REFRESH_TOKEN, data.refreshToken)
       ctx.localStorage.setItem(StorageKey.TOKEN_TYPE, data.tokenType)

@@ -1,11 +1,12 @@
-import { AxiosInstance, isAxiosError, HttpStatusCode } from 'axios'
+import { isAxiosError, HttpStatusCode } from 'axios'
+import { RestAxiosInstance } from '../libs/axios'
 
 interface AuthTokenParams {
   getAuthorization: () => string
   onUnauthorized?: () => void
 }
 
-export const authTokenPlugin = function (params: AuthTokenParams): (instance: AxiosInstance) => void {
+export const authTokenPlugin = function (params: AuthTokenParams): (instance: RestAxiosInstance) => void {
   const { getAuthorization, onUnauthorized } = params
   return (instance) => {
     instance.interceptors.request.use((config) => {
