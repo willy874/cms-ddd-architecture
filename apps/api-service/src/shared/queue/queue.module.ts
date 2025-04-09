@@ -1,13 +1,16 @@
-import { ConfigType } from '@nestjs/config'
 import { ClientProxyFactory, Transport } from '@nestjs/microservices'
-import queueConfigProvider from '@/shared/config/queue'
 import { Module } from '@nestjs/common'
 import { COMMAND_QUEUE, EVENT_BUS_QUEUE, EVENT_BUS_SERVICE, MESSAGE_SERVICE } from './constants'
 
 const messageQueueProvider = {
   provide: MESSAGE_SERVICE,
-  inject: [queueConfigProvider.KEY],
-  useFactory: async (config: ConfigType<typeof queueConfigProvider>) => {
+  useFactory: async () => {
+    const config = {
+      user: process.env.QUEUE_USER,
+      password: process.env.QUEUE_PASSWORD,
+      host: process.env.QUEUE_HOST,
+      port: process.env.QUEUE_PORT,
+    }
     const client = ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
@@ -31,8 +34,13 @@ export class MessageQueueModule {}
 
 const eventBusProvider = {
   provide: EVENT_BUS_SERVICE,
-  inject: [queueConfigProvider.KEY],
-  useFactory: async (config: ConfigType<typeof queueConfigProvider>) => {
+  useFactory: async () => {
+    const config = {
+      user: process.env.QUEUE_USER,
+      password: process.env.QUEUE_PASSWORD,
+      host: process.env.QUEUE_HOST,
+      port: process.env.QUEUE_PORT,
+    }
     const client = ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
