@@ -44,7 +44,7 @@ function LoginPage() {
   })
   return (
     <div className="flex flex:column padding:16px">
-      <h1>Login Page</h1>
+      <h2>Login Page</h2>
       <Form
         form={form}
         initialValues={initialValues}

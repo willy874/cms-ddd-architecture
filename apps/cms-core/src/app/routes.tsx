@@ -1,4 +1,4 @@
-import { ROOT_ROUTE, HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
+import { ROOT_ROUTE, HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE, FORGET_PASSWORD_ROUTE } from '@/constants/routes'
 import { CoreContextPlugin, getCoreContext } from '@/libs/CoreContext'
 import { Registry } from '@/libs/Registry'
 import { createRootRoute, createRoute, Outlet } from '@tanstack/react-router'
@@ -34,6 +34,11 @@ const RegisterRoute = createRoute({
   path: '/register',
 })
 
+const ForgetPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/forget-password',
+})
+
 const HomeRoute = createRoute({
   path: '/',
   getParentRoute: () => rootRoute,
@@ -47,6 +52,7 @@ export const routeTree = rootRoute.addChildren([
   HomeRoute,
   LoginRoute,
   RegisterRoute,
+  ForgetPasswordRoute,
 ])
 
 const MODULE_NAME = 'cms_core/routes'
@@ -56,6 +62,7 @@ const routes = new Registry<{
   [HOME_ROUTE]: typeof HomeRoute
   [LOGIN_ROUTE]: typeof LoginRoute
   [REGISTER_ROUTE]: typeof RegisterRoute
+  [FORGET_PASSWORD_ROUTE]: typeof ForgetPasswordRoute
 }>()
 
 export function contextPlugin(): CoreContextPlugin {

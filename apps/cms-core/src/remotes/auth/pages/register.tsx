@@ -63,7 +63,7 @@ function RegisterPage() {
   })
   return (
     <div className="flex flex:column padding:16px">
-      <h1>Register Page</h1>
+      <h2>Register Page</h2>
       <Form
         form={formInstance}
         initialValues={initialValues}
