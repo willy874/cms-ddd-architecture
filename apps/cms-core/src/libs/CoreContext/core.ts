@@ -1,4 +1,4 @@
-import { getGlobal, MaybePromise } from './utils'
+import { getGlobal, MaybePromise } from '../utils'
 
 export interface CoreContext {
   use(plugin: CoreContextPlugin): CoreContext
