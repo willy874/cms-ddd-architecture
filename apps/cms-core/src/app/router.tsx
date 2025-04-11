@@ -1,18 +1,16 @@
 import { createRouter } from '@tanstack/react-router'
 import { routeTree } from './routes'
-import { CoreContextPlugin, getCoreContext } from '@/libs/CoreContext'
+import { CoreContextPlugin } from '@/libs/CoreContext'
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
 import { LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
 import { ROUTER_INIT } from '@/constants/event'
+import { NotFound } from '@/libs/components'
 
 export const MODULE_NAME = 'cms_core/router'
 
 const router = createRouter({
   routeTree,
-  defaultNotFoundComponent: () => {
-    const NotFound = getCoreContext().componentRegistry.get('NotFound')
-    return <NotFound />
-  },
+  defaultNotFoundComponent: () => <NotFound />,
 })
 
 export function contextPlugin(): CoreContextPlugin {

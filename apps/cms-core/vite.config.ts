@@ -35,6 +35,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
+      // 'remotes/ui': 'cms_core/ui',
     },
   },
   server: {

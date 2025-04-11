@@ -1,19 +1,13 @@
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import NotFound from './NotFound'
+import { lazy } from 'react'
 
 export const MODULE_NAME = 'cms_core/ui'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
-    context.componentRegistry.register('NotFound', NotFound)
+    context.componentRegistry.register('NotFound', lazy(() => import('./NotFound')))
     return {
       name: MODULE_NAME,
     }
-  }
-}
-
-declare module '@/modules/core' {
-  export interface CustomComponentDict {
-    NotFound: () => React.ReactNode
   }
 }

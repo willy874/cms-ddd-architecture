@@ -1,7 +1,6 @@
 import { StrictMode } from 'react'
-import { ConfigProvider, unstableSetRender } from 'antd'
 import { StyleProvider, createCache } from '@ant-design/cssinjs'
-import { createRoot, Root } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { Link, RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
@@ -23,41 +22,19 @@ export function contextPlugin(): CoreContextPlugin {
     ))
     return {
       name: MODULE_NAME,
-      async onInit() {
-        await import('@ant-design/v5-patch-for-react-19')
-      },
       onMount() {
-        unstableSetRender((node, container) => {
-          container._reactRoot ||= createRoot(container)
-          const root = container._reactRoot
-          root.render(node)
-          return async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-            root.unmount()
-          }
-        })
-        createRoot(document.getElementById('root')!).render(
+        const root = createRoot(document.getElementById('root')!)
+        root.render(
           <StrictMode>
             <StyleProvider cache={cache}>
-              <ConfigProvider theme={{ cssVar: true }}>
-                <QueryClientProvider client={context.queryClient}>
-                  <RouterProvider router={context.router} />
-                </QueryClientProvider>
-              </ConfigProvider>
+              <QueryClientProvider client={context.queryClient}>
+                <RouterProvider router={context.router} />
+              </QueryClientProvider>
             </StyleProvider>
           </StrictMode>,
         )
       },
     }
-  }
-}
-
-declare global {
-  export interface Element {
-    _reactRoot?: Root
-  }
-  export interface DocumentFragment {
-    _reactRoot?: Root
   }
 }
 

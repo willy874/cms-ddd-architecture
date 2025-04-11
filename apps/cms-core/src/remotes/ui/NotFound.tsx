@@ -15,3 +15,9 @@ function NotFound() {
 }
 
 export default NotFound
+
+declare module '@/modules/core' {
+  export interface CustomComponentDict {
+    NotFound: typeof NotFound
+  }
+}

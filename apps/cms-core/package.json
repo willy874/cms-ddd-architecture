@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "1.23.0",
-    "@ant-design/v5-patch-for-react-19": "1.0.3",
     "@master/css": "1.37.8",
     "@module-federation/enhanced": "^0.11.3",
     "@tanstack/query-core": "5.71.10",
@@ -19,6 +18,7 @@
     "@tanstack/react-query-devtools": "^5.71.10",
     "@tanstack/react-router": "1.115.0",
     "@tanstack/react-router-devtools": "1.115.0",
+    "@zag-js/react": "^1.9.3",
     "antd": "~5.24.6",
     "axios": "1.8.2",
     "classnames": "2.5.1",
