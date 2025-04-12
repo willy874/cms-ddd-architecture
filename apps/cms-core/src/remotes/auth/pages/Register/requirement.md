@@ -17,11 +17,3 @@ I want a register page
 ## event
 
 - When the registration request is completed, you need to be directed back to the home page.
-
-## Additional information for me
-
-If the original library is not available, please help me design and list it.
-
-- translate key
-- testid
-- components

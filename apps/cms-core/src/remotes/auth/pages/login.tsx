@@ -18,8 +18,8 @@ const LoginFormSchema = z.object({
 function useLoginForm() {
   const { t } = useTranslate()
   const schema = z.object({
-    username: LoginFormSchema.shape.username.nonempty(t('auth__login-schema-error-message--username')),
-    password: LoginFormSchema.shape.password.nonempty('auth__login-schema-error-message--password'),
+    username: LoginFormSchema.shape.username.nonempty(t('auth__login-error-message--username--required')),
+    password: LoginFormSchema.shape.password.nonempty(t('auth__login-error-message--password--required')),
   })
   return useForm({
     resolver: zodResolver(schema),
