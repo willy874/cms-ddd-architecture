@@ -11,6 +11,8 @@ export function contextPlugin(): CoreContextPlugin {
     context.componentRegistry.register('Form', lazy(() => import('./Form')))
     context.componentRegistry.register('TextField', lazy(() => import('./TextField')))
     context.componentRegistry.register('Teleport', lazy(() => import('./Teleport')))
+    context.componentRegistry.register('Spin', lazy(() => import('./Spin')))
+    context.componentRegistry.register('Input', lazy(() => import('./Input')))
 
     return {
       name: MODULE_NAME,

@@ -13,10 +13,5 @@ export function useTranslate() {
     })
   }, [locale])
 
-  return (() => {
-    return {
-      t: locale.t,
-      language: locale.language,
-    }
-  })()
+  return locale.t
 }

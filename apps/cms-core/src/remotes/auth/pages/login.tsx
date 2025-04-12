@@ -16,7 +16,7 @@ const LoginFormSchema = z.object({
 })
 
 function useLoginForm() {
-  const { t } = useTranslate()
+  const t = useTranslate()
   const schema = z.object({
     username: LoginFormSchema.shape.username.nonempty(t('auth__login-error-message--username--required')),
     password: LoginFormSchema.shape.password.nonempty(t('auth__login-error-message--password--required')),
@@ -28,7 +28,8 @@ function useLoginForm() {
 
 function LoginPage() {
   const ctx = getCoreContext()
-  const { t } = useTranslate()
+  const t = useTranslate()
+  const registerResolver = TextField.reactHookFormRegisterResolver
   const CurrentRoute = ctx.routes.get(LOGIN_ROUTE)
   const HomeRoute = ctx.routes.get(HOME_ROUTE)
   const RegisterRoute = ctx.routes.get(REGISTER_ROUTE)
@@ -50,11 +51,11 @@ function LoginPage() {
       <Form onSubmit={onSubmit}>
         <div>
           <div>
-            <TextField {...register('username')} />
+            <TextField {...registerResolver(register('username'))} />
             <div>{formState.errors.username?.message}</div>
           </div>
           <div>
-            <TextField {...register('password')} type="password" />
+            <TextField {...registerResolver(register('password'))} type="password" />
             <div>{formState.errors.password?.message}</div>
           </div>
           <div>
