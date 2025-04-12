@@ -1,0 +1,6 @@
+{
+  "auth__login-page--page-title": "Login Page",
+  "auth__login-error-message--username--required": "Please enter username!",
+  "auth__login-error-message--password--required": "Please enter password!",
+  "auth__login-page-link--register": "Go to Register"
+}

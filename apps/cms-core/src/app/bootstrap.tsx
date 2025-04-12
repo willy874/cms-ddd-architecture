@@ -6,6 +6,7 @@ import { contextPlugin as cqrs } from '@/modules/cqrs'
 import { PortalConfig } from '@/libs/PortalConfig'
 import { createPortal } from './PortalContext'
 import { contextPlugin as router } from './router'
+import { contextPlugin as locale } from './locale'
 import { contextPlugin as routes } from './routes'
 import { contextPlugin as app } from './app'
 
@@ -48,6 +49,7 @@ export async function appInit() {
   const portal = createPortal(config)
   const remote = await getRemote()
   await portal
+    .use(locale())
     .use(cqrs())
     .use(http())
     .use(routes())

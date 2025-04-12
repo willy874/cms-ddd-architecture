@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "1.23.0",
+    "@hookform/resolvers": "^5.0.1",
     "@master/css": "1.37.8",
     "@module-federation/enhanced": "^0.11.3",
     "@tanstack/query-core": "5.71.10",
@@ -19,11 +20,14 @@
     "@tanstack/react-router": "1.115.0",
     "@tanstack/react-router-devtools": "1.115.0",
     "@zag-js/react": "^1.9.3",
+    "@zag-js/toast": "^1.9.3",
     "antd": "~5.24.6",
     "axios": "1.8.2",
     "classnames": "2.5.1",
+    "i18next": "^24.2.3",
     "react": "~19.0.0",
     "react-dom": "~19.0.0",
+    "react-hook-form": "^7.55.0",
     "vue": "~3.5.13",
     "zod": "3.24.2"
   },

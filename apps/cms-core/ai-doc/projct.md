@@ -2,11 +2,14 @@
 
 ## UI
 
-### Library
+### Package
 
 - react@^19
-- antd@^5
 - @master/css@^1
+- @tanstack/react-query
+- @tanstack/react-router
+- react-hook-form
+- zod
 
 ### Naming conventions
 
@@ -24,8 +27,17 @@ The following dynamic variables all use javascript template literals.
   - `${feature}__${event_type}--${component_name}`
 - API: lowerCamelCase
   - `api${resources_name}`
-- Route: upperCamelCase
-  - `${page_name}Route`
+
+#### i18n key example
+
+```txt
+auth__login-page--page-title
+auth__field-label--username
+auth__login-page-link--register
+auth__field-placeholder--username
+auth__login-error-message--username--required
+auth__login-error-message--username--min-length
+```
 
 ## Frontend API
 
@@ -46,3 +58,34 @@ CoreContext has many global singleton objects:
 - localStorage: It is a proxy for localStorage.
 - sessionStorage: It is a proxy for sessionStorage.
 - componentRegistry: Used to register components for global use.
+- locale: i18n instance.
+
+## App Context
+
+Root provides queryClient of @tanstack/react-query.
+
+## Library
+
+- `@/libs/CoreContext`
+  - useCoreContext
+  - getCoreContext
+- `@/libs/http`
+  - createFetcher
+  - defineRestResource
+- `@/libs/locale`
+  - useTranslate
+- `@/libs/components`
+  - Button
+  - Form
+  - TextField
+- `@/constants/routes`
+  - ROOT_ROUTE
+  - HOME_ROUTE
+  - LOGIN_ROUTE
+  - REGISTER_ROUTE
+  - FORGET_PASSWORD_ROUTE
+- `@/constants/query`
+  - GET_BASE_FETCHER_CONFIG
+  - GET_AUTH_FETCHER_CONFIG
+- `@/remotes/<feature_name>/resources/<resource_name>`
+  - *

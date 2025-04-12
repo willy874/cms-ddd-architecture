@@ -1,11 +1,13 @@
 import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
+import { StorageKey } from '@/constants/storage'
+import { ROUTER_INIT } from '@/constants/event'
+import { Language, LocaleNs } from '@/constants/locale'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { MODULE_NAME } from './constants'
 import LoginPage from './pages/login'
 import RegisterPage from './pages/register'
-import { StorageKey } from '@/constants/storage'
-import { ROUTER_INIT } from '@/constants/event'
 import { apiCheckLogin } from './resources/check'
+import localeEnUs from './locale/en-US.json'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
@@ -45,6 +47,15 @@ export function contextPlugin(): CoreContextPlugin {
 
     return {
       name: MODULE_NAME,
+      onInit() {
+        context.locale.addResourceBundle(
+          Language.EN_US,
+          LocaleNs.DEFAULT,
+          localeEnUs,
+          true,
+          true,
+        )
+      },
     }
   }
 }

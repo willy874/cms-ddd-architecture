@@ -1,16 +1,20 @@
-import { isAxiosError, HttpStatusCode } from 'axios'
-import { RestAxiosInstance } from '../libs/axios'
+import { isAxiosError, HttpStatusCode, AxiosInstance } from 'axios'
 
 interface AuthTokenParams {
   getAuthorization: () => string
   onUnauthorized?: () => void
 }
 
-export const authTokenPlugin = function (params: AuthTokenParams): (instance: RestAxiosInstance) => void {
+export const authTokenPlugin = function (params: AuthTokenParams): (instance: AxiosInstance) => void {
   const { getAuthorization, onUnauthorized } = params
   return (instance) => {
     instance.interceptors.request.use((config) => {
-      config.headers['Authorization'] = getAuthorization()
+      try {
+        config.headers['Authorization'] = getAuthorization()
+      }
+      catch {
+        return Promise.reject(new Error('Authorization headers not found.'))
+      }
       return Promise.resolve(config)
     })
     instance.interceptors.response.use(

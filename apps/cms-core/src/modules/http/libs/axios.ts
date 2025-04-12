@@ -50,8 +50,6 @@ export function createHttpInstanceFactor(instance: AxiosInstance): (() => HttpIn
   return () => {
     const fetcher = instance.request.bind(instance)
     return async (request: RequestConfig) => {
-      console.log('request', request.url)
-
       const url = new URL(request.url)
       const fetcherConfig = {
         url: url.href,

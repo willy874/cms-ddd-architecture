@@ -1,6 +1,5 @@
-import { AxiosError, AxiosResponse, isAxiosError, HttpStatusCode } from 'axios'
+import { AxiosError, AxiosResponse, isAxiosError, HttpStatusCode, AxiosInstance } from 'axios'
 import { requestQueueFactory } from '../libs/requestQueue'
-import { RestAxiosInstance } from '../libs/axios'
 
 interface RefreshTokenParams<Info> {
   isTokenExpired: (res: AxiosResponse) => boolean
@@ -12,7 +11,7 @@ interface RefreshTokenParams<Info> {
   })
 }
 
-export const refreshTokenPlugin = function<TokenInfo>(params: RefreshTokenParams<TokenInfo>): (instance: RestAxiosInstance) => void {
+export const refreshTokenPlugin = function<TokenInfo>(params: RefreshTokenParams<TokenInfo>): (instance: AxiosInstance) => void {
   const {
     isTokenExpired,
     fetchRefreshToken,

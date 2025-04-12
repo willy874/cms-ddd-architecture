@@ -7,10 +7,10 @@ const useStyle = genStyleHook('NotFound', () => ({
   },
 }))
 
-function NotFound() {
+function NotFound({ className, ...props }: React.ComponentProps<'div'>) {
   const [wrap, hashId, styles] = useStyle()
   return wrap(
-    <div className={cn(hashId, styles.root)}>NotFound</div>,
+    <div {...props} className={cn(hashId, styles.root, className)}>NotFound</div>,
   )
 }
 

@@ -1,3 +1,10 @@
+# Resource
+
+## Pattern
+
+### Define Resource Example
+
+```ts
 import { z } from 'zod'
 import { GET_BASE_FETCHER_CONFIG } from '@/constants/query'
 import { getCoreContext } from '@/libs/CoreContext'
@@ -31,3 +38,32 @@ export const apiLogin = (body: z.infer<typeof LoginRequestDTOSchema>) => {
   )
   return fetcher({ body }).then((res) => res.data)
 }
+```
+
+## API Schema
+
+### Login
+
+```ts
+type LoginRequestDTO = {
+  username: string
+  password: string
+}
+
+type LoginResponseDTO = {
+  tokenType: string
+  accessToken: string
+  refreshToken: string
+}
+```
+
+### Register
+
+```ts
+type RegisterRequestDTO = {
+  username: string
+  password: string
+}
+
+type RegisterResponseDTO = void
+```

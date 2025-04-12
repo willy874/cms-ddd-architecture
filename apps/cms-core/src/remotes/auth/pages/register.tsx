@@ -43,9 +43,9 @@ function useRegisterForm() {
 
 function RegisterPage() {
   const ctx = getCoreContext()
-  const Route = ctx.routes.get(REGISTER_ROUTE)
+  const CurrentRoute = ctx.routes.get(REGISTER_ROUTE)
   const LoginRoute = ctx.routes.get(LOGIN_ROUTE)
-  const navigate = Route.useNavigate()
+  const navigate = CurrentRoute.useNavigate()
   const { form: formInstance, rules } = useRegisterForm()
   const initialValues = {
     username: '',

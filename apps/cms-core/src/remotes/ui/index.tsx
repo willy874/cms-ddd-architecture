@@ -6,6 +6,12 @@ export const MODULE_NAME = 'cms_core/ui'
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     context.componentRegistry.register('NotFound', lazy(() => import('./NotFound')))
+    context.componentRegistry.register('Button', lazy(() => import('./Button')))
+    context.componentRegistry.register('ConfigProvider', lazy(() => import('./ConfigProvider')))
+    context.componentRegistry.register('Form', lazy(() => import('./Form')))
+    context.componentRegistry.register('TextField', lazy(() => import('./TextField')))
+    context.componentRegistry.register('Teleport', lazy(() => import('./Teleport')))
+
     return {
       name: MODULE_NAME,
     }

@@ -1,12 +1,14 @@
 import { z } from 'zod'
-import { Form, Input, Button } from 'antd'
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { getCoreContext } from '@/libs/CoreContext'
 import { StorageKey } from '@/constants/storage'
 import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
-import { useZodToAntdForm } from '../useZodToAntdForm'
 import { apiLogin } from '../resources/login'
+import { Form, Button, TextField } from '@/libs/components'
+import { useTranslate } from '@/libs/locale'
 
 const LoginFormSchema = z.object({
   username: z.string(),
@@ -14,25 +16,24 @@ const LoginFormSchema = z.object({
 })
 
 function useLoginForm() {
-  const [form] = Form.useForm<z.infer<typeof LoginFormSchema>>()
+  const { t } = useTranslate()
   const schema = z.object({
-    username: LoginFormSchema.shape.username.nonempty('Please enter username!'),
-    password: LoginFormSchema.shape.password.nonempty('Please enter password!'),
+    username: LoginFormSchema.shape.username.nonempty(t('auth__login-schema-error-message--username')),
+    password: LoginFormSchema.shape.password.nonempty('auth__login-schema-error-message--password'),
   })
-  return useZodToAntdForm({ form, schema })
+  return useForm({
+    resolver: zodResolver(schema),
+  })
 }
 
 function LoginPage() {
   const ctx = getCoreContext()
-  const Route = ctx.routes.get(LOGIN_ROUTE)
+  const { t } = useTranslate()
+  const CurrentRoute = ctx.routes.get(LOGIN_ROUTE)
   const HomeRoute = ctx.routes.get(HOME_ROUTE)
   const RegisterRoute = ctx.routes.get(REGISTER_ROUTE)
-  const navigate = Route.useNavigate()
-  const { form, rules } = useLoginForm()
-  const initialValues = {
-    username: '',
-    password: '',
-  } satisfies z.infer<typeof LoginFormSchema>
+  const navigate = CurrentRoute.useNavigate()
+  const { register, handleSubmit, formState } = useLoginForm()
   const { mutateAsync: onFinish, isPending } = useMutation({
     mutationFn: apiLogin,
     onSuccess: (data) => {
@@ -42,24 +43,23 @@ function LoginPage() {
       navigate({ to: HomeRoute.to })
     },
   })
+  const onSubmit = handleSubmit((data) => onFinish(data))
   return (
     <div className="flex flex:column padding:16px">
-      <h2>Login Page</h2>
-      <Form
-        form={form}
-        initialValues={initialValues}
-        onFinish={onFinish}
-      >
+      <h2>{t('auth__login-page--page-title')}</h2>
+      <Form onSubmit={onSubmit}>
         <div>
-          <Form.Item rules={rules.username} name="username">
-            <Input type="text" />
-          </Form.Item>
-          <Form.Item rules={rules.password} name="password">
-            <Input type="password" />
-          </Form.Item>
-          <Form.Item>
-            <Button htmlType="submit" loading={isPending}>Submit</Button>
-          </Form.Item>
+          <div>
+            <TextField {...register('username')} />
+            <div>{formState.errors.username?.message}</div>
+          </div>
+          <div>
+            <TextField {...register('password')} type="password" />
+            <div>{formState.errors.password?.message}</div>
+          </div>
+          <div>
+            <Button type="submit" loading={isPending}>Submit</Button>
+          </div>
         </div>
         <div className="flex flex:column">
           <Link to={RegisterRoute.to}>Go to Register</Link>
