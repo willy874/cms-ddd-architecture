@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { Link, RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
+import { ConfigProvider } from '@/libs/components'
 
 export const MODULE_NAME = 'cms_core/app'
 
@@ -27,9 +28,11 @@ export function contextPlugin(): CoreContextPlugin {
         root.render(
           <StrictMode>
             <StyleProvider cache={cache}>
-              <QueryClientProvider client={context.queryClient}>
-                <RouterProvider router={context.router} />
-              </QueryClientProvider>
+              <ConfigProvider>
+                <QueryClientProvider client={context.queryClient}>
+                  <RouterProvider router={context.router} />
+                </QueryClientProvider>
+              </ConfigProvider>
             </StyleProvider>
           </StrictMode>,
         )

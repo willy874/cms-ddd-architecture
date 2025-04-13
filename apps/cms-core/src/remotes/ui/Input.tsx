@@ -41,6 +41,7 @@ function Input({ className, ...props }: InputProps) {
         {
           'border-red-500 focus:ring-red-500 focus:border-red-500': error,
         },
+        className,
       )}
       type={inputType}
       aria-invalid={error}

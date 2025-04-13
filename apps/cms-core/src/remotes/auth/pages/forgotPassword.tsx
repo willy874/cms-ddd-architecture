@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message, GlobalToken } from 'antd'
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { FORGET_PASSWORD_ROUTE, LOGIN_ROUTE } from '@/constants/routes'
