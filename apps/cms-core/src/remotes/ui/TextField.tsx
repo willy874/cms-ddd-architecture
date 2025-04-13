@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import cn from 'classnames'
-import { UseFormRegisterReturn } from 'react-hook-form'
 import { genStyleHook } from '@/libs/hooks/genStyleHook'
 import Input from './Input'
 
@@ -154,15 +153,6 @@ function TextField({
       )}
     </div>,
   )
-}
-
-TextField.reactHookFormRegisterResolver = function (params: UseFormRegisterReturn): TextFieldProps {
-  const { disabled, ref, ...props } = params
-  return {
-    ref,
-    disabled,
-    inputProps: props,
-  }
 }
 
 export default TextField

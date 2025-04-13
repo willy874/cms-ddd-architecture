@@ -35,8 +35,7 @@ auth__login-page--page-title
 auth__field-label--username
 auth__login-page-link--register
 auth__field-placeholder--username
-auth__login-error-message--username--required
-auth__login-error-message--username--min-length
+auth__username-error-message--required
 ```
 
 #### testid
@@ -95,13 +94,29 @@ function FC() {
 }
 ```
 
-#### Tip
+```tsx
+function FC() {
+  const t = useTranslate()
+  const FormSchema = z.object({
+    test: z.nonempty({ message: t('test__heading') }),
+  })
+  return (...)
+}
+```
+
+#### useTranslate Tip
 
 - zod Don't declare schema outside of react components unless it solves the problem of re-rendering when switching languages.
 
 ## lib Components
 
 path: `@/libs/components`
+
+example:
+
+```ts
+import { TextField, Button, Form } from '@/libs/components'
+```
 
 ### Button
 
@@ -112,7 +127,7 @@ path: `@/libs/components`
 
 ### Form
 
-Base on `React.ComponentProps<'form'>` d
+Base on `React.ComponentProps<'form'>`.
 
 ### TextField
 
@@ -158,21 +173,6 @@ Base on `React.ComponentProps<'form'>` d
 - When `error` is `true`, `label` and `helperText` are styled in red, and `aria-invalid` is set.
 - When `type="password"` and a `suffixNode` is present, clicking the suffix will toggle visibility.
 - You can pass custom `children` to render a fully controlled `Input`, useful for advanced use cases.
-- Use `TextField.reactHookFormRegisterResolver(register(...))` to convert `react-hook-form` registration into `TextField`-compatible props.
-
-#### React Hook Form Integration
-
-```tsx
-const { register } = useForm()
-const registerResolver = TextField.reactHookFormRegisterResolver
-
-<TextField
-  label="Email"
-  helperText="We’ll never share your email."
-  error={!!errors.email}
-  {...registerResolver(register('email'))}
-/>
-```
 
 ## lib routes
 
@@ -186,7 +186,41 @@ path: `@/constants/routes`
 - REGISTER_ROUTE
 - FORGET_PASSWORD_ROUTE
 
-#### Tip
+#### Route Example
+
+```tsx
+import { Link } from '@tanstack/react-router'
+import { HOME_ROUTE } from '@/constants/routes';
+import { getCoreContext } from '@/libs/CoreContext'
+
+function FC() {
+  const ctx = getCoreContext()
+  const HomeRoute = ctx.routes.get(HOME_ROUTE)
+  return (
+    <Link to={HomeRoute.to}>Go to Home</Link>
+  )
+}
+```
+
+```tsx
+import { Link } from '@tanstack/react-router'
+import { HOME_ROUTE } from '@/constants/routes';
+import { getCoreContext } from '@/libs/CoreContext'
+
+function FC1() {
+  const ctx = getCoreContext()
+  const HomeRoute = ctx.routes.get(HOME_ROUTE)
+  const navigate = HomeRoute.useNavigate()
+  const onCall = () => {
+    navigate({ to: HomeRoute.to })
+  }
+  return (
+    <FC2 onCall={onCall}>Go to Home</FC2>
+  )
+}
+```
+
+#### Route Tips
 
 - If you want to navigate, do not use the a tag, use @tanstack/react-router's Link instead
 
