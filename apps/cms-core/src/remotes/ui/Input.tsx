@@ -4,7 +4,6 @@ import { genStyleHook } from '@/libs/hooks/genStyleHook'
 
 const useStyle = genStyleHook('Input', () => ({
   root: {
-    'width': '100%',
     'padding': '8px 12px',
     'border': '1px solid #d1d5db',
     'borderRadius': '4px',
@@ -17,37 +16,24 @@ const useStyle = genStyleHook('Input', () => ({
   },
 }))
 
-interface InputContextType {
-  error?: boolean
-  disabled?: boolean
-  readOnly?: boolean
-  inputType?: React.ComponentProps<typeof Input>['type']
-}
-
-const InputContext = createContext<InputContextType>({})
-
 interface InputProps extends React.ComponentProps<'input'> {
   'data-testid'?: string
 }
 
+const InputContext = createContext<InputProps>({})
 function Input({ className, ...props }: InputProps) {
-  const { error, disabled, readOnly, inputType } = useContext(InputContext)
+  const { className: contextClassName, ...contextProps } = useContext(InputContext)
   const [wrap, hashId, styles] = useStyle()
   return wrap(
     <input
+      {...contextProps}
+      {...props}
       className={cn(
         hashId,
         styles.root,
-        {
-          'border-red-500 focus:ring-red-500 focus:border-red-500': error,
-        },
         className,
+        contextClassName,
       )}
-      type={inputType}
-      aria-invalid={error}
-      disabled={disabled}
-      readOnly={readOnly}
-      {...props}
     />,
   )
 }

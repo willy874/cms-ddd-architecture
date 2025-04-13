@@ -4,5 +4,21 @@
   "auth__login-page-tips--to-register": "Don't have an account?",
   "auth__username-error-message--required": "Please enter username!",
   "auth__password-error-message--required": "Please enter password!",
-  "auth__login-page-link--register": "Go to Register"
+  "auth__login-page-link--register": "Go to Register",
+  "auth__register-page--page-title": "Create an Account",
+  "auth__register-page--form-submit-button": "Register",
+  "auth__register-page-tips--to-login": "Already have an account?",
+  "auth__register-page-link--login": "Sign in here",
+  "auth__field-label--username": "Username",
+  "auth__field-label--password": "Password",
+  "auth__field-label--confirm-password": "Confirm Password",
+  "auth__field-placeholder--username": "Enter your username",
+  "auth__field-placeholder--password": "Enter your password",
+  "auth__field-placeholder--confirm-password": "Confirm your password",
+  "auth__username-error-message--min-length": "Username must be at least 4 characters",
+  "auth__password-error-message--min-length": "Password must be at least 8 characters",
+  "auth__password-error-message--invalid-chars": "Password can only contain letters, numbers, and symbols",
+  "auth__confirm-password-error-message--required": "Please confirm your password",
+  "auth__confirm-password-error-message--mismatch": "Passwords do not match",
+  "auth__register-success-message": "Registration successful"
 }

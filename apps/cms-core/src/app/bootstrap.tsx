@@ -1,4 +1,6 @@
 import './index.css'
+import './dark.css'
+import './light.css'
 import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
 import { CoreContextPlugin, FeatureModule } from '@/libs/CoreContext'
 import { contextPlugin as http } from '@/modules/http'

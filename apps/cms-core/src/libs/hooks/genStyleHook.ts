@@ -1,13 +1,41 @@
 import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
-import { GlobalToken, useTheme } from '../design'
+import { useTheme } from '../design'
+import { camelCaseToKebabCase } from '../naming-convention'
+import { AliasToken, ComponentsToken } from '../design'
+import { GetDeepProperty } from '../getDeepProperty'
 
-export function genStyleHook<T extends Record<string, CSSObject>>(name: string | string[], fn: (token: GlobalToken) => T): () => [ (node: React.ReactElement) => React.JSX.Element, string, Record<keyof T, string>] {
-  const paths = typeof name === 'string' ? [name] : name
+type GetComponentsTokenByPath<
+  Path extends string | string[],
+> = GetDeepProperty<ComponentsToken, Path extends string[] ? Path : [Path]>
+
+function toAliasTokenFactor<T extends object>(token: T) {
+  return (name: keyof T) => `var(--${camelCaseToKebabCase(String(name))}, ${token[name]})`
+}
+
+interface GenStyleHook<Token extends AliasToken> {
+  token: Token
+  alias: (n: keyof Token) => string
+}
+
+export function genStyleHook<
+  Path extends string | string[],
+  CSS extends Record<string, CSSObject>,
+  Token extends AliasToken & GetComponentsTokenByPath<Path>,
+>(
+  name: Path, fn: (token: GenStyleHook<Token>) => CSS,
+): () => [ (node: React.ReactElement) => React.JSX.Element, string, Record<keyof CSS, string>] {
+  const paths = (typeof name === 'string' ? [name] : name) as string[]
   return () => {
     const { theme, token, hashId } = useTheme()
     const [styles, setStyles] = useState<Record<string, string>>({})
-    const css = useMemo(() => fn(token), [token])
+    const css = useMemo(() => {
+      const t = token as Token
+      return fn({
+        token: t,
+        alias: toAliasTokenFactor(t),
+      })
+    }, [token])
     const hash = useMemo(() => hashId.match(/-([a-zA-Z0-9]+$)/)?.[1], [hashId])
 
     const wrap = useStyleRegister({

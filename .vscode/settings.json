@@ -3,4 +3,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "i18n-ally.localesPaths": [
+    "./apps/cms-core/src/remotes/*/locale/**"
+  ],
 }

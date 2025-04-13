@@ -1,13 +1,10 @@
 import { createContext, useContext, useId, useMemo, useInsertionEffect } from 'react'
-import { CamelCaseToKebabCase } from '@/libs/naming-convention'
-import { GlobalToken, useTheme } from '@/libs/design'
+import { camelCaseToKebabCase } from '@/libs/naming-convention'
+import { useTheme } from '@/libs/design'
+import { GlobalToken } from '@/libs/design/token'
 
 export interface GlobalUIConfig {
   id?: string
-}
-
-function camelCaseToKebabCase<S extends string>(str: S): CamelCaseToKebabCase<S> {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() as CamelCaseToKebabCase<S>
 }
 
 const createCSSVariable = (mode: string, dict: GlobalToken) => {

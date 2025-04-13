@@ -20,6 +20,10 @@ export type CamelCaseToKebabCase<S extends string> =
       : `${T}${CamelCaseToKebabCase<U>}`
     : S
 
+export function camelCaseToKebabCase<S extends string>(str: S): CamelCaseToKebabCase<S> {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() as CamelCaseToKebabCase<S>
+}
+
 export type CamelToSnakeCase<S extends string> =
   S extends `${infer T}${infer U}`
     ? T extends Uppercase<T>

@@ -1,55 +1,3 @@
-export interface SeedToken {
-  colorPrimary: string
-  colorSurfaceTint: string
-  colorOnPrimary: string
-  colorPrimaryContainer: string
-  colorOnPrimaryContainer: string
-  colorSecondary: string
-  colorOnSecondary: string
-  colorSecondaryContainer: string
-  colorOnSecondaryContainer: string
-  colorTertiary: string
-  colorOnTertiary: string
-  colorTertiaryContainer: string
-  colorOnTertiaryContainer: string
-  colorError: string
-  colorOnError: string
-  colorErrorContainer: string
-  colorOnErrorContainer: string
-  colorBackground: string
-  colorOnBackground: string
-  colorSurface: string
-  colorOnSurface: string
-  colorSurfaceVariant: string
-  colorOnSurfaceVariant: string
-  colorOutline: string
-  colorOutlineVariant: string
-  colorShadow: string
-  colorScrim: string
-  colorInverseSurface: string
-  colorInverseOnSurface: string
-  colorInversePrimary: string
-  colorPrimaryFixed: string
-  colorOnPrimaryFixed: string
-  colorPrimaryFixedDim: string
-  colorOnPrimaryFixedVariant: string
-  colorSecondaryFixed: string
-  colorOnSecondaryFixed: string
-  colorSecondaryFixedDim: string
-  colorOnSecondaryFixedVariant: string
-  colorTertiaryFixed: string
-  colorOnTertiaryFixed: string
-  colorTertiaryFixedDim: string
-  colorOnTertiaryFixedVariant: string
-  colorSurfaceDim: string
-  colorSurfaceBright: string
-  colorSurfaceContainerLowest: string
-  colorSurfaceContainerLow: string
-  colorSurfaceContainer: string
-  colorSurfaceContainerHigh: string
-  colorSurfaceContainerHighest: string
-}
-
 export const defaultSeedTokenKey = {
   colorPrimary: '#6750a4',
   colorSurfaceTint: '#6750a4',
@@ -100,4 +48,6 @@ export const defaultSeedTokenKey = {
   colorSurfaceContainer: '#1c1917',
   colorSurfaceContainerHigh: '#1c1917',
   colorSurfaceContainerHighest: '#1c1917',
-} satisfies SeedToken
+}
+
+export type SeedToken = typeof defaultSeedTokenKey
