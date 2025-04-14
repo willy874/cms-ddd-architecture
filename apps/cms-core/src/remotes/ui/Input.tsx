@@ -1,16 +1,17 @@
 import { createContext, useContext } from 'react'
 import cn from 'classnames'
-import { genStyleHook } from './style/genStyleHook'
-
-interface InputComponentsToken {
-  inputBorderColor: string
-}
+import { genStyleHook, InferToken } from './style/genStyleHook'
 
 const useStyle = genStyleHook('Input',
-  ({ alias }) => ({
+  ({ token }) => ({
+    borderColor: token.colorOutline,
+  }),
+  ({ componentToken }) => ({
     root: {
       'padding': '8px 12px',
-      'border': `1px solid ${alias('inputBorderColor')}`,
+      'borderWidth': '1px',
+      'borderStyle': 'solid',
+      'borderColor': componentToken.borderColor,
       'borderRadius': '4px',
       'outline': 'none',
       'transition': 'box-shadow 0.2s ease, border-color 0.2s ease',
@@ -20,14 +21,11 @@ const useStyle = genStyleHook('Input',
       },
     },
   }),
-  ({ token }) => ({
-    inputBorderColor: token.colorOutline,
-  }),
 )
 
 declare module '@/remotes/ui/design' {
   export interface ComponentsToken {
-    Input: InputComponentsToken
+    Input: InferToken<typeof useStyle>
   }
 }
 

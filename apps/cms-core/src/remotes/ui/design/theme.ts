@@ -3,6 +3,7 @@ import { Theme } from '@ant-design/cssinjs'
 import { defaultSeedTokenKey } from './seed'
 import { AliasToken, defaultAliasToken } from './alias'
 import { GlobalToken } from './token'
+import { reactive } from 'vue'
 
 const hashId = 'ui-' + crypto.randomUUID().slice(0, 8)
 const theme = new Theme<GlobalToken, AliasToken>([
@@ -28,7 +29,7 @@ const theme = new Theme<GlobalToken, AliasToken>([
   },
 ])
 
-export const GlobalTokenContext = createContext({} as GlobalToken)
+export const GlobalTokenContext = createContext(reactive({} as GlobalToken))
 
 export function useTheme() {
   const [mode, setMode] = useState<'light' | 'dark'>('light')

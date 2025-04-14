@@ -1,5 +1,5 @@
 export { useTheme } from './theme'
 export type { SeedToken } from './seed'
 export type { AliasToken } from './alias'
-export type { ComponentsToken, GetComponentsTokenByPath } from './components'
+export type { ComponentsToken } from './components'
 export type { GlobalToken } from './token'

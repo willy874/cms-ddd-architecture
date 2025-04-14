@@ -63,7 +63,7 @@ const useStyle = genStyleHook('TextField', () => {
   }
 })
 
-interface TextFieldProps extends React.ComponentProps<'div'> {
+interface TextFieldProps extends Omit<React.ComponentProps<'div'>, 'children'> {
   label?: React.ReactNode
   error?: boolean
   helperText?: React.ReactNode
@@ -73,7 +73,7 @@ interface TextFieldProps extends React.ComponentProps<'div'> {
   disabled?: boolean
   readOnly?: boolean
   type?: React.ComponentProps<typeof Input>['type']
-  render?: (props: React.ComponentProps<typeof Input>) => React.ReactNode
+  children?: React.ReactNode | ((props: React.ComponentProps<typeof Input>) => React.ReactNode)
 }
 
 function TextField({
@@ -88,7 +88,6 @@ function TextField({
   disabled,
   readOnly,
   type,
-  render,
   ...props
 }: TextFieldProps) {
   const [inputType, setInputType] = useState(type)
@@ -138,8 +137,8 @@ function TextField({
             'aria-invalid': error,
             ...inputProps,
           } satisfies React.ComponentProps<typeof Input>
-          if (render) {
-            return render(inputChildrenProps)
+          if (typeof children === 'function') {
+            return children(inputChildrenProps)
           }
           if (children) {
             return (
