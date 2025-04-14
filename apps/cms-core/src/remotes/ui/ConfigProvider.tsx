@@ -8,14 +8,13 @@ export interface GlobalUIConfig {
 }
 
 const createCSSVariable = (mode: string, dict: Record<string, any>) => {
-  const cssStyleDeclaration = window.getComputedStyle(document.body)
+  // const cssStyleDeclaration = window.getComputedStyle(document.body)
   const cssStyleString = (key: string, defaultValue: unknown): string => {
     if (typeof defaultValue === 'string') {
       const variableProperty = camelCaseToKebabCase(key)
       const variableName = `--${mode}-${variableProperty}`
-      const rootValue = cssStyleDeclaration.getPropertyValue(variableName)
-      const variableValue = rootValue ? `var(${variableName})` : defaultValue
-      return `--${variableProperty}: ${variableValue};`
+      // const rootValue = cssStyleDeclaration.getPropertyValue(variableName)
+      return `--${variableProperty}: var(${variableName}, ${defaultValue});`
     }
     if (defaultValue && typeof defaultValue === 'object') {
       return Object.entries(defaultValue)
