@@ -1,16 +1,16 @@
 import { createContext, useContext } from 'react'
 import cn from 'classnames'
-import { genStyleHook } from '@/remotes/ui/genStyleHook'
+import { genStyleHook } from './style/genStyleHook'
 
 interface InputComponentsToken {
-  colorInputBorder: string
+  inputBorderColor: string
 }
 
 const useStyle = genStyleHook('Input',
   ({ alias }) => ({
     root: {
       'padding': '8px 12px',
-      'border': `1px solid ${alias('colorInputBorder')}`,
+      'border': `1px solid ${alias('inputBorderColor')}`,
       'borderRadius': '4px',
       'outline': 'none',
       'transition': 'box-shadow 0.2s ease, border-color 0.2s ease',
@@ -21,7 +21,7 @@ const useStyle = genStyleHook('Input',
     },
   }),
   ({ token }) => ({
-    colorInputBorder: token.colorOutline,
+    inputBorderColor: token.colorOutline,
   }),
 )
 

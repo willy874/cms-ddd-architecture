@@ -1,8 +1,8 @@
 import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import { camelCaseToKebabCase } from '@/libs/naming-convention'
-import { useTheme, AliasToken, GetComponentsTokenByPath } from './design'
 import { setDeepProperty, getDeepProperty } from '@/libs/getDeepProperty'
+import { useTheme, AliasToken, GetComponentsTokenByPath } from '../design'
 
 function toAliasTokenFactor<T extends object>(token: T) {
   return (name: keyof T, defaultValue?: string) => {

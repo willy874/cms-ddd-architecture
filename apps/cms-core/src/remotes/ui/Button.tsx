@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import { genStyleHook } from '@/remotes/ui/genStyleHook'
+import { genStyleHook } from './style/genStyleHook'
 import Spin from './Spin'
 
 const useStyle = genStyleHook('Button', () => ({
