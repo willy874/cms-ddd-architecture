@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import cn from 'classnames'
-import { genStyleHook } from '@/libs/hooks/genStyleHook'
+import { genStyleHook } from '@/remotes/ui/genStyleHook'
 import Input from './Input'
 
 const useStyle = genStyleHook('TextField', () => {

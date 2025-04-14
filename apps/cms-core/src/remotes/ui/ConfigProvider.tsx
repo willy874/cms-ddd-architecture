@@ -1,13 +1,12 @@
 import { createContext, useContext, useId, useMemo, useInsertionEffect } from 'react'
 import { camelCaseToKebabCase } from '@/libs/naming-convention'
-import { useTheme } from '@/libs/design'
-import { GlobalToken } from '@/libs/design/token'
+import { useTheme } from '@/remotes/ui/design'
 
 export interface GlobalUIConfig {
   id?: string
 }
 
-const createCSSVariable = (mode: string, dict: GlobalToken) => {
+const createCSSVariable = (mode: string, dict: Record<string, any>) => {
   const cssStyleDeclaration = window.getComputedStyle(document.body)
   const cssVariables = Object.entries(dict)
     .map(([key, defaultValue]) => {
@@ -27,7 +26,7 @@ const useConfigContext = () => useContext(ConfigContext)
 
 function ConfigProvider({ children, id, ...props }: React.ComponentProps<'div'>) {
   const config = useConfigContext()
-  const { token: designToken, mode: themeMode } = useTheme()
+  const { theme, mode: themeMode, token: designToken } = useTheme()
   const $id = useId()
   const $$id = useMemo(() => id || $id, [$id, id])
 
@@ -39,7 +38,7 @@ function ConfigProvider({ children, id, ...props }: React.ComponentProps<'div'>)
     return () => {
       document.head.removeChild(style)
     }
-  }, [themeMode, $$id, designToken])
+  }, [themeMode, $$id, theme])
 
   const $config = useMemo(() => {
     return {

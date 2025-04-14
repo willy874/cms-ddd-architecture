@@ -1,39 +1,56 @@
 import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
-import { useTheme } from '../design'
-import { camelCaseToKebabCase } from '../naming-convention'
-import { AliasToken, ComponentsToken } from '../design'
-import { GetDeepProperty } from '../getDeepProperty'
-
-type GetComponentsTokenByPath<
-  Path extends string | string[],
-> = GetDeepProperty<ComponentsToken, Path extends string[] ? Path : [Path]>
+import { camelCaseToKebabCase } from '@/libs/naming-convention'
+import { useTheme, AliasToken, GetComponentsTokenByPath } from './design'
+import { setDeepProperty, getDeepProperty } from '@/libs/getDeepProperty'
 
 function toAliasTokenFactor<T extends object>(token: T) {
-  return (name: keyof T) => `var(--${camelCaseToKebabCase(String(name))}, ${token[name]})`
+  return (name: keyof T, defaultValue?: string) => {
+    const value = defaultValue || token[name]
+    return `var(--${camelCaseToKebabCase(String(name))}${value ? `,${value}` : ''})`
+  }
 }
 
-interface GenStyleHook<Token extends AliasToken> {
-  token: Token
-  alias: (n: keyof Token) => string
+interface GenStyleHook<
+  Path extends string | string[],
+  CSS extends Record<string, CSSObject>,
+> {
+  (params: {
+    token: AliasToken & GetComponentsTokenByPath<Path>
+    alias: (name: keyof (AliasToken & GetComponentsTokenByPath<Path>), defaultValue?: string) => string
+  }): CSS
+}
+
+interface GenStyleHookComponentToken<
+  Path extends string | string[],
+> {
+  (params: {
+    token: AliasToken
+  }): GetComponentsTokenByPath<Path>
 }
 
 export function genStyleHook<
   Path extends string | string[],
   CSS extends Record<string, CSSObject>,
-  Token extends AliasToken & GetComponentsTokenByPath<Path>,
 >(
-  name: Path, fn: (token: GenStyleHook<Token>) => CSS,
+  name: Path,
+  createCSS: GenStyleHook<Path, CSS>,
+  createComponentToken?: GenStyleHookComponentToken<Path>,
 ): () => [ (node: React.ReactElement) => React.JSX.Element, string, Record<keyof CSS, string>] {
   const paths = (typeof name === 'string' ? [name] : name) as string[]
   return () => {
-    const { theme, token, hashId } = useTheme()
+    const { theme, hashId, token } = useTheme()
     const [styles, setStyles] = useState<Record<string, string>>({})
     const css = useMemo(() => {
-      const t = token as Token
-      return fn({
-        token: t,
-        alias: toAliasTokenFactor(t),
+      const componentToken = createComponentToken?.({ token }) || {}
+      setDeepProperty(token, paths, componentToken as any)
+      const globalToken = Object.assign(
+        JSON.parse(JSON.stringify(token)),
+        getDeepProperty(token, ...paths),
+      )
+      return createCSS({
+        token: globalToken,
+        alias: toAliasTokenFactor(globalToken),
       })
     }, [token])
     const hash = useMemo(() => hashId.match(/-([a-zA-Z0-9]+$)/)?.[1], [hashId])
