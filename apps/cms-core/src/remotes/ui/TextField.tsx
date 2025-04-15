@@ -5,7 +5,6 @@ import Input from './Input'
 
 const useStyle = genStyleHook('TextField',
   ({ token }) => ({
-    border: `1px solid ${token.colorBorder}`,
     activeShadow: `0 0 0 4px ${token.controlOutline}`,
     errorActiveShadow: `0 0 0 4px ${token.color.error.outline}`,
   }),
@@ -33,19 +32,14 @@ const useStyle = genStyleHook('TextField',
           },
         },
       },
-      label: {
-        display: 'block',
-        marginBottom: '8px',
-        fontSize: '14px',
-        fontWeight: cssVariable('fontWeightStrong'),
-        color: '#4a5568',
-      },
       container: {
         'display': 'flex',
         'alignItems': 'center',
         'fontSize': cssVariable('fontSize'),
         'padding': '8px 12px',
-        'border': componentToken.border,
+        'borderWidth': cssVariable('lineWidth'),
+        'borderStyle': cssVariable('lineType'),
+        'borderColor': cssVariable('colorBorder'),
         'borderRadius': cssVariable('borderRadiusOuter'),
         '&:hover': {
           boxShadow: componentToken.errorActiveShadow,
@@ -145,7 +139,7 @@ function TextField({
   return wrap(
     <div
       className={cn(hashId, styles.root, className)}
-      aria-invalid={error}
+      aria-invalid={error || undefined}
       {...props}
     >
       <div className={cn(hashId, styles.container)} data-scope="container">
@@ -160,7 +154,7 @@ function TextField({
             'className': cn(hashId, styles.input),
             disabled,
             readOnly,
-            'aria-invalid': error,
+            'aria-invalid': error || undefined,
             ...inputProps,
           } satisfies React.ComponentProps<typeof Input>
           if (typeof children === 'function') {

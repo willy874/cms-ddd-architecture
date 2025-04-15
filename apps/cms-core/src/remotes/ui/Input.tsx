@@ -3,8 +3,7 @@ import cn from 'classnames'
 import { genStyleHook, InferToken } from './style/genStyleHook'
 
 const useStyle = genStyleHook('Input',
-  ({ token, cssVariable }) => ({
-    border: `${cssVariable('lineWidth')} ${cssVariable('lineType')} ${cssVariable('colorBorder')}`,
+  ({ token }) => ({
     activeShadow: `0 0 0 2px ${token.controlOutline}`,
     errorActiveShadow: `0 0 0 2px ${token.color.error.outline}`,
   }),
@@ -13,7 +12,9 @@ const useStyle = genStyleHook('Input',
       'fontSize': cssVariable('fontSize'),
       'color': cssVariable('colorTextBase'),
       'padding': '8px 12px',
-      'border': componentToken.border,
+      'borderWidth': cssVariable('lineWidth'),
+      'borderStyle': cssVariable('lineType'),
+      'borderColor': cssVariable('colorBorder'),
       'borderRadius': cssVariable('borderRadiusOuter'),
       'backgroundColor': 'transparent',
       'outline': 'none',
