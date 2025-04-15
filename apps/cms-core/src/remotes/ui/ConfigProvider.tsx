@@ -1,10 +1,7 @@
 import { createContext, useContext, useId, useMemo, useInsertionEffect } from 'react'
-import { reactive, watch } from 'vue'
-import { GlobalToken, useTheme } from '@/remotes/ui/design'
+import { watch } from 'vue'
 import { DeepPartial } from './utils'
-import { GlobalTokenContext } from './design/theme'
-import { createCSSVariable } from './design/css-variable'
-
+import { GlobalToken, useTheme, GlobalTokenContext, defaultComponentsToken, createCSSVariable } from './design'
 export interface GlobalUIConfig {
   id?: string
 }
@@ -25,7 +22,7 @@ function ConfigProvider({ children, id, designToken }: ConfigProviderProps) {
   const $id = useId()
   const $$id = useMemo(() => id || $id, [$id, id])
   const $$designToken = useMemo(() => {
-    return reactive(Object.assign({}, $designToken, designToken)) as GlobalToken
+    return Object.assign({}, $designToken, designToken) as GlobalToken
   }, [designToken, $designToken])
 
   useInsertionEffect(() => {
@@ -41,14 +38,15 @@ function ConfigProvider({ children, id, designToken }: ConfigProviderProps) {
 
   useInsertionEffect(() => {
     const style = document.createElement('style')
-    const clearup = watch($$designToken, (token) => {
+    const cleanup = watch(defaultComponentsToken, (value) => {
+      const token = Object.assign({}, $$designToken, value)
       const styleContent = `.${$id.replace(/[#.:'"]/g, (m) => `\\${m}`)} {${createCSSVariable(themeMode, token, theme)}}`
       style.innerHTML = styleContent
     })
     document.head.appendChild(style)
     return () => {
       document.head.removeChild(style)
-      clearup()
+      cleanup()
     }
   }, [themeMode, $$id, theme])
 

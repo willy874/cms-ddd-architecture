@@ -1,7 +1,7 @@
 import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import { setDeepProperty } from '@/libs/getDeepProperty'
-import { useTheme, AliasToken } from '../design'
+import { useTheme, AliasToken, defaultComponentsToken } from '../design'
 import { camelCaseToKebabCase } from '@/libs/naming-convention'
 
 interface GenComponentTokenFn<
@@ -74,7 +74,7 @@ export function genStyleHook<
     const hash = useMemo(() => hashId.match(/-([a-zA-Z0-9]+$)/)?.[1], [hashId])
 
     useLayoutEffect(() => {
-      setDeepProperty(token, paths, componentToken as any)
+      setDeepProperty(defaultComponentsToken, paths, componentToken as any)
     }, [componentToken, token])
 
     useLayoutEffect(() => {

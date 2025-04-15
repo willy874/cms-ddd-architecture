@@ -1,4 +1,6 @@
-export { useTheme } from './theme'
+export { useTheme, GlobalTokenContext } from './theme'
+export { createCSSVariable } from './css-variable'
+export { defaultComponentsToken } from './components'
 export type { SeedToken } from './seed'
 export type { AliasToken } from './alias'
 export type { ComponentsToken } from './components'
