@@ -15,13 +15,12 @@ Base on `React.ComponentProps<'form'>`.
 
 ### TextField
 
-`TextField` is a flexible and customizable input field component designed for forms. It supports labels, error states, helper texts, prefix/suffix elements, password toggle, and native form compatibility. It also integrates with `react-hook-form` via a helper resolver.
+`TextField` is a flexible and customizable input field component designed for forms. It supports error states, helper texts, prefix/suffix elements, password toggle, and native form compatibility. It also integrates with `react-hook-form` via a helper resolver.
 
 #### TextField Props
 
 | Attribute      | Type                                 | Description                                                             |
 | -------------- | ------------------------------------ | ----------------------------------------------------------------------- |
-| `label`        | `React.ReactNode`                    | Label displayed above the input field                                   |
 | `error`        | `boolean`                            | If `true`, displays error styling and marks the input as invalid        |
 | `helperText`   | `React.ReactNode`                    | Helper text shown below the input field                                 |
 | `prefixNode`   | `React.ReactNode`                    | Element rendered on the left inside the input (e.g. icon)               |

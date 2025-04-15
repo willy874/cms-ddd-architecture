@@ -61,50 +61,64 @@ function RegisterPage() {
   })
 
   return (
-    <div
-      className="display:flex flex-direction:column gap:32px padding:24px max-w:320px margin-inline:auto"
-      data-testid={Testid.REGISTER_PAGE}
-    >
-      <h2
-        className="text:24px font:semibold color:gray-800 text-align:center"
-        data-testid={Testid.REGISTER_TITLE}
+    <div className="display:flex flex-grow:1 align-items:center justify-content:center">
+      <div
+        className="display:flex flex-direction:column padding:24px width:320px transform:translateY(-10%) background:rgba(255,255,255,0.10) border-radius:8px box-shadow:0|2px|8px|rgba(255,255,255,0.1)"
+        data-testid={Testid.LOGIN_PAGE}
       >
-        {t('auth__register-page--page-title')}
-      </h2>
-      <Form
-        onSubmit={onSubmit}
-        className="display:flex flex-direction:column gap:16px"
-        data-testid={Testid.REGISTER_FORM}
-      >
-        <div className="display:flex flex-direction:column gap:16px">
+        <h2
+          className="text:24px font:semibold color:gray-800 text-align:center"
+          data-testid={Testid.REGISTER_TITLE}
+        >
+          {t('auth__register-page--page-title')}
+        </h2>
+        <Form
+          onSubmit={onSubmit}
+          className="display:flex flex-direction:column gap:16px"
+          data-testid={Testid.REGISTER_FORM}
+        >
+          <div className="display:flex flex-direction:column">
 
-          <div className="display:flex flex-direction:column gap:4px">
-            <TextField
-              helperText={formState.errors.username?.message}
-              data-testid={Testid.REGISTER_USERNAME_FIELD}
-            >
-              <Input {...register('username')} data-testid={Testid.REGISTER_USERNAME_INPUT} />
-            </TextField>
-          </div>
+            <div className="display:flex flex-direction:column gap:4px">
+              <label>
+                {t('auth__register-page--form-username-label')}
+              </label>
+              <TextField
+                helperText={formState.errors.username?.message}
+                error={!!formState.errors.username}
+                data-testid={Testid.REGISTER_USERNAME_FIELD}
+              >
+                <Input {...register('username')} data-testid={Testid.REGISTER_USERNAME_INPUT} />
+              </TextField>
+            </div>
 
-          <div className="display:flex flex-direction:column gap:4px">
-            <TextField
-              helperText={formState.errors.password?.message}
-              type="password"
-              data-testid={Testid.REGISTER_PASSWORD_FIELD}
-            >
-              <Input {...register('password')} data-testid={Testid.REGISTER_PASSWORD_INPUT} />
-            </TextField>
-          </div>
+            <div className="display:flex flex-direction:column gap:4px">
+              <label>
+                {t('auth__login-page--form-password-label')}
+              </label>
+              <TextField
+                helperText={formState.errors.password?.message}
+                error={!!formState.errors.password}
+                type="password"
+                data-testid={Testid.REGISTER_PASSWORD_FIELD}
+              >
+                <Input {...register('password')} data-testid={Testid.REGISTER_PASSWORD_INPUT} />
+              </TextField>
+            </div>
 
-          <div className="display:flex flex-direction:column gap:4px">
-            <TextField
-              helperText={formState.errors.confirmPassword?.message}
-              type="password"
-              data-testid={Testid.REGISTER_CONFIRM_PASSWORD_FIELD}
-            >
-              <Input {...register('confirmPassword')} data-testid={Testid.REGISTER_CONFIRM_PASSWORD_INPUT} />
-            </TextField>
+            <div className="display:flex flex-direction:column gap:4px">
+              <label>
+                {t('auth__register-page--form-confirm-password-label')}
+              </label>
+              <TextField
+                helperText={formState.errors.confirmPassword?.message}
+                error={!!formState.errors.confirmPassword}
+                type="password"
+                data-testid={Testid.REGISTER_CONFIRM_PASSWORD_FIELD}
+              >
+                <Input {...register('confirmPassword')} data-testid={Testid.REGISTER_CONFIRM_PASSWORD_INPUT} />
+              </TextField>
+            </div>
           </div>
 
           <Button
@@ -114,27 +128,27 @@ function RegisterPage() {
           >
             {t('auth__register-page--form-submit-button')}
           </Button>
-        </div>
 
-        <div
-          className="display:flex flex-direction:column gap:8px margin-top:16px text-align:center text:13px"
-          data-testid={Testid.REGISTER_FOOTER}
-        >
-          <span
-            className="color:gray-600"
-            data-testid={Testid.REGISTER_FOOTER_TIP}
+          <div
+            className="display:flex flex-direction:column gap:8px margin-top:16px text-align:center text:13px"
+            data-testid={Testid.REGISTER_FOOTER}
           >
-            {t('auth__register-page-tips--to-login')}
-          </span>
-          <Link
-            to={LoginRoute.to}
-            className="color:blue-600 hover:underline text:13px"
-            data-testid={Testid.REGISTER_LINK_LOGIN}
-          >
-            {t('auth__register-page-link--login')}
-          </Link>
-        </div>
-      </Form>
+            <span
+              className="color:gray-600"
+              data-testid={Testid.REGISTER_FOOTER_TIP}
+            >
+              {t('auth__register-page-tips--to-login')}
+            </span>
+            <Link
+              to={LoginRoute.to}
+              className="color:blue-600 hover:underline text:13px"
+              data-testid={Testid.REGISTER_LINK_LOGIN}
+            >
+              {t('auth__register-page-link--login')}
+            </Link>
+          </div>
+        </Form>
+      </div>
     </div>
   )
 }

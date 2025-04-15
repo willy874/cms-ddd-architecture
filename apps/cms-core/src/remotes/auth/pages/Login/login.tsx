@@ -45,41 +45,52 @@ function LoginPage() {
     },
   })
   const onSubmit = handleSubmit((data) => onFinish(data))
+
   return (
-    <div
-      className="display:flex flex-direction:column gap:32px padding:24px max-w:320px margin-inline:auto"
-      data-testid={Testid.LOGIN_PAGE}
-    >
-      <h2
-        className="text:24px font:semibold color:gray-800 text-align:center"
-        data-testid={Testid.LOGIN_TITLE}
+    <div className="display:flex flex-grow:1 align-items:center justify-content:center">
+      <div
+        className="display:flex flex-direction:column padding:24px width:320px transform:translateY(-10%) background:rgba(255,255,255,0.10) border-radius:8px box-shadow:0|2px|8px|rgba(255,255,255,0.1)"
+        data-testid={Testid.LOGIN_PAGE}
       >
-        {t('auth__login-page--page-title')}
-      </h2>
-      <Form
-        onSubmit={onSubmit}
-        className="display:flex flex-direction:column gap:16px"
-        data-testid={Testid.LOGIN_FORM}
-      >
-        <div className="display:flex flex-direction:column gap:16px">
+        <h2
+          className="text:24px font:semibold color:gray-800 text-align:center"
+          data-testid={Testid.LOGIN_TITLE}
+        >
+          {t('auth__login-page--page-title')}
+        </h2>
+        <Form
+          onSubmit={onSubmit}
+          className="display:flex flex-direction:column gap:16px"
+          data-testid={Testid.LOGIN_FORM}
+        >
+          <div className="display:flex flex-direction:column">
 
-          <div className="display:flex flex-direction:column gap:4px">
-            <TextField
-              helperText={formState.errors.username?.message}
-              data-testid={Testid.LOGIN_USERNAME_FIELD}
-            >
-              <Input {...register('username')} data-testid={Testid.LOGIN_USERNAME_INPUT} />
-            </TextField>
-          </div>
+            <div className="display:flex flex-direction:column gap:4px">
+              <label>
+                {t('auth__login-page--form-username-label')}
+              </label>
+              <TextField
+                error={!!formState.errors.username}
+                helperText={formState.errors.username?.message}
+                data-testid={Testid.LOGIN_USERNAME_FIELD}
+              >
+                <Input {...register('username')} data-testid={Testid.LOGIN_USERNAME_INPUT} />
+              </TextField>
+            </div>
 
-          <div className="display:flex flex-direction:column gap:4px">
-            <TextField
-              helperText={formState.errors.password?.message}
-              type="password"
-              data-testid={Testid.LOGIN_PASSWORD_FIELD}
-            >
-              <Input {...register('password')} data-testid={Testid.LOGIN_PASSWORD_INPUT} />
-            </TextField>
+            <div className="display:flex flex-direction:column gap:4px">
+              <label>
+                {t('auth__login-page--form-password-label')}
+              </label>
+              <TextField
+                error={!!formState.errors.password}
+                helperText={formState.errors.password?.message}
+                type="password"
+                data-testid={Testid.LOGIN_PASSWORD_FIELD}
+              >
+                <Input {...register('password')} data-testid={Testid.LOGIN_PASSWORD_INPUT} />
+              </TextField>
+            </div>
           </div>
 
           <Button
@@ -89,27 +100,27 @@ function LoginPage() {
           >
             {t('auth__login-page--form-submit-button')}
           </Button>
-        </div>
 
-        <div
-          className="display:flex flex-direction:column gap:8px margin-top:16px text-align:center text:13px"
-          data-testid={Testid.LOGIN_FOOTER}
-        >
-          <span
-            className="color:gray-600"
-            data-testid={Testid.LOGIN_FOOTER_TIP}
+          <div
+            className="display:flex flex-direction:column gap:8px margin-top:16px text-align:center text:13px"
+            data-testid={Testid.LOGIN_FOOTER}
           >
-            {t('auth__login-page-tips--to-register')}
-          </span>
-          <Link
-            to={RegisterRoute.to}
-            className="color:blue-600 hover:underline text:13px"
-            data-testid={Testid.LOGIN_LINK_REGISTER}
-          >
-            {t('auth__login-page-link--register')}
-          </Link>
-        </div>
-      </Form>
+            <span
+              className="color:gray-600"
+              data-testid={Testid.LOGIN_FOOTER_TIP}
+            >
+              {t('auth__login-page-tips--to-register')}
+            </span>
+            <Link
+              to={RegisterRoute.to}
+              className="color:blue-600 hover:underline text:13px"
+              data-testid={Testid.LOGIN_LINK_REGISTER}
+            >
+              {t('auth__login-page-link--register')}
+            </Link>
+          </div>
+        </Form>
+      </div>
     </div>
   )
 }

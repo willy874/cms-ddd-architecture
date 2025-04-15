@@ -4,14 +4,9 @@ import { genStyleHook, InferToken } from './style/genStyleHook'
 
 const useStyle = genStyleHook('Input',
   ({ token, cssVariable }) => ({
-    border: `1px solid ${cssVariable('colorBorder')}`,
-    borderRadius: token.borderRadiusOuter,
-    hoverBg: token.colorBgBase,
-    activeBg: token.colorBgBase,
-    disabledBg: token.colorFill.disabled,
+    border: `${cssVariable('lineWidth')} ${cssVariable('lineType')} ${cssVariable('colorBorder')}`,
     activeShadow: `0 0 0 2px ${token.controlOutline}`,
     errorActiveShadow: `0 0 0 2px ${token.color.error.outline}`,
-    warningActiveShadow: `0 0 0 2px ${token.color.warning.outline}`,
   }),
   ({ componentToken, cssVariable }) => ({
     root: {
@@ -35,13 +30,9 @@ const useStyle = genStyleHook('Input',
         borderColor: cssVariable('colorBorder'),
         cursor: 'not-allowed',
       },
-      '&[aria-invalid]': {
+      '&[aria-invalid="true"]': {
         boxShadow: componentToken.errorActiveShadow,
         borderColor: cssVariable('colorErrorActive'),
-      },
-      '&[aria-invalid][data-status="warning"]': {
-        boxShadow: componentToken.warningActiveShadow,
-        borderColor: cssVariable('colorWarningActive'),
       },
     },
   }),

@@ -5,92 +5,107 @@ import Input from './Input'
 
 const useStyle = genStyleHook('TextField',
   ({ token }) => ({
-    borderColor: token.colorBorder,
-    borderRadius: token.borderRadiusOuter,
-    fontSize: token.fontSize,
-    paddingBlock: '4px',
-    paddingInline: '11px',
-    paddingBlockSm: '0px',
-    paddingInlineSm: '7px',
-    paddingBlockLg: '7px',
-    paddingInlineLg: '11px',
-    addonBg: token.colorFill.disabled,
-    activeBorderColor: token.colorPrimary,
-    hoverBorderColor: token.color.primary.hover,
-    activeShadow: `0 0 0 2px ${token.controlOutline}`,
-    errorActiveShadow: token.color.error.outline,
-    warningActiveShadow: token.color.warning.outline,
-    hoverBg: token.colorBgBase,
-    activeBg: token.colorBgBase,
+    border: `1px solid ${token.colorBorder}`,
+    activeShadow: `0 0 0 4px ${token.controlOutline}`,
+    errorActiveShadow: `0 0 0 4px ${token.color.error.outline}`,
   }),
-  ({ componentToken }) => {
+  ({ componentToken, cssVariable }) => {
     return {
       root: {
-        marginBottom: '16px',
+        'position': 'relative',
+        'marginBottom': '20px',
+        '&[aria-invalid="true"]': {
+          '[data-scope="container"]': {
+            boxShadow: componentToken.errorActiveShadow,
+            borderColor: cssVariable('colorErrorActive'),
+          },
+          '[data-scope="helperText"]': {
+            color: cssVariable('colorErrorText'),
+          },
+          '[data-scope="label"]': {
+            color: cssVariable('colorErrorText'),
+          },
+          '[data-scope="prefix"]': {
+            color: cssVariable('colorErrorText'),
+          },
+          '[data-scope="suffix"]': {
+            color: cssVariable('colorErrorText'),
+          },
+        },
       },
       label: {
         display: 'block',
         marginBottom: '8px',
         fontSize: '14px',
-        fontWeight: 'medium',
+        fontWeight: cssVariable('fontWeightStrong'),
         color: '#4a5568',
       },
       container: {
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        fontSize: componentToken.fontSize,
-        padding: '8px 12px',
-        border: `1px solid ${componentToken.borderColor}`,
-        borderRadius: componentToken.borderRadius,
+        'display': 'flex',
+        'alignItems': 'center',
+        'fontSize': cssVariable('fontSize'),
+        'padding': '8px 12px',
+        'border': componentToken.border,
+        'borderRadius': cssVariable('borderRadiusOuter'),
+        '&:hover': {
+          boxShadow: componentToken.errorActiveShadow,
+          borderColor: cssVariable('colorPrimaryHover'),
+        },
+        '&:focus-within': {
+          outline: 'none',
+          boxShadow: componentToken.activeShadow,
+          borderColor: cssVariable('colorPrimary'),
+        },
       },
       prefix: {
-        position: 'absolute',
-        left: '0',
         paddingLeft: '12px',
         display: 'flex',
         alignItems: 'center',
         pointerEvents: 'none',
-        color: '#a0aec0',
+        color: 'inherit',
       },
       suffix: {
-        position: 'absolute',
-        right: '0',
         paddingRight: '12px',
         display: 'flex',
         alignItems: 'center',
         pointerEvents: 'none',
-        color: '#a0aec0',
+        color: 'inherit',
       },
       helperText: {
-        fontSize: '12px',
-        marginTop: '4px',
-        color: '#718096',
+        position: 'absolute',
+        left: '0',
+        top: '100%',
+        fontSize: cssVariable('fontSizeSm'),
+        marginTop: '2px',
       },
       input: {
+        'color': cssVariable('colorTextBase'),
         'width': '100%',
         'padding': '0',
         'border': 'none',
         'borderRadius': '0',
         'outline': 'none',
         'transition': 'none',
+        '&:hover': {
+          boxShadow: 'none',
+          border: 'none',
+          outline: 'none',
+        },
         '&:focus': {
           boxShadow: 'none',
           border: 'none',
           outline: 'none',
         },
-        '&[aria-invalid]': {
+        '&[aria-invalid="true"]': {
           boxShadow: 'none',
           border: 'none',
           outline: 'none',
-          color: componentToken.errorActiveShadow,
         },
       },
     }
   })
 
 interface TextFieldProps extends Omit<React.ComponentProps<'div'>, 'children'> {
-  label?: React.ReactNode
   error?: boolean
   helperText?: React.ReactNode
   prefixNode?: React.ReactNode
@@ -103,7 +118,6 @@ interface TextFieldProps extends Omit<React.ComponentProps<'div'>, 'children'> {
 }
 
 function TextField({
-  label,
   helperText,
   error,
   prefixNode,
@@ -129,30 +143,16 @@ function TextField({
     }
   }
   return wrap(
-    <div className={cn(hashId, styles.root, className)} {...props}>
-      {label && (
-        <label className={cn(
-          hashId,
-          styles.label,
-          {
-            'color:red-500': error,
-            'color:gray-500': !error,
-          },
-        )}
-        >
-          {label}
-        </label>
-      )}
-      <div className={cn(
-        hashId,
-        styles.container,
-        {
-          'ring:2px|red-500': error,
-        },
-      )}
-      >
+    <div
+      className={cn(hashId, styles.root, className)}
+      aria-invalid={error}
+      {...props}
+    >
+      <div className={cn(hashId, styles.container)} data-scope="container">
         {prefixNode && (
-          <div className={cn(hashId, styles.prefix)}>{prefixNode}</div>
+          <div className={cn(hashId, styles.prefix)} data-scope="prefix">
+            {prefixNode}
+          </div>
         )}
         {(() => {
           const inputChildrenProps = {
@@ -178,26 +178,15 @@ function TextField({
         {suffixNode && (
           <div
             onClick={onPasswordChange}
-            className={
-              cn(hashId, styles.suffix, {
-                'cursor:pointer': type === 'password',
-              })
-            }
+            className={cn(hashId, styles.suffix)}
+            data-scope="suffix"
           >
             {suffixNode}
           </div>
         )}
       </div>
       {helperText && (
-        <span className={cn(
-          hashId,
-          styles.helperText,
-          {
-            'color:red-500': error,
-            'color:gray-500': !error,
-          },
-        )}
-        >
+        <span className={cn(hashId, styles.helperText)} data-scope="helperText">
           {helperText}
         </span>
       )}

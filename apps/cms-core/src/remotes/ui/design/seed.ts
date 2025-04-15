@@ -274,7 +274,7 @@ export const defaultSeedTokenKey = {
   controlItemBgActiveHover: '#bae0ff',
   controlItemBgActiveDisabled: 'rgba(0, 0, 0, 0.15)',
   controlTmpOutline: 'rgba(0, 0, 0, 0.02)',
-  controlOutline: 'rgba(5, 145, 255, 0.1)',
+  controlOutline: 'rgba(5, 145, 255, 0.2)',
 
   // Opacity
   opacityLoading: 0.65,

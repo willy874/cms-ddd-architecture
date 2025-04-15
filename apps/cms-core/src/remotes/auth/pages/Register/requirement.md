@@ -16,4 +16,4 @@ I want a register page
 
 ## event
 
-- When the registration request is completed, you need to be directed back to the home page.
+- When the registration request is completed, you need to be directed back to the login page.
