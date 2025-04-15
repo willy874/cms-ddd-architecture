@@ -1,7 +1,9 @@
 import { createContext, useContext, useId, useMemo, useInsertionEffect } from 'react'
+import { reactive, watch } from 'vue'
 import { camelCaseToKebabCase } from '@/libs/naming-convention'
-import { useTheme } from '@/remotes/ui/design'
-import { watch } from 'vue'
+import { GlobalToken, useTheme } from '@/remotes/ui/design'
+import { DeepPartial } from './utils'
+import { GlobalTokenContext } from './design/theme'
 
 export interface GlobalUIConfig {
   id?: string
@@ -36,13 +38,17 @@ const useConfigContext = () => useContext(ConfigContext)
 interface ConfigProviderProps {
   id?: string
   children: React.ReactNode
+  designToken?: DeepPartial<GlobalToken>
 }
 
-function ConfigProvider({ children, id }: ConfigProviderProps) {
+function ConfigProvider({ children, id, designToken }: ConfigProviderProps) {
   const config = useConfigContext()
-  const { theme, mode: themeMode, token: designToken } = useTheme()
+  const { theme, mode: themeMode, token: $designToken } = useTheme()
   const $id = useId()
   const $$id = useMemo(() => id || $id, [$id, id])
+  const $$designToken = useMemo(() => {
+    return reactive(Object.assign({}, $designToken, designToken)) as GlobalToken
+  }, [designToken, $designToken])
 
   useInsertionEffect(() => {
     const body = document.querySelector('body')
@@ -57,7 +63,7 @@ function ConfigProvider({ children, id }: ConfigProviderProps) {
 
   useInsertionEffect(() => {
     const style = document.createElement('style')
-    const clearup = watch(designToken, (token) => {
+    const clearup = watch($$designToken, (token) => {
       const styleContent = `.${$id.replace(/[#.:'"]/g, (m) => `\\${m}`)} {${createCSSVariable(themeMode, token)}}`
       style.innerHTML = styleContent
     })
@@ -77,7 +83,9 @@ function ConfigProvider({ children, id }: ConfigProviderProps) {
 
   return (
     <ConfigContext.Provider value={$config}>
-      {children}
+      <GlobalTokenContext.Provider value={$$designToken}>
+        {children}
+      </GlobalTokenContext.Provider>
     </ConfigContext.Provider>
   )
 }
