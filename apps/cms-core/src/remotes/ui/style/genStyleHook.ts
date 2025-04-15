@@ -2,13 +2,15 @@ import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import { setDeepProperty } from '@/libs/getDeepProperty'
 import { useTheme, AliasToken, defaultComponentsToken } from '../design'
-import { camelCaseToKebabCase } from '@/libs/naming-convention'
+import { camelCaseToKebabCase, KebabToCamelCase } from '@/libs/naming-convention'
+import { DeepFlatKey } from '../utils'
 
 interface GenComponentTokenFn<
   Token extends Record<string, string>,
 > {
   (params: {
     token: AliasToken
+    cssVariable: (name: KebabToCamelCase<DeepFlatKey<AliasToken>>, def?: string) => string
   }): Token
 }
 
@@ -19,6 +21,7 @@ interface GenStyleFn<
   (params: {
     token: AliasToken
     componentToken: Token
+    cssVariable: (name: KebabToCamelCase<DeepFlatKey<AliasToken>> & string, def?: string) => string
   }): CSS
 }
 
@@ -55,20 +58,39 @@ export function genStyleHook<
   const createComponentToken = (fn2 ? fn1 : undefined) as GenComponentTokenFn<Token>
   const createCSS = (fn2 ? fn2 : fn1) as GenStyleFn<Token, CSS>
   const paths = (typeof name === 'string' ? [name] : name) as string[]
+  const cssVariableFactor = (_token: unknown) => {
+    return (name: string, def?: string) => {
+      const property = camelCaseToKebabCase(name)
+      if (def) {
+        return `var(--${property}, ${def})`
+      }
+      return `var(--${property})`
+    }
+  }
   return () => {
     const { theme, hashId, token } = useTheme()
     const [styles, setStyles] = useState<Record<string, string>>({})
-    const componentToken = useMemo(() => (createComponentToken?.({ token }) || {}), [token])
+    const componentToken = useMemo(() => {
+      return (createComponentToken?.({
+        token,
+        cssVariable: cssVariableFactor(token),
+      }) || {})
+    }, [token])
     const css = useMemo(() => {
       const componentTokenVar: Record<string, string> = {}
       Object.keys(componentToken).forEach((key) => {
         const value = componentToken[key] ? `, ${componentToken[key]}` : ''
         const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
+        if (/^var\(--(.+)\)/.test(componentToken[key])) {
+          componentTokenVar[key] = value
+        }
         componentTokenVar[key] = `var(${name}${value})`
       })
+      const globalToken = JSON.parse(JSON.stringify(token))
       return createCSS({
-        token: JSON.parse(JSON.stringify(token)),
+        token: globalToken,
         componentToken: componentTokenVar as Token,
+        cssVariable: cssVariableFactor(globalToken),
       })
     }, [componentToken, token])
     const hash = useMemo(() => hashId.match(/-([a-zA-Z0-9]+$)/)?.[1], [hashId])

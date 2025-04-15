@@ -26,7 +26,10 @@ export const createCSSVariable = (mode: string, dict: Record<string, any>, theme
     }
     if (contextValue && typeof contextValue === 'object') {
       return Object.entries(contextValue)
-        .map(([subKey, subValue]) => cssStyleString(`${key}-${subKey}`, subValue, defaultValue ? Reflect.get(defaultValue, subKey) : undefined))
+        .map(([subKey, subValue]) => cssStyleString(
+          subKey === 'default' ? key : `${key}-${subKey}`,
+          subValue,
+          defaultValue ? Reflect.get(defaultValue, subKey) : undefined))
         .join(' ')
     }
     return ''
