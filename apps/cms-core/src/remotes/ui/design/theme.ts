@@ -6,7 +6,7 @@ import { GlobalToken } from './token'
 import { reactive } from 'vue'
 
 const hashId = 'ui-' + crypto.randomUUID().slice(0, 8)
-const theme = new Theme<GlobalToken, AliasToken>([
+export const theme = new Theme<any, AliasToken>([
   (token) => {
     for (const key in defaultSeedTokenKey) {
       const $key = key as keyof typeof defaultSeedTokenKey

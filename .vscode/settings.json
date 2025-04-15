@@ -6,4 +6,7 @@
   "i18n-ally.localesPaths": [
     "./apps/cms-core/src/remotes/*/locale/**"
   ],
+  "cSpell.words": [
+    "geekblue"
+  ],
 }

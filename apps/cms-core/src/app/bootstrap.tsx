@@ -1,6 +1,7 @@
-import './index.css'
+// import './base.css'
 import './dark.css'
 import './light.css'
+import './index.css'
 import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
 import { CoreContextPlugin, FeatureModule } from '@/libs/CoreContext'
 import { contextPlugin as http } from '@/modules/http'

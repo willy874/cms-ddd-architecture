@@ -28,7 +28,7 @@ export function contextPlugin(): CoreContextPlugin {
         root.render(
           <StrictMode>
             <StyleProvider cache={cache}>
-              <ConfigProvider>
+              <ConfigProvider designToken={{ blue: '#1677EE' }}>
                 <QueryClientProvider client={context.queryClient}>
                   <RouterProvider router={context.router} />
                 </QueryClientProvider>

@@ -1,34 +1,12 @@
 import { createContext, useContext, useId, useMemo, useInsertionEffect } from 'react'
 import { reactive, watch } from 'vue'
-import { camelCaseToKebabCase } from '@/libs/naming-convention'
 import { GlobalToken, useTheme } from '@/remotes/ui/design'
 import { DeepPartial } from './utils'
 import { GlobalTokenContext } from './design/theme'
+import { createCSSVariable } from './design/css-variable'
 
 export interface GlobalUIConfig {
   id?: string
-}
-
-const createCSSVariable = (mode: string, dict: Record<string, any>) => {
-  // const cssStyleDeclaration = window.getComputedStyle(document.body)
-  const cssStyleString = (key: string, defaultValue: unknown): string => {
-    if (typeof defaultValue === 'string') {
-      const variableProperty = camelCaseToKebabCase(key)
-      const variableName = `--${mode}-${variableProperty}`
-      // const rootValue = cssStyleDeclaration.getPropertyValue(variableName)
-      return `--${variableProperty}: var(${variableName}, ${defaultValue});`
-    }
-    if (defaultValue && typeof defaultValue === 'object') {
-      return Object.entries(defaultValue)
-        .map(([subKey, subValue]) => cssStyleString(`${key}-${subKey}`, subValue))
-        .join(' ')
-    }
-    return ''
-  }
-  const cssVariables = Object.entries(dict)
-    .map(([key, defaultValue]) => cssStyleString(key, defaultValue))
-    .join(' ')
-  return cssVariables
 }
 
 const ConfigContext = createContext({} as GlobalUIConfig)
@@ -64,7 +42,7 @@ function ConfigProvider({ children, id, designToken }: ConfigProviderProps) {
   useInsertionEffect(() => {
     const style = document.createElement('style')
     const clearup = watch($$designToken, (token) => {
-      const styleContent = `.${$id.replace(/[#.:'"]/g, (m) => `\\${m}`)} {${createCSSVariable(themeMode, token)}}`
+      const styleContent = `.${$id.replace(/[#.:'"]/g, (m) => `\\${m}`)} {${createCSSVariable(themeMode, token, theme)}}`
       style.innerHTML = styleContent
     })
     document.head.appendChild(style)
