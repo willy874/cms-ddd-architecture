@@ -1,6 +1,6 @@
 function Header() {
   return (
-    <header className="flex-shrink:1">
+    <header className="display:flex flex-shrink:1">
       <div></div>
     </header>
   )

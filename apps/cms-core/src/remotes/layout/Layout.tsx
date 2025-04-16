@@ -7,10 +7,11 @@ function Layout({ children }: { children: React.ReactNode }) {
   if (layoutType !== 'default') {
     return children
   }
-  const AppHeader = getCoreContext().componentRegistry.get('Header')
-  const LeftAside = getCoreContext().componentRegistry.get('LeftAside')
-  const RightAside = getCoreContext().componentRegistry.get('RightAside')
-  const AppFooter = getCoreContext().componentRegistry.get('Footer')
+  const components = getCoreContext().componentRegistry
+  const AppHeader = components.get('Header')
+  const LeftAside = components.get('LeftAside')
+  const RightAside = components.get('RightAside')
+  const AppFooter = components.get('Footer')
   return (
     <div className="flex flex:column flex-grow:1">
       <AppHeader />
