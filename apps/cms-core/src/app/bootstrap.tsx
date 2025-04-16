@@ -13,6 +13,7 @@ import { contextPlugin as routes } from './routes'
 import { contextPlugin as app } from './app'
 
 const getConfig = () => Promise.resolve({
+  isAuthClose: true,
   remotes: [
     {
       name: 'cms_core',

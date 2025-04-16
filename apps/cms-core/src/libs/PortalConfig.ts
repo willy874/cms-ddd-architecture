@@ -4,5 +4,6 @@ interface RemoteResource {
 }
 
 export interface PortalConfig {
+  isAuthClose?: boolean
   remotes?: RemoteResource[]
 }

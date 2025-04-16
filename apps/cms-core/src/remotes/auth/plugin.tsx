@@ -29,6 +29,9 @@ export function contextPlugin(): CoreContextPlugin {
     channel.subscribe(() => {
       const accessToken = context.localStorage.getItem(StorageKey.ACCESS_TOKEN)
       if (accessToken) {
+        if (context.config.isAuthClose) {
+          return
+        }
         apiCheckLogin()
           .then(() => {
             if (LOGIN_PATHS.includes(context.router.state.location.href)) {

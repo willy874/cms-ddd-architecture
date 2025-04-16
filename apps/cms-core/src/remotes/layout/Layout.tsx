@@ -13,19 +13,13 @@ function Layout({ children }: { children: React.ReactNode }) {
   const AppFooter = getCoreContext().componentRegistry.get('Footer')
   return (
     <div className="flex flex:column flex-grow:1">
-      <header className="flex-shrink:1">
-        <AppHeader />
-      </header>
+      <AppHeader />
       <div className="flex flex-grow:1">
-        <aside className="flex-shrink:1">
-          <LeftAside />
-        </aside>
+        <LeftAside />
         <main className="flex flex:column flex-grow:1">
           {children}
         </main>
-        <aside className="flex-shrink:1">
-          <RightAside />
-        </aside>
+        <RightAside />
       </div>
       <footer className="flex-shrink:1">
         <AppFooter />
