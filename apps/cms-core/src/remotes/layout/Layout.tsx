@@ -8,13 +8,13 @@ function Layout({ children }: { children: React.ReactNode }) {
     return children
   }
   const components = getCoreContext().componentRegistry
-  const AppHeader = components.get('Header')
+  const Header = components.get('Header')
   const LeftAside = components.get('LeftAside')
   const RightAside = components.get('RightAside')
-  const AppFooter = components.get('Footer')
+  const Footer = components.get('Footer')
   return (
     <div className="flex flex:column flex-grow:1">
-      <AppHeader />
+      <Header />
       <div className="flex flex-grow:1">
         <LeftAside />
         <main className="flex flex:column flex-grow:1">
@@ -22,9 +22,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         </main>
         <RightAside />
       </div>
-      <footer className="flex-shrink:1">
-        <AppFooter />
-      </footer>
+      <Footer />
     </div>
   )
 }

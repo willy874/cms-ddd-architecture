@@ -15,6 +15,7 @@ export default defineConfig({
       exposes: {
         './ui': './src/remotes/ui',
         './layout': './src/remotes/layout',
+        './home': './src/remotes/home',
         './auth': './src/remotes/auth',
       },
       shared: {

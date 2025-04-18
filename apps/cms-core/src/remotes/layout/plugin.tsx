@@ -25,9 +25,9 @@ export function contextPlugin(): CoreContextPlugin {
 declare module '@/modules/core' {
   export interface CustomComponentDict {
     Layout: (props: { children: React.ReactNode }) => React.ReactNode
-    Header: () => React.ReactNode
-    LeftAside: () => React.ReactNode
-    RightAside: () => React.ReactNode
-    Footer: () => React.ReactNode
+    Header: typeof Header
+    LeftAside: typeof LeftAside
+    RightAside: typeof RightAside
+    Footer: typeof Footer
   }
 }
