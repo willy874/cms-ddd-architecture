@@ -4,7 +4,7 @@ export class StateManager {
   readonly state = reactive({})
 
   subscribe(cb: (state: unknown) => void) {
-    watch(this.state, cb, {
+    return watch(this.state, cb, {
       deep: true,
       flush: 'sync',
     })

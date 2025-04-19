@@ -42,6 +42,8 @@ function ConfigProvider({ children, id, designToken }: ConfigProviderProps) {
       const token = Object.assign({}, $$designToken, value)
       const styleContent = `.${$id.replace(/[#.:'"]/g, (m) => `\\${m}`)} {${createCSSVariable(themeMode, token, theme)}}`
       style.innerHTML = styleContent
+    }, {
+      immediate: true,
     })
     document.head.appendChild(style)
     return () => {
