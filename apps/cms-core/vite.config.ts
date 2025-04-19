@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import UnoCSS from 'unocss/vite'
 import react from '@vitejs/plugin-react-swc'
+import svgr from 'vite-plugin-svgr'
 import { federation } from '@module-federation/vite'
 import { loadEnv } from '@packages/shared'
 
@@ -10,6 +11,7 @@ loadEnv()
 export default defineConfig({
   plugins: [
     react(),
+    svgr(),
     UnoCSS(),
     federation({
       name: 'cms_core',

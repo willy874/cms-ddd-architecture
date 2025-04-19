@@ -1,5 +1,3 @@
-// import { GlobalToken } from 'antd'
-
 const colorPalettes = {
   blue: {
     default: '#1677FF',
