@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import UnoCSS from 'unocss/vite'
 import react from '@vitejs/plugin-react-swc'
 import { federation } from '@module-federation/vite'
 import { loadEnv } from '@packages/shared'
@@ -9,6 +10,7 @@ loadEnv()
 export default defineConfig({
   plugins: [
     react(),
+    UnoCSS(),
     federation({
       name: 'cms_core',
       manifest: true,

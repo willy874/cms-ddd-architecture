@@ -61,25 +61,27 @@ function RegisterPage() {
   })
 
   return (
-    <div className="display:flex flex-grow:1 align-items:center justify-content:center">
+    <div
+      className="flex items-center justify-center grow-1"
+    >
       <div
-        className="display:flex flex-direction:column padding:24px width:320px transform:translateY(-10%) background:rgba(255,255,255,0.10) border-radius:8px box-shadow:0|2px|8px|rgba(255,255,255,0.1)"
+        className="flex flex-col p-6 w-[400px] translate-y-[-10%] bg-white/10 rounded-lg shadow-[0_2px_8px_rgba(255,255,255,0.1)]"
         data-testid={Testid.LOGIN_PAGE}
       >
         <h2
-          className="text:24px font:semibold color:gray-800 text-align:center"
+          className="text-[24px] font-semibold text-neutral-100 text-center mb-6"
           data-testid={Testid.REGISTER_TITLE}
         >
           {t('auth__register-page--page-title')}
         </h2>
         <Form
           onSubmit={onSubmit}
-          className="display:flex flex-direction:column gap:16px"
+          className="flex flex-col gap-4"
           data-testid={Testid.REGISTER_FORM}
         >
-          <div className="display:flex flex-direction:column">
+          <div className="flex flex-col">
 
-            <div className="display:flex flex-direction:column gap:4px">
+            <div className="flex flex-col gap-2">
               <label>
                 {t('auth__register-page--form-username-label')}
               </label>
@@ -92,7 +94,7 @@ function RegisterPage() {
               </TextField>
             </div>
 
-            <div className="display:flex flex-direction:column gap:4px">
+            <div className="flex flex-col gap-2">
               <label>
                 {t('auth__login-page--form-password-label')}
               </label>
@@ -106,7 +108,7 @@ function RegisterPage() {
               </TextField>
             </div>
 
-            <div className="display:flex flex-direction:column gap:4px">
+            <div className="flex flex-col gap-2">
               <label>
                 {t('auth__register-page--form-confirm-password-label')}
               </label>
@@ -130,18 +132,18 @@ function RegisterPage() {
           </Button>
 
           <div
-            className="display:flex flex-direction:column gap:8px margin-top:16px text-align:center text:13px"
+            className="flex flex-col gap-2 mt-4 text-center text-xs"
             data-testid={Testid.REGISTER_FOOTER}
           >
             <span
-              className="color:gray-600"
+              className="text-gray-600"
               data-testid={Testid.REGISTER_FOOTER_TIP}
             >
               {t('auth__register-page-tips--to-login')}
             </span>
             <Link
               to={LoginRoute.to}
-              className="color:blue-600 hover:underline text:13px"
+              className="text-blue-600 hover:underline text-xs"
               data-testid={Testid.REGISTER_LINK_LOGIN}
             >
               {t('auth__register-page-link--login')}

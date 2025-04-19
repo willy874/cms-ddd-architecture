@@ -19,6 +19,8 @@
     "@tanstack/react-query-devtools": "^5.71.10",
     "@tanstack/react-router": "1.115.0",
     "@tanstack/react-router-devtools": "1.115.0",
+    "@unocss/preset-wind4": "66.1.0-beta.12",
+    "@unocss/runtime": "66.1.0-beta.12",
     "@zag-js/react": "^1.9.3",
     "@zag-js/toast": "^1.9.3",
     "antd": "~5.24.6",
@@ -28,6 +30,7 @@
     "react": "~19.0.0",
     "react-dom": "~19.0.0",
     "react-hook-form": "^7.55.0",
+    "unocss": "66.1.0-beta.12",
     "vue": "~3.5.13",
     "zod": "3.24.2"
   },

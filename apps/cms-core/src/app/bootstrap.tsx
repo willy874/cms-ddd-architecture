@@ -1,6 +1,9 @@
 import './base.css'
 import './dark.css'
 import './index.css'
+import 'virtual:uno.css'
+import initUnocssRuntime from '@unocss/runtime'
+import presetWind4 from '@unocss/preset-wind4'
 import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
 import { CoreContextPlugin, FeatureModule } from '@/libs/CoreContext'
 import { contextPlugin as http } from '@/modules/http'
@@ -47,10 +50,14 @@ const getRemote = () => {
 
 export async function appInit() {
   const config = await getConfig()
-  await import('@master/css')
   moduleFederationInit({
     name: 'cms_core',
     remotes: config.remotes,
+  })
+  initUnocssRuntime({
+    defaults: {
+      presets: [presetWind4()],
+    },
   })
   const portal = createPortal(config)
   const remote = await getRemote()

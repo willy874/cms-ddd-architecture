@@ -5,7 +5,7 @@
 ### Package
 
 - react@^19
-- @master/css@^1
+- unocss+tailwind@4
 - @tanstack/react-query
 - @tanstack/react-router
 - react-hook-form
