@@ -4,9 +4,9 @@ import { isDiff } from './utils'
 import { useComputed } from '@/libs/hooks/useComputed'
 import { useCallback } from 'react'
 
-export const STORE_LAYOUT_RIGHT_BAR = 'layout.rightBar'
+const STORE_LAYOUT_RIGHT_BAR = 'layout.rightBar'
 
-export const RightBarStateSchema = z.object({
+const RightBarStateSchema = z.object({
   show: z.boolean(),
   width: z.number(),
   component: z.function().args().returns(z.any()),

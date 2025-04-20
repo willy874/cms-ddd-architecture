@@ -1,8 +1,10 @@
+import { SHOW_LAYOUT_RIGHT_BAR, SHOW_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import Layout from './Layout'
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
 import { MODULE_NAME } from './constants'
+import { setLeftBarState } from './leftBar'
 import { setRightBarState } from './rightBar'
+import Layout from './Layout'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
@@ -10,9 +12,21 @@ export function contextPlugin(): CoreContextPlugin {
     context.store.set(STORE_LAYOUT_TYPE, 'default')
 
     setRightBarState({
+      show: false,
+      width: 0,
+      component: () => null,
+    })
+    setLeftBarState({
       show: true,
       width: 280,
-      component: () => <div>This is Menu</div>,
+      component: () => null,
+    })
+
+    context.commandBus.provide(SHOW_LAYOUT_RIGHT_BAR, (isShow) => {
+      setRightBarState({ show: isShow })
+    })
+    context.commandBus.provide(SHOW_LAYOUT_LEFT_BAR, (isShow) => {
+      setLeftBarState({ show: isShow })
     })
     return {
       name: MODULE_NAME,
@@ -23,5 +37,12 @@ export function contextPlugin(): CoreContextPlugin {
 declare module '@/modules/core' {
   export interface CustomComponentDict {
     Layout: (props: { children: React.ReactNode }) => React.ReactNode
+  }
+}
+
+declare module '@/modules/cqrs' {
+  export interface CustomCommandBusDict {
+    [SHOW_LAYOUT_RIGHT_BAR]: (isShow: boolean) => void
+    [SHOW_LAYOUT_LEFT_BAR]: (isShow: boolean) => void
   }
 }

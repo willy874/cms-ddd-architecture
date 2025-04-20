@@ -1,25 +1,30 @@
-import { useRightBar } from './rightBar'
-import { MenuIcon } from './assets'
 import { Button } from '@/libs/components'
+import { useLeftBar } from './leftBar'
+import { MenuIcon } from './assets'
+import MainBrand from './MainBrand'
 
 function Header() {
-  const [state, setRightBarState] = useRightBar()
+  const [state, setLeftBarState] = useLeftBar()
   const onMenuBtnClick = () => {
-    setRightBarState({ show: !state.show })
+    setLeftBarState({ show: !state.show })
   }
   return (
-    <header className="flex shrink-0">
+    <header className="flex shrink-0 gap-2 items-center px-2">
       {!state.show && (
-        <Button icon outline onClick={onMenuBtnClick}>
-          <MenuIcon className="text-2xl" />
-        </Button>
+        <div className="shrink-0 py-2 flex items-center gap-4">
+          <div className="shrink-0">
+            <Button icon outline onClick={onMenuBtnClick}>
+              <MenuIcon className="text-2xl" />
+            </Button>
+          </div>
+          <div className="grow-1 overflow-hidden">
+            <MainBrand />
+          </div>
+        </div>
       )}
-      <div className="flex flex-col shrink-0 py-1 px-4 text-2xl font-semibold">
-        LOGO
-      </div>
       <div className="grow-1">
       </div>
-      <div className="flex flex-col shrink-0 py-1 px-4 text-2xl font-semibold">
+      <div className="flex flex-col shrink-0 py-2 text-2xl font-semibold">
         USER
       </div>
     </header>
