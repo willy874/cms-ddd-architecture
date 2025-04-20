@@ -1,6 +1,6 @@
 import { Button } from '@/libs/components'
-import { useLeftBar } from './leftBar'
-import { MenuIcon } from './assets'
+import { useLeftBar } from '../contexts/leftBar'
+import { MenuIcon } from '../assets'
 import MainBrand from './MainBrand'
 
 function Header() {
