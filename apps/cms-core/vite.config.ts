@@ -6,6 +6,7 @@ import { federation } from '@module-federation/vite'
 import { loadEnv } from '@packages/shared'
 
 loadEnv()
+const REMOTE_MODUlES = process.env.REMOTE_MODUlES
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,12 +17,12 @@ export default defineConfig({
     federation({
       name: 'cms_core',
       manifest: true,
-      exposes: {
-        './ui': './src/remotes/ui',
-        './layout': './src/remotes/layout',
-        './home': './src/remotes/home',
-        './auth': './src/remotes/auth',
-      },
+      exposes: (() => {
+        const remotes = REMOTE_MODUlES ? REMOTE_MODUlES.split(',') : []
+        return Object.fromEntries(
+          remotes.map((remote) => [`./${remote}`, `./src/remotes/${remote}`]),
+        )
+      })(),
       shared: {
         'react': {
           singleton: true,

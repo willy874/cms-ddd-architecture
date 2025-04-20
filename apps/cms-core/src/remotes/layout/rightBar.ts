@@ -1,6 +1,8 @@
 import { getCoreContext } from '@/libs/CoreContext'
 import { z } from 'zod'
 import { isDiff } from './utils'
+import { useComputed } from '@/libs/hooks/useComputed'
+import { useCallback } from 'react'
 
 export const STORE_LAYOUT_RIGHT_BAR = 'layout.rightBar'
 
@@ -25,4 +27,10 @@ export const setRightBarState = (state: Partial<z.infer<typeof RightBarStateSche
   if (isDiff(getRightBarState(), state)) {
     getCoreContext().store.set(STORE_LAYOUT_RIGHT_BAR, RightBarStateSchema.parse({ ...getRightBarState(), ...state }))
   }
+}
+
+export const useRightBar = () => {
+  const state = useComputed(() => getRightBarState())
+  const set = useCallback(setRightBarState, [])
+  return [state, set] as const
 }

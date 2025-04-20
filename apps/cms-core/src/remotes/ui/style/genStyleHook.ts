@@ -10,6 +10,7 @@ interface GenComponentTokenFn<
 > {
   (params: {
     token: AliasToken
+    tokenName: Record<keyof AliasToken, string>
     cssVariable: (name: KebabToCamelCase<DeepFlatKey<AliasToken>>, def?: string) => string
   }): Token
 }
@@ -21,6 +22,7 @@ interface GenStyleFn<
   (params: {
     token: AliasToken
     componentToken: Token
+    componentTokenName: Record<keyof Token, string>
     cssVariable: (name: KebabToCamelCase<DeepFlatKey<AliasToken>> & string, def?: string) => string
   }): CSS
 }
@@ -73,22 +75,36 @@ export function genStyleHook<
     const componentToken = useMemo(() => {
       return (createComponentToken?.({
         token,
+        tokenName: Object.fromEntries(
+          Object.keys(token).map((key) => {
+            const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
+            return [key, name]
+          }),
+        ) as Record<keyof AliasToken, string>,
         cssVariable: cssVariableFactor(token),
       }) || {})
     }, [token])
     const css = useMemo(() => {
-      const componentTokenVar: Record<string, string> = {}
-      Object.keys(componentToken).forEach((key) => {
-        const value = componentToken[key] ? `, ${componentToken[key]}` : ''
-        const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
-        if (/^var\(--(.+)\)/.test(componentToken[key])) {
-          componentTokenVar[key] = value
-        }
-        componentTokenVar[key] = `var(${name}${value})`
-      })
+      const componentTokenVar: Record<string, string> = Object.fromEntries(
+        Object.keys(componentToken).map((key) => {
+          const value = componentToken[key] ? `, ${componentToken[key]}` : ''
+          const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
+          if (/^var\(--(.+)\)/.test(componentToken[key])) {
+            return [key, value]
+          }
+          return [key, `var(${name}${value})`]
+        }),
+      )
+      const componentTokenNameVar: Record<string, string> = Object.fromEntries(
+        Object.keys(componentToken).map((key) => {
+          const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
+          return [key, name]
+        }),
+      )
       const globalToken = JSON.parse(JSON.stringify(token))
       return createCSS({
         token: globalToken,
+        componentTokenName: componentTokenNameVar as Record<keyof Token, string>,
         componentToken: componentTokenVar as Token,
         cssVariable: cssVariableFactor(globalToken),
       })
@@ -107,7 +123,6 @@ export function genStyleHook<
       })
       setStyles(dict)
     }, [css, hash])
-
     const wrap = useStyleRegister({
       path: paths,
       theme,

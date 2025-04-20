@@ -1,14 +1,19 @@
-import { useComputed } from '@/libs/hooks/useComputed'
-import { setRightBarState, getRightBarState } from './rightBar'
+import { useRightBar } from './rightBar'
+import { MenuIcon } from './assets'
+import { Button } from '@/libs/components'
 
 function Header() {
-  const state = useComputed(() => getRightBarState())
+  const [state, setRightBarState] = useRightBar()
   const onMenuBtnClick = () => {
     setRightBarState({ show: !state.show })
   }
   return (
     <header className="flex shrink-0">
-      {!state.show && <button onClick={onMenuBtnClick}>Menu</button>}
+      {!state.show && (
+        <Button icon outline onClick={onMenuBtnClick}>
+          <MenuIcon className="text-2xl" />
+        </Button>
+      )}
       <div className="flex flex-col shrink-0 py-1 px-4 text-2xl font-semibold">
         LOGO
       </div>
