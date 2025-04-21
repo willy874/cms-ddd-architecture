@@ -4,13 +4,13 @@ import { MenuIcon } from '../assets'
 import MainBrand from './MainBrand'
 
 function Header() {
-  const state = useLeftBar()
+  const leftBarState = useLeftBar()
   const onMenuBtnClick = () => {
-    state.show = !state.show
+    leftBarState.show = !leftBarState.show
   }
   return (
     <header className="flex shrink-0 gap-2 items-center px-2">
-      {!state.show && (
+      {!leftBarState.show && (
         <div className="shrink-0 py-2 flex items-center gap-4">
           <div className="shrink-0">
             <Button icon outline onClick={onMenuBtnClick}>

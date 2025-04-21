@@ -29,20 +29,20 @@ const getRemote = () => {
   return Promise.all([
     loadRemote<FeatureModule>('cms_core/ui'),
     loadRemote<FeatureModule>('cms_core/layout'),
-    loadRemote<FeatureModule>('cms_core/home'),
     loadRemote<FeatureModule>('cms_core/auth'),
-  ]).then(([
-    uiRemoteModules,
-    layoutRemoteModules,
-    homeRemoteModules,
-    authRemoteModules,
-  ]) => {
+    loadRemote<FeatureModule>('cms_core/home'),
+    loadRemote<FeatureModule>('cms_core/menu'),
+  ]).then(([...modules]) => {
     return (): CoreContextPlugin => {
       return (context) => {
-        context.useModule(uiRemoteModules, {})
-        context.useModule(layoutRemoteModules, {})
-        context.useModule(homeRemoteModules, {})
-        context.useModule(authRemoteModules, {})
+        console.group('load remote module: \n')
+        for (const module of modules) {
+          console.log(JSON.stringify(module, null, 2))
+          context.useModule(module, (() => {
+            return {}
+          })())
+        }
+        console.groupEnd()
       }
     }
   })

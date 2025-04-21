@@ -86,12 +86,12 @@ export class CommandBus<Dict extends Record<string, AnyFunction>> {
   command<T extends keyof Dict>(name: T, ...params: Parameters<Dict[T]>): ReturnType<Dict[T]>
   command<T extends keyof Dict>(params: CommandOptions<T, Parameters<Dict[T]>>): ReturnType<Dict[T]>
   command<T extends keyof Dict>(...args: unknown[]): ReturnType<Dict[T]> {
+    if (typeof args[0] === 'string') {
+      const [name, ...params] = args as [T, Parameters<Dict[T]>]
+      return this.#command({ name, params }) as ReturnType<Dict[T]>
+    }
     if (args.length === 1 && typeof args[0] === 'object') {
       return this.#command(args[0] as CommandOptions<T, Parameters<Dict[T]>>) as ReturnType<Dict[T]>
-    }
-    if (typeof args[0] === 'string') {
-      const [name, params] = args as [T, Parameters<Dict[T]>]
-      return this.#command({ name, params }) as ReturnType<Dict[T]>
     }
     throw new Error('Invalid arguments for command')
   }

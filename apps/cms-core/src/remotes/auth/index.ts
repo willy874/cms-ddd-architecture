@@ -12,6 +12,8 @@ import { canAuth } from './contexts/permission'
 
 export const MODULE_NAME = 'cms_core/auth'
 
+export const dependencies = ['cms_core/router', 'cms_core/ui', 'cms_core/layout']
+
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     const LoginRoute = context.routes.get(LOGIN_ROUTE)

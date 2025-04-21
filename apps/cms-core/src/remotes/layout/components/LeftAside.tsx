@@ -9,21 +9,25 @@ function LeftAside() {
   const onMenuBtnClick = () => {
     leftBarState.show = !leftBarState.show
   }
-  const SideBarComponent = leftBarState.component
+  const {
+    show,
+    width,
+    component: SideBarComponent,
+  } = leftBarState
   return (
     <div
       className={cn('relative will-change-auto transition-all shrink-0', {
-        'w-0': !leftBarState.show,
-        'w-[var(--right-bar-width)]': leftBarState.show,
+        'w-0': !show,
+        'w-[var(--right-bar-width)]': show,
       })}
       style={{
-        '--right-bar-width': typeof leftBarState.width === 'number' ? `${leftBarState.width}px` : leftBarState.width,
+        '--right-bar-width': typeof width === 'number' ? `${width}px` : width,
       } as any}
     >
       <aside
         className={cn('absolute inset-0 flex flex-col shrink-0 w-[var(--right-bar-width)] transition-transform border-r border-[--color-border]  bg-[--color-bg-layout]', {
-          'translate-x-[-100%] shadow-none': !leftBarState.show,
-          'translate-x-0 shadow-[--box-shadow-drawer-left]': leftBarState.show,
+          'translate-x-[-100%] shadow-none': !show,
+          'translate-x-0 shadow-[--box-shadow-drawer-left]': show,
         })}
       >
         <div className="shrink-0 p-2 flex gap-4">
