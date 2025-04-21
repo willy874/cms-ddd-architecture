@@ -4,9 +4,9 @@ import { MenuIcon } from '../assets'
 import MainBrand from './MainBrand'
 
 function Header() {
-  const [state, setLeftBarState] = useLeftBar()
+  const state = useLeftBar()
   const onMenuBtnClick = () => {
-    setLeftBarState({ show: !state.show })
+    state.show = !state.show
   }
   return (
     <header className="flex shrink-0 gap-2 items-center px-2">

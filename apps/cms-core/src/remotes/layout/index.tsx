@@ -1,8 +1,9 @@
 import { SET_LAYOUT_RIGHT_BAR, SET_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
-import { setLeftBarState, setRightBarState } from './contexts/sideBar'
+import { rightBarState, leftBarState, SideBarState } from './contexts/sideBar'
 import Layout from './components/Layout'
+import { isDiff } from './utils'
 
 export const MODULE_NAME = 'cms_core/layout'
 
@@ -13,19 +14,27 @@ export function contextPlugin(): CoreContextPlugin {
     context.componentRegistry.register('Layout', Layout)
     context.store.set(STORE_LAYOUT_TYPE, 'default')
 
-    setRightBarState({
+    rightBarState.value = ({
       show: false,
       width: 0,
       component: () => null,
     })
-    setLeftBarState({
+    leftBarState.value = ({
       show: true,
       width: 280,
       component: () => null,
     })
 
-    context.commandBus.provide(SET_LAYOUT_RIGHT_BAR, setRightBarState)
-    context.commandBus.provide(SET_LAYOUT_LEFT_BAR, setLeftBarState)
+    context.commandBus.provide(SET_LAYOUT_RIGHT_BAR, (value) => {
+      if (isDiff(value, rightBarState.value)) {
+        rightBarState.value = { ...rightBarState.value, ...value }
+      }
+    })
+    context.commandBus.provide(SET_LAYOUT_LEFT_BAR, (value) => {
+      if (isDiff(value, leftBarState.value)) {
+        leftBarState.value = { ...leftBarState.value, ...value }
+      }
+    })
     return {
       name: MODULE_NAME,
     }
@@ -40,7 +49,7 @@ declare module '@/modules/core' {
 
 declare module '@/modules/cqrs' {
   export interface CustomCommandBusDict {
-    [SET_LAYOUT_RIGHT_BAR]: typeof setRightBarState
-    [SET_LAYOUT_LEFT_BAR]: typeof setLeftBarState
+    [SET_LAYOUT_RIGHT_BAR]: (value: Partial<SideBarState>) => void
+    [SET_LAYOUT_LEFT_BAR]: (value: Partial<SideBarState>) => void
   }
 }

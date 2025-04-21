@@ -5,9 +5,9 @@ import { MenuIcon } from '../assets'
 import MainBrand from './MainBrand'
 
 function LeftAside() {
-  const [leftBarState, setLeftBarState] = useLeftBar()
+  const leftBarState = useLeftBar()
   const onMenuBtnClick = () => {
-    setLeftBarState({ show: !leftBarState.show })
+    leftBarState.show = !leftBarState.show
   }
   const SideBarComponent = leftBarState.component
   return (
