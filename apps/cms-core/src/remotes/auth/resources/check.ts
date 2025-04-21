@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { createFetcher, defineRestResource } from '@/libs/http'
-import { getAuthFetcherConfig } from '../contexts/core'
+import { getAuthFetcherConfig } from '@/remotes/auth/contexts/core'
 
 const resource = defineRestResource({
   url: '/auth/check',

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { createFetcher, defineRestResource } from '@/libs/http'
-import { getBaseFetcherConfig } from '../contexts/core'
+import { getBaseFetcherConfig } from '@/remotes/auth/contexts/core'
 
 const ForgotPasswordRequestDTOSchema = z.object({
   email: z.string(),

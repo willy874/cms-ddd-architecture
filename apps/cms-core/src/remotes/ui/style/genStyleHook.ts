@@ -1,9 +1,9 @@
 import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import { setDeepProperty } from '@/libs/getDeepProperty'
-import { useTheme, AliasToken, defaultComponentsToken } from '../design'
 import { camelCaseToKebabCase, KebabToCamelCase } from '@/libs/naming-convention'
-import { DeepFlatKey } from '../utils'
+import { useTheme, AliasToken, defaultComponentsToken } from '@/remotes/ui/design'
+import { DeepFlatKey } from '@/remotes/ui/utils'
 
 interface GenComponentTokenFn<
   Token extends Record<string, string>,

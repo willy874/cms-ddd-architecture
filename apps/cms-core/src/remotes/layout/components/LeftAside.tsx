@@ -1,7 +1,7 @@
 import cn from 'classnames'
-import { useLeftBar } from '../contexts/sideBar'
 import { Button } from '@/libs/components'
-import { MenuIcon } from '../assets'
+import { MenuIcon } from '@/remotes/layout/assets'
+import { useLeftBar } from '@/remotes/layout/contexts/sideBar'
 import MainBrand from './MainBrand'
 
 function LeftAside() {

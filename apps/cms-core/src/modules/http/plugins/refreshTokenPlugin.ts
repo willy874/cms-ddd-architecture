@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse, isAxiosError, HttpStatusCode, AxiosInstance } from 'axios'
-import { requestQueueFactory } from '../libs/requestQueue'
+import { requestQueueFactory } from '@/modules/http/libs/requestQueue'
 
 interface RefreshTokenParams<Info> {
   isTokenExpired: (res: AxiosResponse) => boolean
