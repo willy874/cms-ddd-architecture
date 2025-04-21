@@ -21,10 +21,7 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       '@stylistic/arrow-parens': 'off',
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': 'off',
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',

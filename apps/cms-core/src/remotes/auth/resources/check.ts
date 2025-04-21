@@ -1,7 +1,6 @@
 import { z } from 'zod'
-import { GET_AUTH_FETCHER_CONFIG } from '@/constants/query'
-import { getCoreContext } from '@/libs/CoreContext'
 import { createFetcher, defineRestResource } from '@/libs/http'
+import { getAuthFetcherConfig } from '../contexts/core'
 
 const resource = defineRestResource({
   url: '/auth/check',
@@ -14,8 +13,6 @@ const resource = defineRestResource({
 })
 
 export const apiCheckLogin = () => {
-  const fetcher = createFetcher(resource,
-    getCoreContext().queryBus.query(GET_AUTH_FETCHER_CONFIG),
-  )
+  const fetcher = createFetcher(resource, getAuthFetcherConfig())
   return fetcher().then((res) => res.data)
 }

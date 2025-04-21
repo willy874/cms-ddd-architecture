@@ -1,4 +1,4 @@
-import { SHOW_LAYOUT_RIGHT_BAR, SHOW_LAYOUT_LEFT_BAR } from '@/constants/command'
+import { SET_LAYOUT_RIGHT_BAR, SET_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
 import { setLeftBarState, setRightBarState } from './contexts/sideBar'
@@ -24,12 +24,8 @@ export function contextPlugin(): CoreContextPlugin {
       component: () => null,
     })
 
-    context.commandBus.provide(SHOW_LAYOUT_RIGHT_BAR, (isShow) => {
-      setRightBarState({ show: isShow })
-    })
-    context.commandBus.provide(SHOW_LAYOUT_LEFT_BAR, (isShow) => {
-      setLeftBarState({ show: isShow })
-    })
+    context.commandBus.provide(SET_LAYOUT_RIGHT_BAR, setRightBarState)
+    context.commandBus.provide(SET_LAYOUT_LEFT_BAR, setLeftBarState)
     return {
       name: MODULE_NAME,
     }
@@ -44,7 +40,7 @@ declare module '@/modules/core' {
 
 declare module '@/modules/cqrs' {
   export interface CustomCommandBusDict {
-    [SHOW_LAYOUT_RIGHT_BAR]: (isShow: boolean) => void
-    [SHOW_LAYOUT_LEFT_BAR]: (isShow: boolean) => void
+    [SET_LAYOUT_RIGHT_BAR]: typeof setRightBarState
+    [SET_LAYOUT_LEFT_BAR]: typeof setLeftBarState
   }
 }

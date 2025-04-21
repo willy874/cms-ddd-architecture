@@ -1,7 +1,6 @@
 import { z } from 'zod'
-import { GET_BASE_FETCHER_CONFIG } from '@/constants/query'
-import { getCoreContext } from '@/libs/CoreContext'
 import { createFetcher, defineRestResource } from '@/libs/http'
+import { getBaseFetcherConfig } from '../contexts/core'
 
 const LoginRequestDTOSchema = z.object({
   username: z.string(),
@@ -26,8 +25,6 @@ const resource = defineRestResource({
 })
 
 export const apiLogin = (body: z.infer<typeof LoginRequestDTOSchema>) => {
-  const fetcher = createFetcher(resource,
-    getCoreContext().queryBus.query(GET_BASE_FETCHER_CONFIG),
-  )
+  const fetcher = createFetcher(resource, getBaseFetcherConfig())
   return fetcher({ body }).then((res) => res.data)
 }

@@ -4,11 +4,11 @@ import { Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HOME_ROUTE, REGISTER_ROUTE, LOGIN_ROUTE } from '@/constants/routes'
-import { getCoreContext } from '@/libs/CoreContext'
-import { useTranslate } from '@/libs/locale'
+import { useRoute } from '@/libs/hooks/useRoute'
 import { Form, Button, TextField, Input } from '@/libs/components'
 import { apiRegister } from '@/remotes/auth/resources/register'
 import * as Testid from '@/remotes/auth/constants/testid'
+import { useTranslate } from '@/libs/hooks/useTranslate'
 
 const RegisterFormSchema = z.object({
   username: z.string(),
@@ -42,11 +42,10 @@ function useRegisterForm() {
 }
 
 function RegisterPage() {
-  const ctx = getCoreContext()
   const t = useTranslate()
-  const CurrentRoute = ctx.routes.get(REGISTER_ROUTE)
-  const HomeRoute = ctx.routes.get(HOME_ROUTE)
-  const LoginRoute = ctx.routes.get(LOGIN_ROUTE)
+  const CurrentRoute = useRoute(REGISTER_ROUTE)
+  const HomeRoute = useRoute(HOME_ROUTE)
+  const LoginRoute = useRoute(LOGIN_ROUTE)
   const navigate = CurrentRoute.useNavigate()
   const { register, handleSubmit, formState } = useRegisterForm()
   const { mutateAsync: onFinish, isPending } = useMutation({

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { getCoreContext } from './CoreContext/core'
+import { useCoreContext } from './useCoreContext'
 
 export function useTranslate() {
-  const { locale } = getCoreContext()
+  const { locale } = useCoreContext()
   const [, update] = useState({})
   useEffect(() => {
     locale.on('added', () => {

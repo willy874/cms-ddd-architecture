@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { StorageKey } from '@/constants/storage'
 import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/constants/routes'
-import { getCoreContext } from '@/libs/CoreContext'
-import { useTranslate } from '@/libs/locale'
 import { Form, Button, TextField, Input } from '@/libs/components'
+import { useTranslate } from '@/libs/hooks/useTranslate'
+import { useRoute } from '@/libs/hooks/useRoute'
+import { useLocaleStorage } from '@/libs/hooks/useLocaleStorage'
 import { apiLogin } from '@/remotes/auth/resources/login'
 import * as Testid from '@/remotes/auth/constants/testid'
 
@@ -28,19 +29,19 @@ function useLoginForm() {
 }
 
 function LoginPage() {
-  const ctx = getCoreContext()
+  const storage = useLocaleStorage()
   const t = useTranslate()
-  const CurrentRoute = ctx.routes.get(LOGIN_ROUTE)
-  const HomeRoute = ctx.routes.get(HOME_ROUTE)
-  const RegisterRoute = ctx.routes.get(REGISTER_ROUTE)
+  const CurrentRoute = useRoute(LOGIN_ROUTE)
+  const HomeRoute = useRoute(HOME_ROUTE)
+  const RegisterRoute = useRoute(REGISTER_ROUTE)
   const navigate = CurrentRoute.useNavigate()
   const { register, handleSubmit, formState } = useLoginForm()
   const { mutateAsync: onFinish, isPending } = useMutation({
     mutationFn: apiLogin,
     onSuccess: (data) => {
-      ctx.localStorage.setItem(StorageKey.ACCESS_TOKEN, data.accessToken)
-      ctx.localStorage.setItem(StorageKey.REFRESH_TOKEN, data.refreshToken)
-      ctx.localStorage.setItem(StorageKey.TOKEN_TYPE, data.tokenType)
+      storage.setItem(StorageKey.ACCESS_TOKEN, data.accessToken)
+      storage.setItem(StorageKey.REFRESH_TOKEN, data.refreshToken)
+      storage.setItem(StorageKey.TOKEN_TYPE, data.tokenType)
       navigate({ to: HomeRoute.to })
     },
   })
