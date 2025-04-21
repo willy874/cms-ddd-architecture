@@ -32,7 +32,7 @@ function LeftAside() {
       >
         <div className="shrink-0 p-2 flex gap-4">
           <div className="shrink-0">
-            <Button icon outline onClick={onMenuBtnClick}>
+            <Button variant="text" onClick={onMenuBtnClick}>
               <MenuIcon className="text-2xl" />
             </Button>
           </div>

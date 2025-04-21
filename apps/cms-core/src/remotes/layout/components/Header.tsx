@@ -13,7 +13,7 @@ function Header() {
       {!leftBarState.show && (
         <div className="shrink-0 py-2 flex items-center gap-4">
           <div className="shrink-0">
-            <Button icon outline onClick={onMenuBtnClick}>
+            <Button variant="text" onClick={onMenuBtnClick}>
               <MenuIcon className="text-2xl" />
             </Button>
           </div>

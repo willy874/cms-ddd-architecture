@@ -372,8 +372,8 @@
   --dark-control-item-bg-active-hover: #112545;
   --dark-control-item-bg-active-disabled: rgba(255, 255, 255, 0.15);
   --dark-control-tmp-outline: rgba(255, 255, 255, 0.04);
-  --dark-control-outline: rgba(5, 145, 255, 0.15);
-  
+  --dark-control-outline: rgba(255, 255, 255, 0.15);
+
   /* Opacity */
   --dark-opacity-loading: 0.65;
   

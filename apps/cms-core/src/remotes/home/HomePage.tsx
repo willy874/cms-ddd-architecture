@@ -21,37 +21,37 @@ function HomePage() {
           <Button size="large">
             Button
           </Button>
-          <Button outline>
+          <Button variant="outlined">
             Button
           </Button>
           <Button theme="error">
             Button
           </Button>
-          <Button outline theme="error">
+          <Button variant="outlined" theme="error">
             Button
           </Button>
           <Button theme="warning">
             Button
           </Button>
-          <Button outline theme="warning">
+          <Button variant="outlined" theme="warning">
             Button
           </Button>
           <Button theme="info">
             Button
           </Button>
-          <Button outline theme="info">
+          <Button variant="outlined" theme="info">
             Button
           </Button>
           <Button theme="success">
             Button
           </Button>
-          <Button outline theme="success">
+          <Button variant="outlined" theme="success">
             Button
           </Button>
           <Button disabled>
             Button
           </Button>
-          <Button outline disabled>
+          <Button variant="outlined" disabled>
             Button
           </Button>
         </div>

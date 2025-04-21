@@ -106,9 +106,9 @@ export const defaultSeedTokenKey = {
   // Fill colors
   colorFill: {
     default: 'rgba(0, 0, 0, 0.15)',
-    hover: 'rgba(0, 0, 0, 0.06)',
-    active: 'rgba(0, 0, 0, 0.04)',
-    disabled: 'rgba(0, 0, 0, 0.02)',
+    secondary: 'rgba(0, 0, 0, 0.06)',
+    tertiary: 'rgba(0, 0, 0, 0.04)',
+    quaternary: 'rgba(0, 0, 0, 0.02)',
     content: 'rgba(0, 0, 0, 0.06)',
     contentHover: 'rgba(0, 0, 0, 0.15)',
     alter: 'rgba(0, 0, 0, 0.02)',

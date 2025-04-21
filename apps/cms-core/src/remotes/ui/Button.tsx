@@ -3,16 +3,16 @@ import { genStyleHook } from './style/genStyleHook'
 import Spin from './Spin'
 
 const useStyle = genStyleHook('Button',
-  ({ token }) => ({
+  ({ cssVariable }) => ({
     borderRadius: '6px',
-    activeShadow: `0 0 0 2px ${token.controlOutline}`,
-    baseColor: token.colorTextBase,
-    mainColor: token.colorPrimary,
-    hoverColor: token.color.primary.hover,
-    activeColor: token.color.primary.hover,
-    disabledColor: token.colorTextDisabled,
-    outlineColor: token.colorBorder,
-    fontSize: token.fontSize,
+    activeShadow: `0 0 2px 3px ${cssVariable('controlOutline')}`,
+    baseColor: cssVariable('colorTextBase'),
+    mainColor: cssVariable('colorTextBase'),
+    hoverColor: cssVariable('colorFillSecondary'),
+    activeColor: cssVariable('colorFillTertiary'),
+    disabledColor: cssVariable('colorFillQuaternary'),
+    outlineColor: cssVariable('colorBorder'),
+    fontSize: cssVariable('fontSize'),
     gap: '8px',
     padding: '8px 16px',
   }),
@@ -55,28 +55,10 @@ const useStyle = genStyleHook('Button',
         cursor: 'not-allowed',
         pointerEvents: 'none',
       },
-      '&.outline-btn': {
-        'backgroundColor': 'transparent',
-        'color': componentToken.mainColor,
-        'borderColor': componentToken.mainColor,
-        '&:hover': {
-          backgroundColor: componentToken.hoverColor,
-          borderColor: componentToken.hoverColor,
-          color: componentToken.baseColor,
-        },
-        '&:active': {
-          backgroundColor: componentToken.activeColor,
-          borderColor: componentToken.activeColor,
-          color: componentToken.baseColor,
-        },
-        '&:disabled': {
-          backgroundColor: componentToken.disabledColor,
-          borderColor: componentToken.outlineColor,
-          color: componentToken.outlineColor,
-        },
-        '&:focus': {
-          boxShadow: componentToken.activeShadow,
-        },
+      '&.primary-btn': {
+        [componentTokenName.mainColor]: cssVariable('colorPrimary'),
+        [componentTokenName.hoverColor]: cssVariable('colorPrimaryHover'),
+        [componentTokenName.activeColor]: cssVariable('colorPrimaryActive'),
       },
       '&.error-btn': {
         [componentTokenName.mainColor]: cssVariable('colorError'),
@@ -108,17 +90,53 @@ const useStyle = genStyleHook('Button',
         [componentTokenName.padding]: '12px 24px',
         [componentTokenName.gap]: '12px',
       },
-      '&.icon-btn': {
-        [componentTokenName.fontSize]: cssVariable('fontSize'),
-        [componentTokenName.padding]: '4px',
+      '&.filled-btn.default-btn': {
+        [componentTokenName.mainColor]: cssVariable('colorFillDefault'),
       },
-      '&.icon-btn.small-btn': {
-        [componentTokenName.fontSize]: cssVariable('fontSizeIcon'),
-        [componentTokenName.padding]: '2px',
+      '&.outline-btn': {
+        'backgroundColor': 'transparent',
+        'color': componentToken.mainColor,
+        'borderColor': componentToken.mainColor,
+        '&:hover': {
+          backgroundColor: componentToken.hoverColor,
+          borderColor: componentToken.hoverColor,
+          color: componentToken.baseColor,
+        },
+        '&:active': {
+          backgroundColor: componentToken.activeColor,
+          borderColor: componentToken.activeColor,
+          color: componentToken.baseColor,
+        },
+        '&:disabled': {
+          backgroundColor: componentToken.disabledColor,
+          borderColor: componentToken.outlineColor,
+          color: componentToken.outlineColor,
+        },
+        '&:focus': {
+          boxShadow: componentToken.activeShadow,
+        },
       },
-      '&.icon-btn.large-btn': {
-        [componentTokenName.fontSize]: cssVariable('fontSizeLg'),
-        [componentTokenName.padding]: '8px',
+      '&.text-btn': {
+        'backgroundColor': 'transparent',
+        'color': componentToken.mainColor,
+        'borderWidth': '0',
+        'borderColor': 'transparent',
+        'padding': '4px',
+        '&:hover': {
+          backgroundColor: componentToken.hoverColor,
+          borderColor: componentToken.hoverColor,
+          color: componentToken.baseColor,
+        },
+        '&:active': {
+          backgroundColor: componentToken.activeColor,
+          borderColor: componentToken.activeColor,
+          color: componentToken.baseColor,
+        },
+        '&:disabled': {
+          backgroundColor: componentToken.disabledColor,
+          borderColor: componentToken.outlineColor,
+          color: componentToken.outlineColor,
+        },
       },
     },
   }))
@@ -126,19 +144,23 @@ const useStyle = genStyleHook('Button',
 interface ButtonProps extends React.ComponentProps<'button'> {
   loading?: boolean
   icon?: boolean
-  outline?: boolean
+  variant?: 'filled' | 'outlined' | 'text' | 'link'
   size?: 'large' | 'middle' | 'small'
-  theme?: 'default' | 'error' | 'warning' | 'success' | 'info'
+  theme?: 'default' | 'primary' | 'error' | 'warning' | 'success' | 'info'
 }
 
-function Button({ loading, className, children, icon, outline, theme, size, ...props }: ButtonProps) {
+function Button({ loading, className, children, variant = 'filled', theme = 'default', size = 'middle', ...props }: ButtonProps) {
   const [wrap, hashId, styles] = useStyle()
   return wrap(
     <button
       {...props}
       className={cn(hashId, styles.root, className, {
-        'icon-btn': icon,
-        'outline-btn': outline,
+        'outline-btn': variant === 'outlined',
+        'text-btn': variant === 'text',
+        'link-btn': variant === 'link',
+        'filled-btn': variant === 'filled',
+        'default-btn': theme === 'default',
+        'primary-btn': theme === 'primary',
         'error-btn': theme === 'error',
         'warning-btn': theme === 'warning',
         'success-btn': theme === 'success',

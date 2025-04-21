@@ -62,7 +62,8 @@ export function genStyleHook<
   const paths = (typeof name === 'string' ? [name] : name) as string[]
   const cssVariableFactor = (_token: unknown) => {
     return (name: string, def?: string) => {
-      const property = camelCaseToKebabCase(name)
+      let property = camelCaseToKebabCase(name)
+      property = property.replace('-default', '')
       if (def) {
         return `var(--${property}, ${def})`
       }
@@ -87,12 +88,10 @@ export function genStyleHook<
     const css = useMemo(() => {
       const componentTokenVar: Record<string, string> = Object.fromEntries(
         Object.keys(componentToken).map((key) => {
-          const value = componentToken[key] ? `, ${componentToken[key]}` : ''
+          let value = componentToken[key]
+          if (!value) value = ''
           const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
-          if (/^var\(--(.+)\)/.test(componentToken[key])) {
-            return [key, value]
-          }
-          return [key, `var(${name}${value})`]
+          return [key, `var(${name}, ${value})`]
         }),
       )
       const componentTokenNameVar: Record<string, string> = Object.fromEntries(
