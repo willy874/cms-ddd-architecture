@@ -1,8 +1,7 @@
 import { SHOW_LAYOUT_RIGHT_BAR, SHOW_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { STORE_LAYOUT_TYPE } from '@/constants/store'
-import { setLeftBarState } from './contexts/leftBar'
-import { setRightBarState } from './contexts/rightBar'
+import { setLeftBarState, setRightBarState } from './contexts/sideBar'
 import Layout from './components/Layout'
 
 export const MODULE_NAME = 'cms_core/layout'

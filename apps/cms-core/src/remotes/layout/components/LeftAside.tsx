@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import { useLeftBar } from '../contexts/leftBar'
+import { useLeftBar } from '../contexts/sideBar'
 import { Button } from '@/libs/components'
 import { MenuIcon } from '../assets'
 import MainBrand from './MainBrand'

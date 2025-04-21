@@ -1,5 +1,5 @@
 import { Button } from '@/libs/components'
-import { useLeftBar } from '../contexts/leftBar'
+import { useLeftBar } from '../contexts/sideBar'
 import { MenuIcon } from '../assets'
 import MainBrand from './MainBrand'
 
