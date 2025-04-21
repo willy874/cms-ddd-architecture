@@ -24,6 +24,12 @@ function HomePage() {
           <Button variant="outlined">
             Button
           </Button>
+          <Button theme="default">
+            Button
+          </Button>
+          <Button variant="outlined" theme="default">
+            Button
+          </Button>
           <Button theme="error">
             Button
           </Button>
@@ -53,6 +59,21 @@ function HomePage() {
           </Button>
           <Button variant="outlined" disabled>
             Button
+          </Button>
+          <Button shape="pill">
+            Button
+          </Button>
+          <Button shape="none">
+            Button
+          </Button>
+          <Button shape="circle" size="small">
+            B
+          </Button>
+          <Button shape="circle" size="middle">
+            B
+          </Button>
+          <Button shape="circle" size="large">
+            B
           </Button>
         </div>
       </div>

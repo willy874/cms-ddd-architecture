@@ -2,6 +2,30 @@ import cn from 'classnames'
 import { genStyleHook } from './style/genStyleHook'
 import Spin from './Spin'
 
+const ButtonClassNames = {
+  // variant
+  VARIANT_OUTLINE: 'button__variant--outline',
+  VARIANT_TEXT: 'button__variant--text',
+  VARIANT_LINK: 'button__variant--link',
+  VARIANT_FILLED: 'button__variant--filled',
+  // theme
+  THEME_DEFAULT: 'button__theme--default',
+  THEME_PRIMARY: 'button__theme--primary',
+  THEME_ERROR: 'button__theme--error',
+  THEME_WARNING: 'button__theme--warning',
+  THEME_SUCCESS: 'button__theme--success',
+  THEME_INFO: 'button__theme--info',
+  // size
+  SIZE_LARGE: 'button__size--large',
+  SIZE_MIDDLE: 'button__size--middle',
+  SIZE_SMALL: 'button__size--small',
+  // shape
+  SHAPE_ROUND: 'button__shape--round',
+  SHAPE_CIRCLE: 'button__shape-circle',
+  SHAPE_NONE: 'button__shape--none',
+  SHAPE_PILL: 'button__shape--pill',
+}
+
 const useStyle = genStyleHook('Button',
   ({ cssVariable }) => ({
     borderRadius: '6px',
@@ -26,11 +50,11 @@ const useStyle = genStyleHook('Button',
       'justifyContent': 'center',
       'gap': componentToken.gap,
       'padding': componentToken.padding,
-      'borderRadius': componentToken.borderRadius,
       'backgroundColor': componentToken.mainColor,
       'borderWidth': cssVariable('lineWidth'),
       'borderStyle': cssVariable('lineType'),
       'borderColor': componentToken.mainColor,
+      'borderRadius': componentToken.borderRadius,
       'cursor': 'pointer',
       'transition': 'background-color 0.3s ease, border-color 0.2s ease',
       'userSelect': 'none',
@@ -49,51 +73,51 @@ const useStyle = genStyleHook('Button',
         backgroundColor: componentToken.activeColor,
       },
       '&:disabled': {
-        color: componentToken.disabledColor,
-        borderColor: componentToken.outlineColor,
-        backgroundColor: componentToken.outlineColor,
+        color: cssVariable('colorTextDisabled'),
+        borderColor: componentToken.disabledColor,
+        backgroundColor: componentToken.disabledColor,
         cursor: 'not-allowed',
         pointerEvents: 'none',
       },
-      '&.primary-btn': {
+      [`&.${ButtonClassNames.THEME_PRIMARY}`]: {
         [componentTokenName.mainColor]: cssVariable('colorPrimary'),
         [componentTokenName.hoverColor]: cssVariable('colorPrimaryHover'),
         [componentTokenName.activeColor]: cssVariable('colorPrimaryActive'),
       },
-      '&.error-btn': {
+      [`&.${ButtonClassNames.THEME_ERROR}`]: {
         [componentTokenName.mainColor]: cssVariable('colorError'),
         [componentTokenName.hoverColor]: cssVariable('colorErrorHover'),
         [componentTokenName.activeColor]: cssVariable('colorErrorActive'),
       },
-      '&.warning-btn': {
+      [`&.${ButtonClassNames.THEME_WARNING}`]: {
         [componentTokenName.mainColor]: cssVariable('colorWarning'),
         [componentTokenName.hoverColor]: cssVariable('colorWarningHover'),
         [componentTokenName.activeColor]: cssVariable('colorWarningActive'),
       },
-      '&.success-btn': {
+      [`&.${ButtonClassNames.THEME_SUCCESS}`]: {
         [componentTokenName.mainColor]: cssVariable('colorSuccess'),
         [componentTokenName.hoverColor]: cssVariable('colorSuccessHover'),
         [componentTokenName.activeColor]: cssVariable('colorSuccessActive'),
       },
-      '&.info-btn': {
+      [`&.${ButtonClassNames.THEME_INFO}`]: {
         [componentTokenName.mainColor]: cssVariable('colorInfo'),
         [componentTokenName.hoverColor]: cssVariable('colorInfoHover'),
         [componentTokenName.activeColor]: cssVariable('colorInfoActive'),
       },
-      '&.small-btn': {
+      [`&.${ButtonClassNames.SIZE_SMALL}`]: {
         [componentTokenName.fontSize]: cssVariable('fontSizeSm'),
         [componentTokenName.padding]: '4px 8px',
         [componentTokenName.gap]: '4px',
       },
-      '&.large-btn': {
+      [`&.${ButtonClassNames.SIZE_LARGE}`]: {
         [componentTokenName.fontSize]: cssVariable('fontSizeLg'),
-        [componentTokenName.padding]: '12px 24px',
+        [componentTokenName.padding]: '6px 24px',
         [componentTokenName.gap]: '12px',
       },
-      '&.filled-btn.default-btn': {
+      [`&.${ButtonClassNames.VARIANT_FILLED}.${ButtonClassNames.THEME_DEFAULT}`]: {
         [componentTokenName.mainColor]: cssVariable('colorFillDefault'),
       },
-      '&.outline-btn': {
+      [`&.${ButtonClassNames.VARIANT_OUTLINE}`]: {
         'backgroundColor': 'transparent',
         'color': componentToken.mainColor,
         'borderColor': componentToken.mainColor,
@@ -109,14 +133,14 @@ const useStyle = genStyleHook('Button',
         },
         '&:disabled': {
           backgroundColor: componentToken.disabledColor,
-          borderColor: componentToken.outlineColor,
-          color: componentToken.outlineColor,
+          borderColor: cssVariable('colorTextDisabled'),
+          color: cssVariable('colorTextDisabled'),
         },
         '&:focus': {
           boxShadow: componentToken.activeShadow,
         },
       },
-      '&.text-btn': {
+      [`&.${ButtonClassNames.VARIANT_TEXT}`]: {
         'backgroundColor': 'transparent',
         'color': componentToken.mainColor,
         'borderWidth': '0',
@@ -138,6 +162,28 @@ const useStyle = genStyleHook('Button',
           color: componentToken.outlineColor,
         },
       },
+      [`&.${ButtonClassNames.SHAPE_CIRCLE}`]: {
+        [componentTokenName.borderRadius]: '50%',
+        [componentTokenName.padding]: '0',
+        [`&.${ButtonClassNames.SIZE_SMALL}`]: {
+          width: '32px',
+          height: '32px',
+        },
+        [`&.${ButtonClassNames.SIZE_MIDDLE}`]: {
+          width: '40px',
+          height: '40px',
+        },
+        [`&.${ButtonClassNames.SIZE_LARGE}`]: {
+          width: '48px',
+          height: '48px',
+        },
+      },
+      [`&.${ButtonClassNames.SHAPE_NONE}`]: {
+        [componentTokenName.borderRadius]: '0',
+      },
+      [`&.${ButtonClassNames.SHAPE_PILL}`]: {
+        [componentTokenName.borderRadius]: '9999px',
+      },
     },
   }))
 
@@ -147,26 +193,32 @@ interface ButtonProps extends React.ComponentProps<'button'> {
   variant?: 'filled' | 'outlined' | 'text' | 'link'
   size?: 'large' | 'middle' | 'small'
   theme?: 'default' | 'primary' | 'error' | 'warning' | 'success' | 'info'
+  shape?: 'round' | 'circle' | 'pill' | 'none'
 }
 
-function Button({ loading, className, children, variant = 'filled', theme = 'default', size = 'middle', ...props }: ButtonProps) {
+function Button({ loading, className, children, variant = 'filled', theme = 'primary', size = 'middle', shape = 'round', ...props }: ButtonProps) {
   const [wrap, hashId, styles] = useStyle()
   return wrap(
     <button
       {...props}
       className={cn(hashId, styles.root, className, {
-        'outline-btn': variant === 'outlined',
-        'text-btn': variant === 'text',
-        'link-btn': variant === 'link',
-        'filled-btn': variant === 'filled',
-        'default-btn': theme === 'default',
-        'primary-btn': theme === 'primary',
-        'error-btn': theme === 'error',
-        'warning-btn': theme === 'warning',
-        'success-btn': theme === 'success',
-        'info-btn': theme === 'info',
-        'large-btn': size === 'large',
-        'small-btn': size === 'small',
+        [ButtonClassNames.VARIANT_OUTLINE]: variant === 'outlined',
+        [ButtonClassNames.VARIANT_TEXT]: variant === 'text',
+        [ButtonClassNames.VARIANT_LINK]: variant === 'link',
+        [ButtonClassNames.VARIANT_FILLED]: variant === 'filled',
+        [ButtonClassNames.THEME_DEFAULT]: theme === 'default',
+        [ButtonClassNames.THEME_PRIMARY]: theme === 'primary',
+        [ButtonClassNames.THEME_ERROR]: theme === 'error',
+        [ButtonClassNames.THEME_WARNING]: theme === 'warning',
+        [ButtonClassNames.THEME_SUCCESS]: theme === 'success',
+        [ButtonClassNames.THEME_INFO]: theme === 'info',
+        [ButtonClassNames.SIZE_LARGE]: size === 'large',
+        [ButtonClassNames.SIZE_MIDDLE]: size === 'middle',
+        [ButtonClassNames.SIZE_SMALL]: size === 'small',
+        [ButtonClassNames.SHAPE_ROUND]: shape === 'round',
+        [ButtonClassNames.SHAPE_CIRCLE]: shape === 'circle',
+        [ButtonClassNames.SHAPE_NONE]: shape === 'none',
+        [ButtonClassNames.SHAPE_PILL]: shape === 'pill',
       })}
     >
       {loading ? <Spin /> : children}
