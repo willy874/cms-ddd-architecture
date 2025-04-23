@@ -8,16 +8,18 @@ type MenuItem = z.infer<typeof MenuItemSchema>
 
 export const [menuListStore, useMenuList] = createStore(() => MenuListSchema.parse([]))
 
-export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, index: number, array: MenuItem[]) {
+export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, index: number, menuList: MenuItem[]) {
   const { queryBus, commandBus, componentRegistry } = getCoreContext()
   const { label, action, auth } = item
   return {
     menuType: item.type,
     key: 'menu-' + item.key,
+    item,
+    index,
+    menuList,
     component: (() => {
       if (typeof label === 'undefined') {
-        const MenuItemComponent = componentRegistry.get('MenuItem')
-        return () => (<MenuItemComponent item={item} />)
+        return label
       }
       if (typeof label === 'function') {
         return label as () => React.ReactNode
@@ -44,7 +46,7 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
       if (queryBus.has(queryKey)) {
         return queryBus.query({
           name: queryKey,
-          params: [item, index, array],
+          params: [item, index, menuList],
         })
       }
       return true
@@ -61,7 +63,7 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
         return (event: React.MouseEvent) => {
           commandBus.command({
             name: commandKey,
-            params: [event, item, index, array],
+            params: [event, item, index, menuList],
           })
         }
       }
@@ -70,28 +72,31 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
   }
 }
 
-export function toDividerMenuItem(item: z.infer<typeof DividerMenuItemSchema>, _index: number, _array: MenuItem[]) {
+export function toDividerMenuItem(item: z.infer<typeof DividerMenuItemSchema>, index: number, menuList: MenuItem[]) {
   return {
     menuType: item.type,
     key: 'menu-' + item.key,
+    item,
+    index,
+    menuList,
   }
 }
 
-export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index: number, array: MenuItem[]) {
+export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index: number, menuList: MenuItem[]) {
   const { componentRegistry, queryBus } = getCoreContext()
   const { label, auth, children } = item
   return {
     menuType: item.type,
     key: 'menu-' + item.key,
+    item,
+    index,
+    menuList,
     component: (() => {
       if (typeof label === 'undefined') {
-        const MenuItemComponent = componentRegistry.get('MenuItem')
-        return ({ children }: { children: React.ReactNode }) => (
-          <MenuItemComponent item={item}>{children}</MenuItemComponent>
-        )
+        return label
       }
       if (typeof label === 'function') {
-        return label as (props: { children: React.ReactNode }) => React.ReactNode
+        return label as (props: Record<string, unknown>) => React.ReactNode
       }
       if (typeof label === 'string') {
         const componentKey = `menu-component__${label}` as const
@@ -115,7 +120,7 @@ export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index
       if (queryBus.has(queryKey)) {
         return queryBus.query({
           name: queryKey,
-          params: [item, index, array],
+          params: [item, index, menuList],
         })
       }
       return true

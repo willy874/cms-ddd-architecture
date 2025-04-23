@@ -4,10 +4,34 @@ import { CoreContextPlugin } from '@/libs/CoreContext'
 import React, { lazy } from 'react'
 import { MockPlugin } from './mockMenu'
 import { MenuItemSchema, MenuListSchema } from './contexts/schema'
-import DefaultMenuItem from './components/DefaultMenuItem'
 
 type MenuItem = z.infer<typeof MenuItemSchema>
 type MenuList = z.infer<typeof MenuListSchema>
+
+interface MenuLabelProps {
+  item: MenuItem
+  index: number
+  menuList: MenuList
+}
+
+function MenuLabel(_props: MenuLabelProps) {
+  return null
+}
+
+interface MenuGroupProps {
+  item: MenuItem
+  index: number
+  menuList: MenuList
+  children: React.ReactNode
+}
+
+function MenuGroup({ children }: MenuGroupProps) {
+  return children
+}
+
+function MenuDivider() {
+  return <div></div>
+}
 
 export const MODULE_NAME = 'cms_core/menu'
 
@@ -15,7 +39,9 @@ export const dependencies = ['cms_core/router', 'cms_core/ui', 'cms_core/layout'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
-    context.componentRegistry.register('MenuItem', DefaultMenuItem)
+    context.componentRegistry.register('MenuLabel', MenuLabel)
+    context.componentRegistry.register('MenuGroup', MenuGroup)
+    context.componentRegistry.register('MenuDivider', MenuDivider)
     MockPlugin(context)
     return {
       name: MODULE_NAME,
@@ -32,7 +58,9 @@ export function contextPlugin(): CoreContextPlugin {
 
 declare module '@/modules/core' {
   export interface CustomComponentDict {
-    MenuItem: typeof DefaultMenuItem
+    MenuLabel: typeof MenuLabel
+    MenuGroup: typeof MenuGroup
+    MenuDivider: typeof MenuDivider
     [k: `menu-component__${string}`]: (props: any) => React.ReactNode
   }
 }

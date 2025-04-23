@@ -1,73 +1,77 @@
+import { useCoreContext } from '@/libs/hooks/useCoreContext'
 import { useMenu, toNormalMenuItem, toDividerMenuItem, toGroupMenuItem } from '@/remotes/menu/contexts/menu'
 import { useCallback } from 'react'
 
-type ReactMenuList = ReturnType<typeof useMenu>
-
 export interface MenuItemProps extends Omit<ReturnType<typeof toNormalMenuItem>, 'key'> {
   index: number
-  menu: ReactMenuList
 }
 
-function NormalMenuItem({ component, isShow, onClick }: MenuItemProps) {
-  const ComponentChildren = component
+function NormalMenuItemWrapper({ component, isShow, onClick, item, index, menuList }: MenuItemProps) {
+  const { componentRegistry } = useCoreContext()
+  const MenuLabel = component || componentRegistry.get('MenuLabel')
   if (!isShow) {
     return null
   }
+  const customProps = { item, index, menuList }
   return (
     <li onClick={onClick}>
-      <ComponentChildren />
+      <MenuLabel {...customProps} />
     </li>
   )
 }
 
 export interface DividerMenuItemProps extends Omit<ReturnType<typeof toDividerMenuItem>, 'key'> {
   index: number
-  menu: ReactMenuList
 }
 
-function DividerMenuItem({ index, menu }: DividerMenuItemProps) {
+function DividerMenuItemWrapper({ index, menuList }: DividerMenuItemProps) {
+  const { componentRegistry } = useCoreContext()
+  const MenuDivider = componentRegistry.get('MenuDivider')
   if (index === 0) return null
-  if (index === menu.length - 1) return null
-  const showMenu = menu.filter((item) => 'isShow' in item && item.isShow)
+  if (index === menuList.length - 1) return null
+  const showMenu = menuList.filter((item) => 'isShow' in item && item.isShow)
   const nextItem = showMenu[index]
-  if (nextItem && nextItem.menuType === 'divider') return null
+  if (nextItem && nextItem.type === 'divider') return null
   const prevItem = showMenu[index]
-  if (prevItem && prevItem.menuType === 'divider') return null
+  if (prevItem && prevItem.type === 'divider') return null
   return (
     <li>
-      <div></div>
+      <MenuDivider />
     </li>
   )
 }
 
 export interface GroupMenuItemProps extends Omit<ReturnType<typeof toGroupMenuItem>, 'key'> {
   index: number
-  menu: ReactMenuList
 }
 
-function GroupMenuItem({ component, isShow, menuChildren }: GroupMenuItemProps) {
-  const ComponentChildren = component
+function GroupMenuItemWrapper({ component, isShow, menuChildren, item, index, menuList }: GroupMenuItemProps) {
+  const { componentRegistry } = useCoreContext()
+  const MenuLabel = component || componentRegistry.get('MenuLabel')
+  const MenuGroup = component || componentRegistry.get('MenuGroup')
   const onClick = useCallback(() => {}, [])
   if (!isShow) {
     return null
   }
+  const customProps = { item, index, menuList }
   return (
     <li onClick={onClick}>
-      <ComponentChildren>
+      <MenuGroup {...customProps}>
+        <MenuLabel {...customProps} />
         <ul>
-          {menuChildren && menuChildren.map(($item, $index, $menu) => {
+          {menuChildren && menuChildren.map(($item) => {
             if ($item.menuType === 'divider') {
               const { key, ...props } = $item
-              return <DividerMenuItem index={$index} menu={$menu} {...props} />
+              return <DividerMenuItemWrapper {...props} />
             }
             if ($item.menuType === 'normal') {
               const { key, ...props } = $item
-              return <NormalMenuItem key={key} index={$index} menu={$menu} {...props} />
+              return <NormalMenuItemWrapper key={key} {...props} />
             }
             return null
           })}
         </ul>
-      </ComponentChildren>
+      </MenuGroup>
     </li>
   )
 }
@@ -76,18 +80,18 @@ function Menu() {
   const menu = useMenu()
   return (
     <ul>
-      {menu.map((item, index, menu) => {
+      {menu.map((item) => {
         if (item.menuType === 'group') {
           const { key, ...props } = item
-          return <GroupMenuItem key={key} index={index} menu={menu} {...props} />
+          return <GroupMenuItemWrapper key={key} {...props} />
         }
         if (item.menuType === 'divider') {
           const { key, ...props } = item
-          return <DividerMenuItem index={index} menu={menu} {...props} />
+          return <DividerMenuItemWrapper {...props} />
         }
         if (item.menuType === 'normal') {
           const { key, ...props } = item
-          return <NormalMenuItem key={key} index={index} menu={menu} {...props} />
+          return <NormalMenuItemWrapper key={key} {...props} />
         }
         return null
       })}
