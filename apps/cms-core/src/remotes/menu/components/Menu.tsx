@@ -8,8 +8,8 @@ interface MenuItemProps extends Omit<ReturnType<typeof toNormalMenuItem>, 'key'>
   menu: ReactMenuList
 }
 
-function NormalMenuItem({ element, isShow, onClick }: MenuItemProps) {
-  const Component = useMemo(() => element || (() => null), [element])
+function NormalMenuItem({ reactComponent, isShow, onClick }: MenuItemProps) {
+  const Component = useMemo(() => reactComponent || (() => null), [reactComponent])
   if (!isShow) {
     return null
   }
@@ -45,8 +45,8 @@ interface GroupMenuItemProps extends Omit<ReturnType<typeof toGroupMenuItem>, 'k
   menu: ReactMenuList
 }
 
-function GroupMenuItem({ element, isShow, children }: GroupMenuItemProps) {
-  const Component = useMemo(() => element || (() => null), [element])
+function GroupMenuItem({ reactComponent, isShow, children }: GroupMenuItemProps) {
+  const Component = useMemo(() => reactComponent || (() => null), [reactComponent])
   const onClick = useCallback(() => {}, [])
   if (!isShow) {
     return null

@@ -22,6 +22,9 @@ export class PortalContext extends BaseCoreContext {
 }
 
 export const createPortal = (config: PortalConfig): CoreContext => {
+  if (typeof window === 'undefined') {
+    throw new Error('Portal can only be used in the browser')
+  }
   const context = createContext(PortalContext)
   context.config = config
   return context as any

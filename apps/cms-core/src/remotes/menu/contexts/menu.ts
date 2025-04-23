@@ -11,7 +11,7 @@ const NormalMenuItemSchema = z.object({
   key: z.string(),
   type: z.literal('normal'),
   component: z.string(),
-  action: z.string().optional(),
+  action: z.string(),
   auth: z.string().optional(),
 })
 
@@ -36,7 +36,7 @@ const MenuListSchema = z.array(MenuItemSchema)
 export type MenuItem = z.infer<typeof MenuItemSchema>
 export type MenuList = z.infer<typeof MenuListSchema>
 
-export const [menuList, useMenuList] = createStore(() => MenuListSchema.parse([]))
+export const [menuListStore, useMenuList] = createStore(() => MenuListSchema.parse([]))
 
 export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, index: number, array: MenuItem[]) {
   const { queryBus, commandBus, componentRegistry } = getCoreContext()
@@ -44,15 +44,7 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
   return {
     menuType: item.type,
     key: item.key,
-    element: component ? (componentRegistry.get(`menu-component__${component}` as any)) as React.FC<any> : undefined,
-    onClick: action
-      ? (event: React.MouseEvent) => {
-          commandBus.command({
-            name: `menu-action__${action}`,
-            params: [event, item, index, array],
-          } as any)
-        }
-      : undefined,
+    reactComponent: componentRegistry.get(component as any) as React.FC<any>,
     isShow: auth
       ? (() => {
           return queryBus.query({
@@ -60,6 +52,14 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
             params: [item, index, array],
           } as any) as boolean
         })()
+      : true,
+    onClick: action
+      ? (event: React.MouseEvent) => {
+          commandBus.command({
+            name: `menu-action__${action}`,
+            params: [event, item, index, array],
+          } as any)
+        }
       : undefined,
   }
 }
@@ -77,7 +77,7 @@ export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index
   return {
     menuType: item.type,
     key: item.key,
-    element: component ? (componentRegistry.get(component as any)) as React.FC<any> : undefined,
+    reactComponent: componentRegistry.get(component as any) as React.FC<any>,
     isShow: auth
       ? (() => {
           return queryBus.query({
@@ -85,7 +85,7 @@ export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index
             params: [item, index, array],
           } as any)
         })()
-      : undefined,
+      : true,
     children: children
       ? (children.map((el, idx, arr) => {
           if (el.type === 'normal') {

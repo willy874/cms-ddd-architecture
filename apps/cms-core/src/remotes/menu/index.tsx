@@ -1,6 +1,7 @@
 import { SET_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { lazy } from 'react'
+import { MockPlugin } from './mockMenu'
 
 export const MODULE_NAME = 'cms_core/menu'
 
@@ -8,6 +9,7 @@ export const dependencies = ['cms_core/router', 'cms_core/ui', 'cms_core/layout'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
+    MockPlugin(context)
     return {
       name: MODULE_NAME,
       onInit: async () => {
