@@ -21,6 +21,7 @@ interface QueryProvideOptions {
   cache?: boolean
   debounce?: number
   throttle?: number
+  only?: boolean
 }
 interface QueryOptions<Name, Params extends unknown[]> {
   name: Name
@@ -31,6 +32,7 @@ interface QueryOptions<Name, Params extends unknown[]> {
 export class QueryBus<Dict extends Record<string, AnyFunction>> {
   emitter = new EventEmitter()
   queryClient = new QueryClient()
+  #dict: Dict = {} as Dict
 
   #cacheHandler(query: Query<string, unknown[]>, handler: (...params: unknown[]) => unknown) {
     const queryKeys = [query.name, ...query.params]
@@ -55,6 +57,10 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
   }
 
   #provide(name: string, handler: (...params: unknown[]) => unknown, options: QueryProvideOptions = {}) {
+    if (options.only && this.#dict[name]) {
+      throw new Error(`Query name "${name}" already exists.`)
+    }
+    Reflect.set(this.#dict, name, handler)
     let listener = (query: Query<string, unknown[]>) => {
       if (query.name !== name) {
         return
@@ -113,5 +119,9 @@ export class QueryBus<Dict extends Record<string, AnyFunction>> {
       return this.#query({ name, params }) as ReturnType<Dict[T]>
     }
     throw new Error('Invalid arguments for query')
+  }
+
+  has(name: string): boolean {
+    return !!this.#dict[name]
   }
 }

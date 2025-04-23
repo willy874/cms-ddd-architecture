@@ -20,6 +20,7 @@ interface CommandProvideOptions {
   isBlacking?: boolean
   debounce?: number
   throttle?: number
+  only?: boolean
 }
 
 interface CommandOptions<Name, Params extends unknown[]> {
@@ -30,8 +31,13 @@ interface CommandOptions<Name, Params extends unknown[]> {
 export class CommandBus<Dict extends Record<string, AnyFunction>> {
   emitter = new EventEmitter()
   queueMap = new QueueMap()
+  #dict: Dict = {} as Dict
 
   #provide(name: string, handler: (...params: unknown[]) => unknown, options: CommandProvideOptions = {}) {
+    if (options.only && this.#dict[name]) {
+      throw new Error(`Command ${name} already exists`)
+    }
+    Reflect.set(this.#dict, name, handler)
     let listener = (command: Command<string, unknown[]>) => {
       if (command.name !== name) {
         return
@@ -94,5 +100,9 @@ export class CommandBus<Dict extends Record<string, AnyFunction>> {
       return this.#command(args[0] as CommandOptions<T, Parameters<Dict[T]>>) as ReturnType<Dict[T]>
     }
     throw new Error('Invalid arguments for command')
+  }
+
+  has(name: string): boolean {
+    return !!this.#dict[name]
   }
 }

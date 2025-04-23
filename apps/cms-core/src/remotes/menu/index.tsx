@@ -1,7 +1,13 @@
+import { z } from 'zod'
 import { SET_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import { lazy } from 'react'
+import React, { lazy } from 'react'
 import { MockPlugin } from './mockMenu'
+import { MenuItemSchema, MenuListSchema } from './contexts/schema'
+import DefaultMenuItem from './components/DefaultMenuItem'
+
+type MenuItem = z.infer<typeof MenuItemSchema>
+type MenuList = z.infer<typeof MenuListSchema>
 
 export const MODULE_NAME = 'cms_core/menu'
 
@@ -9,6 +15,7 @@ export const dependencies = ['cms_core/router', 'cms_core/ui', 'cms_core/layout'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
+    context.componentRegistry.register('MenuItem', DefaultMenuItem)
     MockPlugin(context)
     return {
       name: MODULE_NAME,
@@ -23,21 +30,18 @@ export function contextPlugin(): CoreContextPlugin {
   }
 }
 
-export interface MenuComponentDict {}
-export interface MenuAuthDict {}
-export interface MenuActionDict {}
-
 declare module '@/modules/core' {
   export interface CustomComponentDict {
-    // [k: `menu-component__${string}`]: () => {}
+    MenuItem: typeof DefaultMenuItem
+    [k: `menu-component__${string}`]: (props: any) => React.ReactNode
   }
 }
 
 declare module '@/modules/cqrs' {
   export interface CustomQueryBusDict {
-    // [k: `menu-auth__${string}`]: () => {}
+    [k: `menu-auth__${string}`]: (menu: MenuItem, index: number, menuList: MenuList) => boolean
   }
   export interface CustomCommandBusDict {
-    // [k: `menu-action__${string}`]: () => {}
+    [k: `menu-action__${string}`]: (event: React.MouseEvent, menu: MenuItem, index: number, menuList: MenuList) => unknown
   }
 }

@@ -21,6 +21,10 @@ export class Registry<Dict extends Record<string, any>> {
     this.emit()
   }
 
+  has(name: string): boolean {
+    return Reflect.has(this.dict, name)
+  }
+
   get<T extends keyof Dict>(name: T): Dict[T] {
     const value = this.dict[name] || this.defaultValue
     if (!value) {
