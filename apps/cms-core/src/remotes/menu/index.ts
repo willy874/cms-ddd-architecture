@@ -20,3 +20,22 @@ export function contextPlugin(): CoreContextPlugin {
     }
   }
 }
+
+export interface MenuComponentDict {}
+export interface MenuAuthDict {}
+export interface MenuActionDict {}
+
+declare module '@/modules/core' {
+  export interface CustomComponentDict {
+    // [k: `menu-component__${string}`]: () => {}
+  }
+}
+
+declare module '@/modules/cqrs' {
+  export interface CustomQueryBusDict {
+    // [k: `menu-auth__${string}`]: () => {}
+  }
+  export interface CustomCommandBusDict {
+    // [k: `menu-action__${string}`]: () => {}
+  }
+}
