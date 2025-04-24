@@ -1,31 +1,34 @@
 import { getCoreContext } from '@/libs/CoreContext'
 import { createStore } from '@/libs/hooks/createStore'
 import { useComputed } from '@/libs/hooks/useComputed'
-import { z } from 'zod'
-import { DividerMenuItemSchema, GroupMenuItemSchema, MenuItemSchema, MenuListSchema, NormalMenuItemSchema } from './schema'
+import { NormalMenuItem, DividerMenuItem, GroupMenuItem, MenuItem, MenuList, CustomProps } from './schema'
 
-type MenuItem = z.infer<typeof MenuItemSchema>
+export const [menuListStore, useMenuList] = createStore(() => [] as MenuList)
 
-export const [menuListStore, useMenuList] = createStore(() => MenuListSchema.parse([]))
-
-export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, index: number, menuList: MenuItem[]) {
+export function toNormalMenuItem(item: NormalMenuItem, index: number, menuList: MenuItem[]) {
   const { queryBus, commandBus, componentRegistry } = getCoreContext()
-  const { label, action, auth } = item
+  const { label, action, auth, key } = item
   return {
     menuType: item.type,
-    key: 'menu-' + item.key,
+    key,
     item,
     index,
     menuList,
     component: (() => {
       if (typeof label === 'undefined') {
-        return label
+        const componentKey = `MenuComponent/${key}` as const
+        if (componentRegistry.has(componentKey)) {
+          return componentRegistry.get(componentKey)
+        }
+        else {
+          return undefined
+        }
       }
       if (typeof label === 'function') {
         return label as () => React.ReactNode
       }
       if (typeof label === 'string') {
-        const componentKey = `menu-component__${label}` as const
+        const componentKey = `MenuComponent/${label}` as const
         if (componentRegistry.has(componentKey)) {
           return componentRegistry.get(componentKey)
         }
@@ -37,34 +40,58 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
     })(),
     isShow: (() => {
       if (typeof auth === 'undefined') {
-        return true
+        const queryKey = `MenuAuth/${key}` as const
+        if (queryBus.has(queryKey)) {
+          return queryBus.query({
+            name: queryKey,
+            params: [item, index, menuList],
+          })
+        }
+        else {
+          return true
+        }
       }
       if (typeof auth === 'boolean') {
         return auth
       }
-      const queryKey = `menu-auth__${auth}` as const
-      if (queryBus.has(queryKey)) {
-        return queryBus.query({
-          name: queryKey,
-          params: [item, index, menuList],
-        })
+      if (typeof auth === 'string') {
+        const queryKey = `MenuAuth/${auth}` as const
+        if (queryBus.has(queryKey)) {
+          return queryBus.query({
+            name: queryKey,
+            params: [item, index, menuList],
+          })
+        }
       }
       return true
     })(),
     onClick: (() => {
       if (typeof action === 'undefined') {
-        return undefined
+        const commandKey = `MenuAction/${key}` as const
+        if (queryBus.has(commandKey)) {
+          return (event: React.MouseEvent) => {
+            commandBus.command({
+              name: commandKey,
+              params: [event, item, index, menuList],
+            })
+          }
+        }
+        else {
+          return undefined
+        }
       }
       if (typeof action === 'function') {
         return action
       }
-      const commandKey = `menu-action__${action}` as const
-      if (queryBus.has(commandKey)) {
-        return (event: React.MouseEvent) => {
-          commandBus.command({
-            name: commandKey,
-            params: [event, item, index, menuList],
-          })
+      if (typeof action === 'string') {
+        const commandKey = `MenuAction/${action}` as const
+        if (queryBus.has(commandKey)) {
+          return (event: React.MouseEvent) => {
+            commandBus.command({
+              name: commandKey,
+              params: [event, item, index, menuList],
+            })
+          }
         }
       }
       return undefined
@@ -72,34 +99,40 @@ export function toNormalMenuItem(item: z.infer<typeof NormalMenuItemSchema>, ind
   }
 }
 
-export function toDividerMenuItem(item: z.infer<typeof DividerMenuItemSchema>, index: number, menuList: MenuItem[]) {
+export function toDividerMenuItem(item: DividerMenuItem, index: number, menuList: MenuItem[]) {
   return {
     menuType: item.type,
-    key: 'menu-' + item.key,
+    key: item.key ?? `divider-${index}`,
     item,
     index,
     menuList,
   }
 }
 
-export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index: number, menuList: MenuItem[]) {
+export function toGroupMenuItem(item: GroupMenuItem, index: number, menuList: MenuItem[]) {
   const { componentRegistry, queryBus } = getCoreContext()
-  const { label, auth, children } = item
+  const { key, label, auth, children } = item
   return {
     menuType: item.type,
-    key: 'menu-' + item.key,
+    key,
     item,
     index,
     menuList,
     component: (() => {
       if (typeof label === 'undefined') {
-        return label
+        const componentKey = `MenuComponent/${key}` as const
+        if (componentRegistry.has(componentKey)) {
+          return componentRegistry.get(componentKey)
+        }
+        else {
+          return undefined
+        }
       }
       if (typeof label === 'function') {
-        return label as (props: Record<string, unknown>) => React.ReactNode
+        return label as (props: CustomProps) => React.ReactNode
       }
       if (typeof label === 'string') {
-        const componentKey = `menu-component__${label}` as const
+        const componentKey = `MenuComponent/${label}` as const
         if (componentRegistry.has(componentKey)) {
           return componentRegistry.get(componentKey)
         }
@@ -111,17 +144,28 @@ export function toGroupMenuItem(item: z.infer<typeof GroupMenuItemSchema>, index
     })(),
     isShow: (() => {
       if (typeof auth === 'undefined') {
-        return true
+        const queryKey = `MenuAuth/${key}` as const
+        if (queryBus.has(queryKey)) {
+          return queryBus.query({
+            name: queryKey,
+            params: [item, index, menuList],
+          })
+        }
+        else {
+          return true
+        }
       }
       if (typeof auth === 'boolean') {
         return auth
       }
-      const queryKey = `menu-auth__${auth}` as const
-      if (queryBus.has(queryKey)) {
-        return queryBus.query({
-          name: queryKey,
-          params: [item, index, menuList],
-        })
+      if (typeof auth === 'string') {
+        const queryKey = `MenuAuth/${auth}` as const
+        if (queryBus.has(queryKey)) {
+          return queryBus.query({
+            name: queryKey,
+            params: [item, index, menuList],
+          })
+        }
       }
       return true
     })(),

@@ -1,6 +1,7 @@
 import { useCoreContext } from '@/libs/hooks/useCoreContext'
 import { useMenu, toNormalMenuItem, toDividerMenuItem, toGroupMenuItem } from '@/remotes/menu/contexts/menu'
 import { useCallback } from 'react'
+import { CustomProps } from '../contexts/schema'
 
 export interface MenuItemProps extends Omit<ReturnType<typeof toNormalMenuItem>, 'key'> {
   index: number
@@ -12,9 +13,9 @@ function NormalMenuItemWrapper({ component, isShow, onClick, item, index, menuLi
   if (!isShow) {
     return null
   }
-  const customProps = { item, index, menuList }
+  const customProps = { item, index, menuList } satisfies CustomProps<'normal'>
   return (
-    <li onClick={onClick}>
+    <li className="px-2" onClick={onClick}>
       <MenuLabel {...customProps} />
     </li>
   )
@@ -53,9 +54,9 @@ function GroupMenuItemWrapper({ component, isShow, menuChildren, item, index, me
   if (!isShow) {
     return null
   }
-  const customProps = { item, index, menuList }
+  const customProps = { item, index, menuList } satisfies CustomProps<'group'>
   return (
-    <li onClick={onClick}>
+    <li className="px-2" onClick={onClick}>
       <MenuGroup {...customProps}>
         <MenuLabel {...customProps} />
         <ul>
@@ -79,7 +80,7 @@ function GroupMenuItemWrapper({ component, isShow, menuChildren, item, index, me
 function Menu() {
   const menu = useMenu()
   return (
-    <ul>
+    <ul className="flex flex-col gap-1 -mx-2">
       {menu.map((item) => {
         if (item.menuType === 'group') {
           const { key, ...props } = item

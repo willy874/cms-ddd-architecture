@@ -11,6 +11,7 @@ export class Registry<Dict extends Record<string, any>> {
     }
   }
 
+  register<T extends keyof Dict>(name: T, value: Dict[T], options?: { override?: boolean }): void
   register(name: string, value: Dict[string], options: { override?: boolean } = {}) {
     const { override = true } = options
     const isDuplicate = Reflect.has(this.dict, name)

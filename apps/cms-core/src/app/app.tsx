@@ -6,12 +6,14 @@ import { RouterProvider } from '@tanstack/react-router'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { ConfigProvider } from '@/libs/components'
 import { CoreContextProvider } from '@/libs/hooks/useCoreContext'
+import { appMenuPlugin } from './menu'
 
 export const MODULE_NAME = 'cms_core/app'
 
 export function contextPlugin(): CoreContextPlugin {
   return (context) => {
     const cache = createCache()
+    appMenuPlugin(context)
     return {
       name: MODULE_NAME,
       onMount() {

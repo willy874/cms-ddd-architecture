@@ -1,36 +1,27 @@
-import { z } from 'zod'
-import { SET_LAYOUT_LEFT_BAR } from '@/constants/command'
+import { ADD_MENU_LIST, SET_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import React, { lazy } from 'react'
-import { MockPlugin } from './mockMenu'
-import { MenuItemSchema, MenuListSchema } from './contexts/schema'
+import { CustomMenuItem, CustomProps, NormalMenuItem, DividerMenuItem, GroupMenuItem, MenuItem, MenuList } from './contexts/schema'
+import { menuListStore } from './contexts/menu'
 
-type MenuItem = z.infer<typeof MenuItemSchema>
-type MenuList = z.infer<typeof MenuListSchema>
+export type { CustomMenuItem, NormalMenuItem, DividerMenuItem, GroupMenuItem }
 
-interface MenuLabelProps {
-  item: MenuItem
-  index: number
-  menuList: MenuList
-}
+interface MenuLabelProps extends CustomProps<'normal' | 'group'> {}
 
-function MenuLabel(_props: MenuLabelProps) {
+function MenuLabel(_props: MenuLabelProps): React.ReactNode {
   return null
 }
 
-interface MenuGroupProps {
-  item: MenuItem
-  index: number
-  menuList: MenuList
+interface MenuGroupProps extends CustomProps<'group'> {
   children: React.ReactNode
 }
 
-function MenuGroup({ children }: MenuGroupProps) {
+function MenuGroup({ children }: MenuGroupProps): React.ReactNode {
   return children
 }
 
-function MenuDivider() {
-  return <div></div>
+function MenuDivider(): React.ReactNode {
+  return <div className="h-[1px] bg-[--color-split]"></div>
 }
 
 export const MODULE_NAME = 'cms_core/menu'
@@ -42,7 +33,9 @@ export function contextPlugin(): CoreContextPlugin {
     context.componentRegistry.register('MenuLabel', MenuLabel)
     context.componentRegistry.register('MenuGroup', MenuGroup)
     context.componentRegistry.register('MenuDivider', MenuDivider)
-    MockPlugin(context)
+    context.commandBus.provide(ADD_MENU_LIST, (...items: MenuItem[]) => {
+      menuListStore.value.push(...items)
+    })
     return {
       name: MODULE_NAME,
       onInit: async () => {
@@ -61,15 +54,16 @@ declare module '@/modules/core' {
     MenuLabel: typeof MenuLabel
     MenuGroup: typeof MenuGroup
     MenuDivider: typeof MenuDivider
-    [k: `menu-component__${string}`]: (props: any) => React.ReactNode
+    [k: `MenuComponent/${string}`]: (props: any) => React.ReactNode
   }
 }
 
 declare module '@/modules/cqrs' {
   export interface CustomQueryBusDict {
-    [k: `menu-auth__${string}`]: (menu: MenuItem, index: number, menuList: MenuList) => boolean
+    [k: `MenuAuth/${string}`]: (menu: MenuItem, index: number, menuList: MenuList) => boolean
   }
   export interface CustomCommandBusDict {
-    [k: `menu-action__${string}`]: (event: React.MouseEvent, menu: MenuItem, index: number, menuList: MenuList) => unknown
+    [ADD_MENU_LIST]: (...items: MenuItem[]) => void
+    [k: `MenuAction/${string}`]: (event: React.MouseEvent, menu: MenuItem, index: number, menuList: MenuList) => unknown
   }
 }
