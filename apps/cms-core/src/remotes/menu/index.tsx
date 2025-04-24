@@ -4,45 +4,10 @@ import { ADD_MENU_LIST, SET_LAYOUT_LEFT_BAR } from '@/constants/command'
 import { CoreContextPlugin } from '@/libs/CoreContext'
 import { CustomMenuItem, NormalMenuItem, DividerMenuItem, GroupMenuItem, MenuItem, MenuList, MenuLabelProps, MenuGroupProps } from './contexts/schema'
 import { menuListStore } from './contexts/menu'
-import { ArrowDownIcon } from './assets'
 
 export type { CustomMenuItem, NormalMenuItem, DividerMenuItem, GroupMenuItem }
 
-function MenuLabel<T extends 'group' | 'normal'>(props: MenuLabelProps<T>): React.ReactNode {
-  const { isOpen, item } = props
-  const { type, key } = item
-  const { title, icon } = item.custom || { title: key }
-  if (type === 'normal') {
-    return (
-      <div className="flex px-4 py-2 items-center cursor-pointer rounded hover-bg-[--color-fill-content-hover]">
-        {icon && (
-          <div className="shrink-0 text-xl pr-2">
-            {icon}
-          </div>
-        )}
-        <div className="grow-1 text-ellipsis text-nowrap overflow-hidden">
-          {title}
-        </div>
-      </div>
-    )
-  }
-  if (type === 'group') {
-    return (
-      <div className="flex px-4 py-2 items-center cursor-pointer rounded hover-bg-[--color-fill-content-hover]">
-        {icon && (
-          <div className="shrink-0 text-xl mr-2">
-            {icon}
-          </div>
-        )}
-        <div className="grow-1 text-ellipsis text-nowrap overflow-hidden">
-          {title}
-        </div>
-        <div className={cn('shrink-0 text-xl ml-2 transition-all', { '-rotate-90': isOpen })}>
-          <ArrowDownIcon />
-        </div>
-      </div>
-    )
-  }
+function MenuLabel<T extends 'group' | 'normal'>(_props: MenuLabelProps<T>): React.ReactNode {
   return null
 }
 
@@ -70,7 +35,7 @@ export function contextPlugin(): CoreContextPlugin {
       name: MODULE_NAME,
       onInit: async () => {
         await context.commandBus.command(SET_LAYOUT_LEFT_BAR, {
-          show: true,
+          show: false,
           width: 280,
           component: lazy(() => import('./components/Menu')),
         })

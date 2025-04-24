@@ -19,8 +19,8 @@ export function contextPlugin(): CoreContextPlugin {
     context.store.set(STORE_LAYOUT_TYPE, 'default')
 
     leftBarState.value = ({
-      show: true,
-      width: 280,
+      show: false,
+      width: 0,
       component: () => null,
     })
     rightBarState.value = ({
