@@ -1,22 +1,52 @@
-import React, { lazy } from 'react'
 import cn from 'classnames'
 import { ADD_MENU_LIST, SET_LAYOUT_LEFT_BAR } from '@/constants/command'
+import { useCoreContext } from '@/libs/hooks/useCoreContext'
 import { CoreContextPlugin } from '@/libs/CoreContext'
-import { CustomMenuItem, NormalMenuItem, DividerMenuItem, GroupMenuItem, MenuItem, MenuList, MenuLabelProps, MenuGroupProps } from './contexts/schema'
+import { CustomMenuItem, MenuItem, MenuList, CustomProps, NormalMenuItem, GroupMenuItem, DividerMenuItem } from './contexts/schema'
 import { menuListStore } from './contexts/menu'
+import { useMenu } from './contexts/menu'
+import Menu from './components/Menu'
+import { lazy } from 'react'
 
-export type { CustomMenuItem, NormalMenuItem, DividerMenuItem, GroupMenuItem }
+export type { CustomMenuItem }
 
-function MenuLabel<T extends 'group' | 'normal'>(_props: MenuLabelProps<T>): React.ReactNode {
+interface MenuLabelProps extends CustomProps<NormalMenuItem | GroupMenuItem> {
+  isOpen?: boolean
+}
+
+function MenuLabel(_props: MenuLabelProps): React.ReactNode {
   return null
+}
+
+interface MenuGroupProps extends CustomProps<GroupMenuItem> {
+  isOpen: boolean
+  children: React.ReactNode
 }
 
 function MenuGroup({ isOpen, children }: MenuGroupProps): React.ReactNode {
   return <div className={cn({ 'rounded-md bg-[--color-fill-secondary]': isOpen })}>{children}</div>
 }
 
-function MenuDivider(): React.ReactNode {
+interface MenuDividerProps extends CustomProps<DividerMenuItem> {}
+
+function MenuDivider(_props: MenuDividerProps): React.ReactNode {
   return <div className="h-[1px] bg-[--color-split]"></div>
+}
+
+function MenuBar(): React.ReactNode {
+  const menu = useMenu()
+  const context = useCoreContext()
+  const MenuLabel = context.componentRegistry.get('MenuLabel')
+  const MenuGroup = context.componentRegistry.get('MenuGroup')
+  const MenuDivider = context.componentRegistry.get('MenuDivider')
+  return (
+    <Menu
+      menuList={menu}
+      MenuLabel={(props) => <MenuLabel {...props} />}
+      MenuGroup={(props) => <MenuGroup {...props} />}
+      MenuDivider={(props) => <MenuDivider {...props} />}
+    />
+  )
 }
 
 export const MODULE_NAME = 'cms_core/menu'
@@ -35,9 +65,9 @@ export function contextPlugin(): CoreContextPlugin {
       name: MODULE_NAME,
       onInit: async () => {
         await context.commandBus.command(SET_LAYOUT_LEFT_BAR, {
-          show: false,
+          show: true,
           width: 280,
-          component: lazy(() => import('./components/Menu')),
+          component: lazy(async () => ({ default: MenuBar })),
         })
       },
     }

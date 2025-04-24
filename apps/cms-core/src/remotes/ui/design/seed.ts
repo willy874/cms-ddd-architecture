@@ -229,7 +229,7 @@ export const defaultSeedTokenKey = {
   fontSizeIcon: '12px',
 
   // Line heights
-  lineHeight: 1.5714285714285714,
+  lineHeight: 1.5,
   lineHeightLg: 1.5,
   lineHeightSm: 1.6666666666666667,
   fontHeight: '22px',

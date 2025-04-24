@@ -10,19 +10,21 @@ export const appMenuPlugin: CoreContextPlugin = (context) => {
   // context.commandBus.provide(`MenuAction/${MENU_ITEM_2}`, (...args) => console.log(...args))
 
   context.componentRegistry.register('MenuLabel', (props) => {
-    const { isOpen, item } = props
-    const { type, key } = item
-    const { title, icon } = item.custom || { title: key }
-    const isGroup = type === 'group'
+    const isOpen = props.isOpen || false
+    const itemType = props.item?.type || 'none'
+    const itemId = props.item?.id || ''
+    const customTitle = props.item?.custom?.title || itemId
+    const customIcon = props.item?.custom?.icon || false
+    const isGroup = itemType === 'group'
     return (
       <div className="flex px-4 py-2 items-center cursor-pointer rounded hover-bg-[--color-fill-content-hover]">
-        {icon && (
+        {customIcon && (
           <div className="shrink-0 text-xl pr-2">
-            {icon}
+            {customIcon}
           </div>
         )}
         <div className="grow-1 text-ellipsis text-nowrap overflow-hidden">
-          {title}
+          {customTitle}
         </div>
         {isGroup && (
           <div className={cn('shrink-0 text-xl ml-2 transition-all', { '-rotate-90': !isOpen })}>
@@ -36,7 +38,7 @@ export const appMenuPlugin: CoreContextPlugin = (context) => {
     ADD_MENU_LIST,
     {
       type: 'normal',
-      key: 'menu-item-1',
+      id: 'menu-item-1',
       custom: {
         title: '首頁',
         icon: <HomeIcon />,
@@ -47,7 +49,7 @@ export const appMenuPlugin: CoreContextPlugin = (context) => {
     },
     {
       type: 'normal',
-      key: 'menu-item-2',
+      id: 'menu-item-2',
       custom: {
         title: 'menu-item-2',
         icon: <WidgetIcon />,
@@ -55,7 +57,7 @@ export const appMenuPlugin: CoreContextPlugin = (context) => {
     },
     {
       type: 'normal',
-      key: 'menu-item-3',
+      id: 'menu-item-3',
       custom: {
         title: 'menu-item-3',
         icon: <HomeIcon />,
@@ -63,7 +65,7 @@ export const appMenuPlugin: CoreContextPlugin = (context) => {
     },
     {
       type: 'group',
-      key: 'menu-item-4',
+      id: 'menu-item-4',
       custom: {
         title: 'menu-item-4',
         icon: <WidgetIcon />,
@@ -71,21 +73,21 @@ export const appMenuPlugin: CoreContextPlugin = (context) => {
       children: [
         {
           type: 'normal',
-          key: 'menu-item-4-1',
+          id: 'menu-item-4-1',
           custom: {
             title: 'menu-item-4-1',
           },
         },
         {
           type: 'normal',
-          key: 'menu-item-4-2',
+          id: 'menu-item-4-2',
           custom: {
             title: 'menu-item-4-2',
           },
         },
         {
           type: 'normal',
-          key: 'menu-item-4-3',
+          id: 'menu-item-4-3',
           custom: {
             title: 'menu-item-4-3',
           },

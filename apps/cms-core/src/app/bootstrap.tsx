@@ -1,7 +1,7 @@
 import './base.css'
 import './dark.css'
 import './index.css'
-// import 'virtual:uno.css'
+import 'virtual:uno.css'
 import initUnocssRuntime from '@unocss/runtime'
 import presetWind4 from '@unocss/preset-wind4'
 import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
@@ -54,11 +54,14 @@ export async function appInit() {
     name: 'cms_core',
     remotes: config.remotes,
   })
+
   initUnocssRuntime({
     defaults: {
       presets: [presetWind4()],
     },
+    rootElement: () => document.querySelector('[data-vite-dev-id="/__uno.css"')!,
   })
+
   const portal = createPortal(config)
   const remote = await getRemote()
   await portal

@@ -3,10 +3,7 @@ import { Button } from '@/libs/components'
 import { MenuIcon } from '@/remotes/layout/assets'
 import { useLeftBar } from '@/remotes/layout/contexts/sideBar'
 import MainBrand from './MainBrand'
-import { useEffect, useState } from 'react'
-
 function LeftAside() {
-  const [isHidden, setIsHidden] = useState(true)
   const leftBarState = useLeftBar()
   const onMenuBtnClick = () => {
     leftBarState.show = !leftBarState.show
@@ -17,16 +14,9 @@ function LeftAside() {
     component: SideBarComponent,
   } = leftBarState
 
-  useEffect(() => {
-    Promise.resolve().then(() => {
-      setIsHidden(false)
-    })
-  }, [])
-
   return (
     <div
       className={cn('relative will-change-auto transition-all shrink-0', {
-        'hidden': isHidden,
         'w-0': !show,
         'w-[var(--right-bar-width)]': show,
       })}
@@ -40,7 +30,7 @@ function LeftAside() {
           'translate-x-0 shadow-[--box-shadow-drawer-left]': show,
         })}
       >
-        <div className="shrink-0 p-2 flex gap-4">
+        <div className="shrink-0 px-2 flex gap-4 items-center h-12">
           <div className="shrink-0">
             <Button variant="text" onClick={onMenuBtnClick}>
               <MenuIcon className="text-2xl" />

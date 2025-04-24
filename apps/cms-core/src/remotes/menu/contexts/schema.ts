@@ -4,25 +4,34 @@ type NoneMenuItem = {
   type: 'none'
 }
 
+interface Query {
+  name: string
+  params?: any[]
+}
+
+interface Command {
+  name: string
+  params?: any[]
+}
+
 export interface NormalMenuItem extends Partial<CustomMenuItem> {
-  key: string
+  id: string
   type: 'normal'
-  label?: ((props: CustomProps<'normal'>) => React.ReactNode) | string
-  action?: ((event: React.MouseEvent) => void) | string
-  auth?: string | boolean
+  label?: ((props: CustomProps<NormalMenuItem>) => React.ReactNode) | string
+  action?: ((event: React.MouseEvent) => void) | string | Command
+  auth?: string | boolean | (() => boolean) | Query
 }
 
 export interface DividerMenuItem extends Partial<CustomMenuItem> {
-  key?: string
   type: 'divider'
 }
 
 type MenuSubItem = NormalMenuItem | DividerMenuItem | NoneMenuItem
 export interface GroupMenuItem extends Partial<CustomMenuItem> {
-  key: string
+  id: string
   type: 'group'
-  label?: ((props: CustomProps<'group'>) => React.ReactNode) | string
-  auth?: string | boolean
+  label?: ((props: CustomProps<GroupMenuItem>) => React.ReactNode) | string
+  auth?: string | boolean | (() => boolean) | Query
   children?: MenuSubItem[]
 }
 
@@ -32,17 +41,8 @@ export type MenuList = MenuItem[]
 
 export type MenuItemType = MenuItem['type']
 
-export interface CustomProps<T extends MenuItemType = MenuItemType> {
-  item: MenuItem & { type: T }
-  index: number
-  menuList: MenuList
-}
-
-export type MenuLabelProps<T extends 'group' | 'normal'> = (
-  T extends 'group' ? CustomProps<'group'> & { isOpen: boolean }
-    : T extends 'normal' ? CustomProps<'normal'> & { isOpen: undefined } : never)
-
-export interface MenuGroupProps extends CustomProps {
-  isOpen: boolean
-  children: React.ReactNode
+export interface CustomProps<T extends MenuItem = MenuItem> {
+  item?: T
+  index?: number
+  menuList?: T[]
 }
