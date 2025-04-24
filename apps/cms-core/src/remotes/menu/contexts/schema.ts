@@ -30,10 +30,19 @@ export type MenuItem = NormalMenuItem | DividerMenuItem | GroupMenuItem | NoneMe
 
 export type MenuList = MenuItem[]
 
-type MenuItemType = MenuItem['type']
+export type MenuItemType = MenuItem['type']
 
 export interface CustomProps<T extends MenuItemType = MenuItemType> {
   item: MenuItem & { type: T }
   index: number
   menuList: MenuList
+}
+
+export type MenuLabelProps<T extends 'group' | 'normal'> = (
+  T extends 'group' ? CustomProps<'group'> & { isOpen: boolean }
+    : T extends 'normal' ? CustomProps<'normal'> & { isOpen: undefined } : never)
+
+export interface MenuGroupProps extends CustomProps {
+  isOpen: boolean
+  children: React.ReactNode
 }

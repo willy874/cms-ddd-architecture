@@ -40,3 +40,18 @@ export const Input = ((props) => {
   const Component = getCoreContext().componentRegistry.get('Input')
   return <Component {...props} />
 }) as CustomComponentDict['Input']
+
+export const Collapsible = ((props) => {
+  const Component = getCoreContext().componentRegistry.get('Collapsible')
+  return <Component {...props} />
+}) as CustomComponentDict['Collapsible']
+
+export const CollapsibleTrigger = ((props) => {
+  const Component = getCoreContext().componentRegistry.get('CollapsibleTrigger')
+  return <Component {...props} />
+}) as CustomComponentDict['CollapsibleTrigger']
+
+export const CollapsibleContent = ((props) => {
+  const Component = getCoreContext().componentRegistry.get('CollapsibleContent')
+  return <Component {...props} />
+}) as CustomComponentDict['CollapsibleContent']

@@ -1,7 +1,7 @@
 import { getCoreContext } from '@/libs/CoreContext'
 import { createStore } from '@/libs/hooks/createStore'
 import { useComputed } from '@/libs/hooks/useComputed'
-import { NormalMenuItem, DividerMenuItem, GroupMenuItem, MenuItem, MenuList, CustomProps } from './schema'
+import { NormalMenuItem, DividerMenuItem, GroupMenuItem, MenuItem, MenuList, MenuLabelProps } from './schema'
 
 export const [menuListStore, useMenuList] = createStore(() => [] as MenuList)
 
@@ -25,7 +25,7 @@ export function toNormalMenuItem(item: NormalMenuItem, index: number, menuList: 
         }
       }
       if (typeof label === 'function') {
-        return label as () => React.ReactNode
+        return label as (props: MenuLabelProps<'normal'>) => React.ReactNode
       }
       if (typeof label === 'string') {
         const componentKey = `MenuComponent/${label}` as const
@@ -129,7 +129,7 @@ export function toGroupMenuItem(item: GroupMenuItem, index: number, menuList: Me
         }
       }
       if (typeof label === 'function') {
-        return label as (props: CustomProps) => React.ReactNode
+        return label as (props: MenuLabelProps<'group'>) => React.ReactNode
       }
       if (typeof label === 'string') {
         const componentKey = `MenuComponent/${label}` as const
