@@ -4,8 +4,6 @@ import './index.css'
 import 'virtual:uno.css'
 import initUnocssRuntime from '@unocss/runtime'
 import presetWind4 from '@unocss/preset-wind4'
-import { init as moduleFederationInit, loadRemote } from '@module-federation/enhanced/runtime'
-import { CoreContextPlugin, FeatureModule } from '@/libs/CoreContext'
 import { contextPlugin as http } from '@/modules/http'
 import { contextPlugin as cqrs } from '@/modules/cqrs'
 import { PortalConfig } from '@/libs/PortalConfig'
@@ -14,47 +12,9 @@ import { contextPlugin as router } from './router'
 import { contextPlugin as locale } from './locale'
 import { contextPlugin as routes } from './routes'
 import { contextPlugin as app } from './app'
-
-const getConfig = () => Promise.resolve({
-  isAuthClose: true,
-  remotes: [
-    {
-      name: 'cms_core',
-      entry: '/mf-manifest.json',
-    },
-  ],
-} satisfies PortalConfig)
-
-const getRemote = () => {
-  return Promise.all([
-    loadRemote<FeatureModule>('cms_core/ui'),
-    loadRemote<FeatureModule>('cms_core/layout'),
-    loadRemote<FeatureModule>('cms_core/auth'),
-    loadRemote<FeatureModule>('cms_core/home'),
-    loadRemote<FeatureModule>('cms_core/menu'),
-  ]).then(([...modules]) => {
-    return (): CoreContextPlugin => {
-      return (context) => {
-        console.group('load remote module: \n')
-        for (const module of modules) {
-          console.log(JSON.stringify(module, null, 2))
-          context.useModule(module, (() => {
-            return {}
-          })())
-        }
-        console.groupEnd()
-      }
-    }
-  })
-}
+import { getRemotePlugin } from './remotes'
 
 export async function appInit() {
-  const config = await getConfig()
-  moduleFederationInit({
-    name: 'cms_core',
-    remotes: config.remotes,
-  })
-
   initUnocssRuntime({
     defaults: {
       presets: [presetWind4()],
@@ -62,8 +22,9 @@ export async function appInit() {
     rootElement: () => document.querySelector('[data-vite-dev-id="/__uno.css"')!,
   })
 
+  const config = await fetch('/app.config.json').then((res) => res.json() as PortalConfig)
   const portal = createPortal(config)
-  const remote = await getRemote()
+  const remote = await getRemotePlugin(config)
   await portal
     .use(locale())
     .use(cqrs())

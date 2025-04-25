@@ -1,0 +1,10 @@
+{
+  "isAuthClose": true,
+  "remotes": [
+    "cms_core/ui",
+    "cms_core/layout",
+    "cms_core/auth",
+    "cms_core/home",
+    "cms_core/menu"
+  ]
+}
