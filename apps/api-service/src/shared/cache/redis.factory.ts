@@ -1,27 +1,38 @@
-import Redis from 'ioredis'
+import Redis, { RedisOptions } from 'ioredis'
 import { getEnvironment } from '@packages/shared'
-import { CacheRepository, ICacheRepository } from './cache.repository'
+import { ICacheRepository } from './cache.repository'
 
-export const cacheFactory = () => {
+class RedisCache implements ICacheRepository {
+  private cache: Redis
+
+  constructor(options: RedisOptions) {
+    this.cache = new Redis(options)
+  }
+
+  async get(key: string): Promise<string | null> {
+    return this.cache.get(key)
+  }
+
+  async set(key: string, value: string, ttl?: number): Promise<string> {
+    if (typeof ttl === 'undefined') {
+      return this.cache.set(key, value)
+    }
+    return this.cache.set(key, value, 'EX', ttl)
+  }
+
+  async del(key: string): Promise<boolean> {
+    const oldValue = await this.cache.get(key)
+    await this.cache.del(key)
+    return !!oldValue
+  }
+}
+
+const cacheFactory = (): ICacheRepository => {
   const { CACHE_HOST, CACHE_PORT } = getEnvironment()
-  const redis = new Redis({
+  return new RedisCache({
     host: CACHE_HOST,
     port: CACHE_PORT,
   })
-  return new CacheRepository({
-    get: async (key: string) => {
-      return redis.get(key)
-    },
-    set: async (key: string, value: string, ttl?: number) => {
-      if (typeof ttl === 'undefined') {
-        return redis.set(key, value)
-      }
-      return redis.set(key, value, 'EX', ttl)
-    },
-    del: async (key: string) => {
-      const oldValue = await redis.get(key)
-      await redis.del(key)
-      return !!oldValue
-    },
-  } satisfies ICacheRepository)
 }
+
+export default cacheFactory

@@ -13,9 +13,21 @@ export const roles = mysqlTable('roles', {
   name: varchar('name', { length: 255 }).unique().notNull(),
 })
 
-export const userRoleRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(users, ({ many }) => ({
   roles: many(roles),
 }))
+
+export const userRoles = mysqlTable(
+  'user_roles',
+  {
+    userId: int('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    roleId: int('role_id')
+      .notNull()
+      .references(() => roles.id, { onDelete: 'cascade' }),
+  },
+)
 
 // --- Permissions Table ---
 export const permissions = mysqlTable('permissions', {
@@ -23,6 +35,18 @@ export const permissions = mysqlTable('permissions', {
   name: varchar('name', { length: 255 }).unique().notNull(),
 })
 
-export const rolePermissionRelations = relations(roles, ({ many }) => ({
+export const roleRelations = relations(roles, ({ many }) => ({
   permissions: many(permissions),
 }))
+
+export const rolePermissions = mysqlTable(
+  'role_permissions',
+  {
+    roleId: int('role_id')
+      .notNull()
+      .references(() => roles.id, { onDelete: 'cascade' }),
+    permissionId: int('permission_id')
+      .notNull()
+      .references(() => permissions.id, { onDelete: 'cascade' }),
+  },
+)

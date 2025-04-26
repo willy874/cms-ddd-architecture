@@ -1,17 +1,30 @@
 import { createCache } from 'cache-manager'
-import { CacheRepository, ICacheRepository } from './cache.repository'
+import { ICacheRepository } from './cache.repository'
 
-export const cacheFactory = () => {
-  const cache = createCache()
-  return new CacheRepository({
-    get: async (key: string) => {
-      return cache.get(key)
-    },
-    set: async (key: string, value: string, ttl?: number) => {
-      return cache.set(key, value, ttl)
-    },
-    del: async (key: string) => {
-      return cache.del(key)
-    },
-  } satisfies ICacheRepository)
+class MemoryCache implements ICacheRepository {
+  private cache = createCache()
+
+  constructor() {
+    this.cache = createCache()
+  }
+
+  async get(key: string): Promise<string | null> {
+    return this.cache.get(key)
+  }
+
+  async set(key: string, value: string, ttl?: number): Promise<string> {
+    return this.cache.set(key, value, ttl)
+  }
+
+  async del(key: string): Promise<boolean> {
+    const oldValue = await this.cache.get(key)
+    await this.cache.del(key)
+    return !!oldValue
+  }
 }
+
+const cacheFactory = (): ICacheRepository => {
+  return new MemoryCache()
+}
+
+export default cacheFactory

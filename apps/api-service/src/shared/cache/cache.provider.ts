@@ -1,19 +1,18 @@
 import { getEnvironment } from '@packages/shared'
-import { cacheFactory as redisFactory } from './redis.factory'
-import { cacheFactory as memoryFactory } from './memory.factory'
-import { CacheRepository } from './cache.repository'
+import { ICacheRepository } from './cache.repository'
 
 export const CACHE_PROVIDER = 'CACHE_PROVIDER'
 
 export const CacheServiceProvider = {
   provide: CACHE_PROVIDER,
-  useFactory: () => {
+  useFactory: async () => {
     const { CACHE_MODE } = getEnvironment()
-    const cacheSources: Record<string, () => CacheRepository> = {
-      redis: () => redisFactory(),
-      memory: () => memoryFactory(),
+    const cacheSources: Record<string, () => Promise<{ default: () => ICacheRepository }>> = {
+      redis: () => import('./redis.factory'),
+      memory: () => import('./memory.factory'),
     }
     const cacheFactory = cacheSources[CACHE_MODE] || cacheSources.memory
-    return cacheFactory()
+    const module = await cacheFactory()
+    return module.default()
   },
 }

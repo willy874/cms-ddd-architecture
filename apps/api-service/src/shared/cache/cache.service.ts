@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { CacheRepository } from './cache.repository'
+import { ICacheRepository } from './cache.repository'
 import { CACHE_PROVIDER } from './cache.provider'
 
 @Injectable()
 export class CacheService {
-  constructor(@Inject(CACHE_PROVIDER) private cache: CacheRepository) {}
+  constructor(@Inject(CACHE_PROVIDER) private cache: ICacheRepository) {}
 
   set(key: string, value: string, ttl?: number): Promise<string> {
     return this.cache.set(key, value, ttl)
