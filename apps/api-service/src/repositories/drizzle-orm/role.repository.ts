@@ -5,6 +5,7 @@ import { DATABASE_PROVIDER, DatabaseRepository } from '@/shared/database/drizzle
 import { CreateRoleDto, UpdateRoleDto } from '../dtos'
 import { rolesTable } from '@/models/drizzle-orm'
 import { eq } from 'drizzle-orm'
+import { PickKey } from '../interfaces/utils'
 
 export class RoleRepository implements IRoleRepository {
   constructor(
@@ -12,16 +13,18 @@ export class RoleRepository implements IRoleRepository {
   ) {}
 
   async findByName(name: string): Promise<Role | null> {
-    const result = await this.db.query.roles.findFirst({
-      where: eq(rolesTable.name, name),
-    })
+    const [result] = await this.db
+      .select()
+      .from(rolesTable)
+      .where(eq(rolesTable.name, name))
     return result || null
   }
 
   async findById(id: number): Promise<Role | null> {
-    const result = await this.db.query.roles.findFirst({
-      where: eq(rolesTable.id, id),
-    })
+    const [result] = await this.db
+      .select()
+      .from(rolesTable)
+      .where(eq(rolesTable.id, id))
     return result || null
   }
 
@@ -29,14 +32,12 @@ export class RoleRepository implements IRoleRepository {
     return this.db.select().from(rolesTable)
   }
 
-  async create(payload: CreateRoleDto): Promise<Role | null> {
-    // const [user] = await this.db.insert(usersTable).values(rest).$returningId()
-    const [role] = await this.db
+  async create(payload: CreateRoleDto): Promise<PickKey<Role, 'id'>> {
+    const [newRole] = await this.db
       .insert(rolesTable)
       .values(payload)
       .$returningId()
-
-    return role
+    return newRole
   }
 
   async update(id: number, role: UpdateRoleDto): Promise<Role | null> {

@@ -9,6 +9,8 @@ import { loadEnv } from '@packages/shared'
 export default defineConfig(async () => {
   loadEnv()
   const REMOTE_MODUlES = process.env.REMOTE_MODUlES
+  const PORT = process.env.PORT
+  const HOST = process.env.HOST
 
   return {
     plugins: [
@@ -46,6 +48,8 @@ export default defineConfig(async () => {
       },
     },
     server: {
+      host: HOST,
+      port: PORT ? Number(PORT) : undefined,
       proxy: {
         [`/${process.env.GATEWAY_API_PREFIX}`]: {
           target: `http://${process.env.GATEWAY_API_HOST}:${process.env.GATEWAY_API_PORT}`,

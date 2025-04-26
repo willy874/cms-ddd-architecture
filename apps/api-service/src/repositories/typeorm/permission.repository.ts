@@ -43,13 +43,17 @@ export class PermissionRepository implements IPermissionRepository {
     return this.permissionRepository.save(newPermission)
   }
 
-  async update(id: number, permission: UpdatePermissionDto): Promise<Permission | null> {
+  async update(id: number, permission: UpdatePermissionDto): Promise<Permission> {
     await this.permissionRepository.update(id, {
       name: permission.name,
       description: permission.description,
       roles: [],
     })
-    return this.findById(id)
+    const result = await this.findById(id)
+    if (!result) {
+      throw new Error(`Permission with id ${id} not found`)
+    }
+    return result
   }
 
   async delete(id: number): Promise<void> {
