@@ -1,11 +1,10 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, HttpCode } from '@nestjs/common'
-import { QueryParams } from '@/shared/types'
-import { UserService } from './user.service'
-import { CreateUserDto } from './create-user.dto'
-import { UpdateUserDto } from './update-user.dto'
-import { LoginDto } from './login.dto'
-import { UserAlreadyExistsException } from '@/shared/errors'
 import { hash } from '@packages/shared'
+import { QueryParams } from '@/shared/types'
+import { UserAlreadyExistsException } from '@/shared/errors'
+import { CreateUserDto, UpdateUserDto } from '@/repositories/dtos'
+import { LoginDto } from '@/repositories/dtos'
+import { UserService } from './user.service'
 
 const asArray = <T>(value?: T | T[]) => Array.isArray(value) ? [...value] : (value ? [value] : [])
 
@@ -72,7 +71,7 @@ export class UserController {
   @Post('/')
   @HttpCode(201)
   async createUser(@Body() body: CreateUserDto) {
-    const user = await this.userService.getUserNamesByName(body.username)
+    const user = await this.userService.getUserByName(body.username)
     if (user) {
       throw new UserAlreadyExistsException()
     }

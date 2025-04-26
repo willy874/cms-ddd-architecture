@@ -9,7 +9,7 @@ export const users = mysqlTable('users', {
 // --- Roles Table ---
 export const roles = mysqlTable('roles', {
   id: int('id').primaryKey().autoincrement(),
-  name: varchar('name', { length: 255 }).notNull(),
+  name: varchar('name', { length: 255 }).unique(),
 })
 
 export const userRoles = mysqlTable('user_roles', {

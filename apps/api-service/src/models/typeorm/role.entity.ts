@@ -15,6 +15,11 @@ export class Role {
   })
   name: string
 
+  @Column({
+    type: 'text',
+  })
+  description: string
+
   @ManyToMany(() => Permission, permission => permission.roles, {
     cascade: true,
   })

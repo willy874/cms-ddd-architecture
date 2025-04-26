@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core'
-import { AuthModule } from './modules/auth'
+import { AuthModule } from './services/auth'
 import { loadEnv } from '@packages/shared'
 import { IncomingMessage } from 'http'
 

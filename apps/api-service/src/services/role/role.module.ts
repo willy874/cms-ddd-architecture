@@ -1,5 +1,6 @@
 import { DatabaseModule } from '@/shared/database'
 import { DynamicModule, ModuleMetadata } from '@nestjs/common'
+import { RoleRepositoryProvider } from '@/repositories/providers'
 import { RoleService } from './role.service'
 import { RoleController } from './role.controller'
 
@@ -14,7 +15,7 @@ export class RoleModule {
     return {
       module: RoleModule,
       imports: [...imports, DatabaseModule],
-      providers: [...providers, RoleService],
+      providers: [...providers, RoleRepositoryProvider, RoleService],
       controllers: [RoleController],
     }
   }

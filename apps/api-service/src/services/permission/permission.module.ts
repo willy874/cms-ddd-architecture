@@ -1,5 +1,6 @@
 import { ModuleMetadata, DynamicModule } from '@nestjs/common'
 import { DatabaseModule } from '@/shared/database'
+import { PermissionRepositoryProvider } from '@/repositories/providers'
 import { PermissionService } from './permission.service'
 import { PermissionController } from './permission.controller'
 
@@ -14,7 +15,7 @@ export class PermissionModule {
     return {
       module: PermissionModule,
       imports: [...imports, DatabaseModule],
-      providers: [...providers, PermissionService],
+      providers: [...providers, PermissionRepositoryProvider, PermissionService],
       controllers: [PermissionController],
     }
   }

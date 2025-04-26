@@ -1,10 +1,10 @@
-import { ModuleMetadata } from '@nestjs/common'
+import { DynamicModule, ModuleMetadata } from '@nestjs/common'
 import { DatabaseModule } from '@/shared/database'
 import { CacheModule } from '@/shared/cache'
-import { UserService } from './user.service'
+import { UserRepositoryProvider } from '@/repositories/providers'
 import { UserController } from './user.controller'
 import { TokenService } from './token.service'
-import { RoleService } from './role.service'
+import { UserService } from './user.service'
 
 interface UserModuleOptions {
   imports?: ModuleMetadata['imports']
@@ -12,12 +12,12 @@ interface UserModuleOptions {
 }
 
 export class UserModule {
-  static register(options: UserModuleOptions = {}) {
+  static register(options: UserModuleOptions = {}): DynamicModule {
     const { imports = [], providers = [] } = options
     return {
       module: UserModule,
       imports: [...imports, DatabaseModule, CacheModule],
-      providers: [...providers, RoleService, TokenService, UserService],
+      providers: [...providers, UserRepositoryProvider, TokenService, UserService],
       controllers: [UserController],
     }
   }

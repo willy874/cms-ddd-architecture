@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core'
-import { PermissionModule } from './modules/permission'
-import { RoleModule } from './modules/role'
-import { UserModule } from './modules/user'
+import { PermissionModule } from './services/permission'
+import { RoleModule } from './services/role'
+import { UserModule } from './services/user'
 import { loadEnv } from '@packages/shared'
 
 async function bootstrap() {

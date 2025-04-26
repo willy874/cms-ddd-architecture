@@ -1,8 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Query, Param, Body, HttpCode } from '@nestjs/common'
-import { QueryParams } from '@/shared/types'
+import { Controller, Get, Post, Put, Delete, Param, Body, HttpCode } from '@nestjs/common'
 import { RoleService } from './role.service'
-import { CreateRoleDto } from './create-role.dto'
-import { UpdateRoleDto } from './update-role.dto'
+import { CreateRoleDto, UpdateRoleDto } from '@/repositories/dtos'
 
 @Controller('roles')
 export class RoleController {
@@ -11,12 +9,10 @@ export class RoleController {
   ) {}
 
   @Get('/')
-  async getRoles(
-    @Query() query: QueryParams,
-  ) {
+  async getRoles() {
     return {
       code: 200,
-      data: await this.roleService.searchQuery(query),
+      data: await this.roleService.searchQuery(),
     }
   }
 
