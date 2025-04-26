@@ -1,14 +1,14 @@
-import { User } from '@/entities/user.entity'
-import { Role } from '@/entities/role.entity'
-import { Permission } from '@/entities/permission.entity'
-import { getEnvironment } from '../utils/environment'
+import { User } from '@/models/typeorm/user.entity'
+import { Role } from '@/models/typeorm/role.entity'
+import { Permission } from '@/models/typeorm/permission.entity'
+import { getEnvironment } from '@/shared/utils/environment'
 import { Database } from './Database'
 
 export const DATABASE_PROVIDER = 'DATABASE_PROVIDER'
 
 export const DatabaseProvider = {
   provide: DATABASE_PROVIDER,
-  useFactory: () => {
+  useFactory: async () => {
     const env = getEnvironment()
     const database = new Database({
       type: 'mysql',
@@ -20,6 +20,9 @@ export const DatabaseProvider = {
       entities: [User, Role, Permission],
       synchronize: false,
     })
-    return database.connection()
+    await database.connection()
+    return database.instance
   },
 }
+
+export type DatabaseRepository = Database['instance']

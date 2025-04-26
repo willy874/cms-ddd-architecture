@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common'
-import { DatabaseProvider } from './database.provider'
-import { RoleRepositoryProvider } from './role.repository'
-import { UserRepositoryProvider } from './user.repository'
-import { PermissionRepositoryProvider } from './permission.repository'
+import { DatabaseProvider } from './drizzle-orm/database.provider'
+// import { DatabaseProvider } from './typeorm/database.provider'
 
 @Module({
   imports: [],
-  providers: [DatabaseProvider, PermissionRepositoryProvider, RoleRepositoryProvider, UserRepositoryProvider],
-  exports: [DatabaseProvider, PermissionRepositoryProvider, RoleRepositoryProvider, UserRepositoryProvider],
+  providers: [DatabaseProvider],
+  exports: [DatabaseProvider],
 })
 export class DatabaseModule {}

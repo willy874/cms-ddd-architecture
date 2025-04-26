@@ -1,9 +1,10 @@
+import { QueryParams } from '@/shared/types'
 import { FindOperator, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm'
 
 export type QueryFn<T extends ObjectLiteral> = (query: SelectQueryBuilder<T>) => SelectQueryBuilder<T>
 export type QueryPipeFn<T extends ObjectLiteral> = (...args: QueryFn<T>[]) => SelectQueryBuilder<T>
 
-export function queryPipe<T extends ObjectLiteral>(repository: Repository<T>): QueryPipeFn<T> {
+export function createQueryPipe<T extends ObjectLiteral>(repository: Repository<T>): QueryPipeFn<T> {
   return (...args) => {
     let query = repository.createQueryBuilder()
     for (const fn of args) {
@@ -79,4 +80,16 @@ export function pageBy<T extends ObjectLiteral>(page?: number, pageSize?: number
   return (query) => {
     return query.skip((page - 1) * pageSize).take(pageSize)
   }
+}
+
+export async function createSearchQuery<Entity extends ObjectLiteral>(repository: Repository<Entity>, params: QueryParams): Promise<[Entity[], number]> {
+  const { page, pageSize, filter, exclude, search, sort } = params
+  const queryPipe = createQueryPipe(repository)
+  const result = await queryPipe(
+    filterBy(filter, exclude),
+    searchBy(search, this.fields),
+    orderBy(sort),
+    pageBy(page, pageSize),
+  ).getManyAndCount()
+  return result
 }
