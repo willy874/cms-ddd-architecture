@@ -5,12 +5,32 @@ import svgr from 'vite-plugin-svgr'
 import { federation } from '@module-federation/vite'
 import { loadEnv } from '@packages/shared'
 
+const isNotNil = <T>(value?: T | undefined | null): value is T => {
+  return value !== undefined && value !== null && value !== '' && !Number.isFinite(value)
+}
+
 // https://vite.dev/config/
 export default defineConfig(async () => {
   loadEnv()
-  const REMOTE_MODUlES = process.env.REMOTE_MODUlES
-  const PORT = process.env.PORT
-  const HOST = process.env.HOST
+  const env = {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    HOST: process.env.HOST,
+    REMOTE_MODUlES: process.env.REMOTE_MODUlES,
+    GATEWAY_API_PREFIX: process.env.GATEWAY_API_PREFIX,
+    GATEWAY_API_HOST: process.env.GATEWAY_API_HOST,
+    GATEWAY_API_PORT: process.env.GATEWAY_API_PORT,
+    AUTH_API_PREFIX: process.env.AUTH_API_PREFIX,
+    AUTH_API_HOST: process.env.AUTH_API_HOST,
+    AUTH_API_PORT: process.env.AUTH_API_PORT,
+    USER_API_PREFIX: process.env.USER_API_PREFIX,
+    USER_API_HOST: process.env.USER_API_HOST,
+    USER_API_PORT: process.env.USER_API_PORT,
+    ROLE_API_PREFIX: process.env.ROLE_API_PREFIX,
+    ROLE_API_HOST: process.env.ROLE_API_HOST,
+    ROLE_API_PORT: process.env.ROLE_API_PORT,
+  }
+  console.log(env)
 
   return {
     plugins: [
@@ -21,7 +41,7 @@ export default defineConfig(async () => {
         name: 'cms_core',
         manifest: true,
         exposes: (() => {
-          const remotes = REMOTE_MODUlES ? REMOTE_MODUlES.split(',') : []
+          const remotes = env.REMOTE_MODUlES ? env.REMOTE_MODUlES.split(',') : []
           return Object.fromEntries(
             remotes.map((remote) => [`./${remote}`, `./src/remotes/${remote}`]),
           )
@@ -44,15 +64,14 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         '@': '/src',
-        // 'remotes/ui': 'cms_core/ui',
       },
     },
     server: {
-      host: HOST,
-      port: PORT ? Number(PORT) : undefined,
+      port: env.PORT ? Number(env.PORT) : undefined,
+      allowedHosts: [env.HOST].filter(isNotNil),
       proxy: {
-        [`/${process.env.GATEWAY_API_PREFIX}`]: {
-          target: `http://${process.env.GATEWAY_API_HOST}:${process.env.GATEWAY_API_PORT}`,
+        [`/${env.GATEWAY_API_PREFIX}`]: {
+          target: `http://${env.GATEWAY_API_HOST}:${env.GATEWAY_API_PORT}`,
           changeOrigin: true,
         },
       },

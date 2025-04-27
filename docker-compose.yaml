@@ -18,9 +18,6 @@ services:
     ports:
       - "6379:6379"
     container_name: cache-service
-    environment:
-      CACHE_PORT: 6379
-      CACHE_HOST: cache-service
   queue-service:
     image: rabbitmq:3.12-management
     networks:
@@ -41,7 +38,7 @@ services:
       - app-network
     container_name: backend-service
     volumes:
-      - .:/app
+      - ./apps/api-service/src:/app/apps/api-service/src
     ports:
       - "4201:4201"
       - "4202:4202"
@@ -61,13 +58,16 @@ services:
       - app-network
     container_name: frontend-service
     volumes:
-      - .:/app
+      - ./apps/cms-core/src:/app/apps/cms-core/src
+      - ./apps/cms-core/package.json:/app/apps/cms-core/package.json
+      - ./apps/cms-core/vite.config.ts:/app/apps/cms-core/vite.config.ts
     ports:
       - "4100:4100"
     env_file:
       - ./.env
     environment:
       PORT: 4100
+      HOST: 'frontend-service'
     depends_on:
       - backend-service
     command: pnpm --filter cms-core dev
@@ -80,7 +80,7 @@ services:
       - app-network
     container_name: gateway-service
     volumes:
-      - .:/app
+      - ./apps/gateway-service/src:/app/apps/gateway-service/src
     ports:
       - "4200:4200"
     env_file:
@@ -90,13 +90,14 @@ services:
     command: pnpm --filter gateway-service start:dev
   web-service:
     container_name: app-web-service
-    image: nginx:latest
+    image: nginx:1.27.5
     depends_on:
       - frontend-service
+      - backend-service
     environment:
-      - NGINX_PORT=8765
+      - NGINX_PORT=80
     ports:
-      - "8765:8765"
+      - "8765:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     networks:

@@ -9,7 +9,9 @@ async function init() {
 
 init()
   .then(() => {
+    
     const env = getEnvironment();
+
     const app = express();
     const authMiddleware = createAuthMiddleware()
     if (env.NODE_ENV === 'development') {
@@ -20,7 +22,7 @@ init()
     }
 
     if (env.AUTH_API_PORT) {
-      console.log('AUTH:', env.AUTH_API_PREFIX);
+      console.log('AUTH:', `http://${env.AUTH_API_HOST}:${env.AUTH_API_PORT}`);
       app.use(
         `/${env.GATEWAY_API_PREFIX}/${env.AUTH_API_PREFIX}`,
         createProxyMiddleware({
@@ -32,6 +34,7 @@ init()
       console.log(`The auth service proxy is using.`);
     }
     if (env.USER_API_PORT) {
+      console.log('USER:', `http://${env.USER_API_HOST}:${env.USER_API_PORT}`);
       app.use(
         `/${env.GATEWAY_API_PREFIX}/${env.USER_API_PREFIX}`,
         authMiddleware,
@@ -45,6 +48,7 @@ init()
     }
 
     if (env.ROLE_API_PORT) {
+      console.log('ROLE:', `http://${env.ROLE_API_HOST}:${env.ROLE_API_PORT}`);
       app.use(
         `/${env.GATEWAY_API_PREFIX}/${env.ROLE_API_PREFIX}`,
         authMiddleware,
@@ -58,6 +62,7 @@ init()
     }
 
     if (env.PERMISSION_API_PORT) {
+      console.log('PERMISSION:', `http://${env.PERMISSION_API_HOST}:${env.PERMISSION_API_PORT}`);
       app.use(
         `/${env.GATEWAY_API_PREFIX}/${env.PERMISSION_API_PREFIX}`,
         authMiddleware,
@@ -70,6 +75,7 @@ init()
       console.log(`The permission service proxy is using.`);
     }
     if (env.GATEWAY_API_PORT) {
+      console.log('GATEWAY:', `http://${env.GATEWAY_API_HOST}:${env.GATEWAY_API_PORT}`);
       app.listen(env.GATEWAY_API_PORT, () => {
         console.log(`The gateway is running.`);
       })
