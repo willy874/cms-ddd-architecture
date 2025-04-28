@@ -79,6 +79,8 @@ export function contextPlugin(): CoreContextPlugin {
   }
 }
 
+// type Path = ReturnType<typeof routes.get>['path']
+
 declare module '@/libs/CoreContext' {
   export interface CoreContext {
     rootRoute: typeof rootRoute

@@ -87,19 +87,17 @@ interface CollapsibleProps extends React.ComponentProps<'div'> {
   children?: React.ReactNode
   open?: boolean
   defaultOpen?: boolean
-  onOpenChange?: (details: { open: boolean }) => void
-  onExitComplete?: () => void
+  onOpenChange?: (open: boolean) => void
   disabled?: boolean
 }
 
-function Collapsible({ children, open, disabled, defaultOpen = true, onOpenChange, onExitComplete, ...props }: CollapsibleProps) {
+function Collapsible({ children, open, disabled, defaultOpen = true, onOpenChange, ...props }: CollapsibleProps) {
   const service = useMachine(collapsible.machine, {
     id: useId(),
     open,
     disabled,
     defaultOpen,
-    onOpenChange,
-    onExitComplete,
+    onOpenChange: onOpenChange ? ({ open }) => onOpenChange(open) : undefined,
   })
   const api = collapsible.connect(service, normalizeProps)
   const [wrap, hashId, styles] = useStyle()

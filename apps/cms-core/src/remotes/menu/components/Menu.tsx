@@ -83,7 +83,7 @@ function GroupMenuItemWrapper({ component, isShow, menuChildren, MenuLabel, Menu
   return (
     <li onClick={onClick} data-scope="menu-group-wrapper">
       <MenuGroupComponent {...menuGroupProps}>
-        <Collapsible open={isOpen} onOpenChange={({ open }) => setIsOpen(open)}>
+        <Collapsible open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
           <CollapsibleTrigger>
             <MenuLabelComponent {...menuLabelProps} />
           </CollapsibleTrigger>
