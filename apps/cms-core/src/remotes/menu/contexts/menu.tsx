@@ -38,7 +38,7 @@ function resolveComponent(label: NormalMenuItem['label'] | GroupMenuItem['label'
   return () => null
 }
 
-function resolveAuth(auth: NormalMenuItem['auth'] | GroupMenuItem['auth'], context: ResolveContext) {
+function resolveAuth(auth: NormalMenuItem['auth'] | GroupMenuItem['auth'], context: ResolveContext): boolean {
   const { queryBus } = getCoreContext()
   if (typeof auth === 'undefined') {
     const queryKey = `MenuAuth/${context.id}` as const
@@ -51,10 +51,11 @@ function resolveAuth(auth: NormalMenuItem['auth'] | GroupMenuItem['auth'], conte
   }
   if (typeof auth === 'object' && auth) {
     if (queryBus.has(auth.name)) {
-      return queryBus.query({
+      const result = queryBus.query({
         name: auth.name,
         params: [...auth.params || []],
       } as any)
+      return typeof result === 'boolean' ? result : false
     }
   }
   if (typeof auth === 'boolean') {
@@ -187,6 +188,8 @@ export function useMenu() {
     }
     return {
       menuType: 'none',
+      id: null,
+      isShow: false,
       item,
       index,
       menuList: array,

@@ -44,5 +44,5 @@ export type MenuItemType = MenuItem['type']
 export interface CustomProps<T extends MenuItem = MenuItem> {
   item?: T
   index?: number
-  menuList?: T[]
+  menuList?: MenuList
 }

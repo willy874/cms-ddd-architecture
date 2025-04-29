@@ -16,6 +16,7 @@ export function contextPlugin(): CoreContextPlugin {
     context.componentRegistry.register('Collapsible', lazy(() => import('./Collapsible')) as any)
     context.componentRegistry.register('CollapsibleTrigger', lazy(async () => ({ default: (await import('./Collapsible')).CollapsibleTrigger })) as any)
     context.componentRegistry.register('CollapsibleContent', lazy(async () => ({ default: (await import('./Collapsible')).CollapsibleContent })) as any)
+    context.componentRegistry.register('Menu', lazy(() => import('./Menu')) as any)
 
     return {
       name: MODULE_NAME,
