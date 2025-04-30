@@ -63,16 +63,6 @@ export function genStyleHook<
   const createComponentToken = (fn2 ? fn1 : undefined) as GenComponentTokenFn<Token>
   const createCSS = (fn2 ? fn2 : fn1) as GenStyleFn<Token, CSS>
   const paths = (typeof name === 'string' ? [name] : name) as string[]
-  const cssVariableFactor = (_token: unknown) => {
-    return (name: string, def?: string) => {
-      let property = camelCaseToKebabCase(name)
-      property = property.replace('-default', '')
-      if (def) {
-        return `var(--${property}, ${def})`
-      }
-      return `var(--${property})`
-    }
-  }
   const cssVariable = (name: string, def?: string) => {
     let property = camelCaseToKebabCase(name)
     property = property.replace('-default', '')
