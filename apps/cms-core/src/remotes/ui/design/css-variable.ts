@@ -1,8 +1,6 @@
 import { camelCaseToKebabCase } from '@/libs/naming-convention'
-import { Theme } from '@ant-design/cssinjs'
 
-export const createCSSVariable = (mode: string, dict: Record<string, any>, theme: Theme<any, any>) => {
-  const defaultToken = theme.getDerivativeToken({})
+export const createCSSVariable = (mode: string, dict: Record<string, any>, defaultToken: Record<string, any>) => {
   const cssStyleDeclaration = window.getComputedStyle(document.documentElement)
   const cssStyleString = (key: string, contextValue: unknown, defaultValue?: any): string => {
     if (typeof contextValue === 'string') {

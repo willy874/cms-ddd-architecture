@@ -5,28 +5,10 @@ import type { Service } from '@zag-js/collapsible'
 import { deepMerge } from '@/libs/deepMerge'
 import { genStyleHook } from './style/genStyleHook'
 import cn from 'classnames'
-import { Keyframes } from '@ant-design/cssinjs'
-
-const expand = new Keyframes('expand', {
-  from: {
-    height: 0,
-  },
-  to: {
-    height: 'var(--height)',
-  },
-})
-const collapse = new Keyframes('collapse', {
-  from: {
-    height: 'var(--height)',
-  },
-  to: {
-    height: 0,
-  },
-})
 
 const useStyle = genStyleHook('Collapsible',
   () => ({}),
-  () => ({
+  ({ keyframe }) => ({
     root: {
       '[data-part="trigger"]': {
         display: 'block',
@@ -37,12 +19,26 @@ const useStyle = genStyleHook('Collapsible',
         overflow: 'hidden',
       },
       '[data-part="content"][data-state="open"]': {
-        animationName: expand,
+        animationName: keyframe('expand', {
+          from: {
+            height: 0,
+          },
+          to: {
+            height: 'var(--height)',
+          },
+        }),
         animationDuration: '110ms',
         animationTimingFunction: 'cubic-bezier(0, 0, 0.38, 0.9)',
       },
       '[data-part="content"][data-state="closed"]': {
-        animationName: collapse,
+        animationName: keyframe('collapse', {
+          from: {
+            height: 'var(--height)',
+          },
+          to: {
+            height: 0,
+          },
+        }),
         animationDuration: '110ms',
         animationTimingFunction: 'cubic-bezier(0, 0, 0.38, 0.9)',
       },

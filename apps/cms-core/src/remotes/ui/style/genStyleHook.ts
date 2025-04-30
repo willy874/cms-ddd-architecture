@@ -1,4 +1,4 @@
-import { CSSObject, useStyleRegister } from '@ant-design/cssinjs'
+import { CSSInterpolation, CSSObject, Keyframes, useStyleRegister } from '@ant-design/cssinjs'
 import { useLayoutEffect, useMemo, useState } from 'react'
 import { setDeepProperty } from '@/libs/getDeepProperty'
 import { camelCaseToKebabCase, KebabToCamelCase } from '@/libs/naming-convention'
@@ -11,7 +11,8 @@ interface GenComponentTokenFn<
   (params: {
     token: AliasToken
     tokenName: Record<keyof AliasToken, string>
-    cssVariable: (name: KebabToCamelCase<DeepFlatKey<AliasToken>>, def?: string) => string
+    tokenVar: Record<KebabToCamelCase<DeepFlatKey<AliasToken>>, string>
+    keyframe: (name: string, style: CSSInterpolation) => Keyframes
   }): Token
 }
 
@@ -21,9 +22,11 @@ interface GenStyleFn<
 > {
   (params: {
     token: AliasToken
+    tokenName: Record<keyof AliasToken, string>
+    tokenVar: Record<KebabToCamelCase<DeepFlatKey<AliasToken>>, string>
     componentToken: Token
     componentTokenName: Record<keyof Token, string>
-    cssVariable: (name: KebabToCamelCase<DeepFlatKey<AliasToken>> & string, def?: string) => string
+    keyframe: (name: string, style: CSSInterpolation) => Keyframes
   }): CSS
 }
 
@@ -70,6 +73,17 @@ export function genStyleHook<
       return `var(--${property})`
     }
   }
+  const cssVariable = (name: string, def?: string) => {
+    let property = camelCaseToKebabCase(name)
+    property = property.replace('-default', '')
+    if (def) {
+      return `var(--${property}, ${def})`
+    }
+    return `var(--${property})`
+  }
+  const keyframe = (name: string, style: CSSInterpolation) => {
+    return new Keyframes(name, style)
+  }
   return () => {
     const { theme, hashId, token } = useTheme()
     const [styles, setStyles] = useState<Record<string, string>>({})
@@ -82,7 +96,10 @@ export function genStyleHook<
             return [key, name]
           }),
         ) as Record<keyof AliasToken, string>,
-        cssVariable: cssVariableFactor(token),
+        tokenVar: Object.fromEntries(
+          Object.keys(token).map((key) => [key, cssVariable(key)]),
+        ) as Record<KebabToCamelCase<DeepFlatKey<AliasToken>>, string>,
+        keyframe,
       }) || {})
     }, [token])
     const css = useMemo(() => {
@@ -103,9 +120,18 @@ export function genStyleHook<
       const globalToken = JSON.parse(JSON.stringify(token))
       return createCSS({
         token: globalToken,
+        tokenName: Object.fromEntries(
+          Object.keys(token).map((key) => {
+            const name = `--${camelCaseToKebabCase(paths.join('-'))}-${camelCaseToKebabCase(key)}`
+            return [key, name]
+          }),
+        ) as Record<keyof AliasToken, string>,
+        tokenVar: Object.fromEntries(
+          Object.keys(token).map((key) => [key, cssVariable(key)]),
+        ) as Record<KebabToCamelCase<DeepFlatKey<AliasToken>>, string>,
         componentTokenName: componentTokenNameVar as Record<keyof Token, string>,
         componentToken: componentTokenVar as Token,
-        cssVariable: cssVariableFactor(globalToken),
+        keyframe,
       })
     }, [componentToken, token])
     const hash = useMemo(() => hashId.match(/-([a-zA-Z0-9]+$)/)?.[1], [hashId])

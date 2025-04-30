@@ -8,7 +8,7 @@ const useStyle = genStyleHook('TextField',
     activeShadow: `0 0 0 4px ${token.controlOutline}`,
     errorActiveShadow: `0 0 0 4px ${token.color.error.outline}`,
   }),
-  ({ componentToken, cssVariable }) => {
+  ({ tokenVar, componentToken }) => {
     return {
       root: {
         'position': 'relative',
@@ -16,39 +16,39 @@ const useStyle = genStyleHook('TextField',
         '&[aria-invalid="true"]': {
           '[data-scope="container"]': {
             boxShadow: componentToken.errorActiveShadow,
-            borderColor: cssVariable('colorErrorActive'),
+            borderColor: tokenVar.colorErrorActive,
           },
           '[data-scope="helperText"]': {
-            color: cssVariable('colorErrorText'),
+            color: tokenVar.colorErrorText,
           },
           '[data-scope="label"]': {
-            color: cssVariable('colorErrorText'),
+            color: tokenVar.colorErrorText,
           },
           '[data-scope="prefix"]': {
-            color: cssVariable('colorErrorText'),
+            color: tokenVar.colorErrorText,
           },
           '[data-scope="suffix"]': {
-            color: cssVariable('colorErrorText'),
+            color: tokenVar.colorErrorText,
           },
         },
       },
       container: {
         'display': 'flex',
         'alignItems': 'center',
-        'fontSize': cssVariable('fontSize'),
+        'fontSize': tokenVar.fontSize,
         'padding': '8px 12px',
-        'borderWidth': cssVariable('lineWidth'),
-        'borderStyle': cssVariable('lineType'),
-        'borderColor': cssVariable('colorBorder'),
-        'borderRadius': cssVariable('borderRadiusOuter'),
+        'borderWidth': tokenVar.lineWidth,
+        'borderStyle': tokenVar.lineType,
+        'borderColor': tokenVar.colorBorder,
+        'borderRadius': tokenVar.borderRadiusOuter,
         '&:hover': {
           boxShadow: componentToken.errorActiveShadow,
-          borderColor: cssVariable('colorPrimaryHover'),
+          borderColor: tokenVar.colorPrimaryHover,
         },
         '&:focus-within': {
           outline: 'none',
           boxShadow: componentToken.activeShadow,
-          borderColor: cssVariable('colorPrimary'),
+          borderColor: tokenVar.colorPrimary,
         },
       },
       prefix: {
@@ -69,11 +69,11 @@ const useStyle = genStyleHook('TextField',
         position: 'absolute',
         left: '0',
         top: '100%',
-        fontSize: cssVariable('fontSizeSm'),
+        fontSize: tokenVar.fontSizeSm,
         marginTop: '2px',
       },
       input: {
-        'color': cssVariable('colorTextBase'),
+        'color': tokenVar.colorTextBase,
         'width': '100%',
         'padding': '0',
         'border': 'none',
