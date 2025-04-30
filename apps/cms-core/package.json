@@ -16,7 +16,7 @@
     "@module-federation/enhanced": "0.11.3",
     "@tanstack/query-core": "5.71.10",
     "@tanstack/react-query": "5.71.10",
-    "@tanstack/react-query-devtools": "^5.71.10",
+    "@tanstack/react-query-devtools": "5.71.10",
     "@tanstack/react-router": "1.115.0",
     "@tanstack/react-router-devtools": "1.115.0",
     "@unocss/preset-wind4": "66.1.0-beta.12",

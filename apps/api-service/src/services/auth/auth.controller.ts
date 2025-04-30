@@ -12,6 +12,26 @@ import { AuthGuard } from './auth.guard'
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Get('/search')
+  async search() {
+    return {
+      code: 200,
+      data: {
+        message: 'search test',
+      },
+    }
+  }
+
+  @Get('/test')
+  async test() {
+    return {
+      code: 200,
+      data: {
+        message: 'api test',
+      },
+    }
+  }
+
   @Post('/login')
   async login(
     @Body(new ZodValidationPipe(LoginDtoSchema)) body: LoginDto,

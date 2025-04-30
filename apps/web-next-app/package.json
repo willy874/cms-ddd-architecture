@@ -9,10 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "5.74.11",
+    "@tanstack/react-query-next-experimental": "5.74.11",
+    "@ts-rest/core": "3.52.1",
+    "axios": "1.8.2",
     "dotenv": "16.4.7",
     "next": "15.1.4",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "zod": "3.24.2"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "2.12.1",
