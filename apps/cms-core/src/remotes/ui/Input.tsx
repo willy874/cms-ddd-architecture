@@ -27,7 +27,7 @@ const useStyle = genStyleHook('Input',
         borderColor: cssVariable('colorPrimary'),
       },
       '&:disabled': {
-        backgroundColor: cssVariable('colorFillDisabled'),
+        backgroundColor: cssVariable('colorBgContainerDisabled'),
         borderColor: cssVariable('colorBorder'),
         cursor: 'not-allowed',
       },
