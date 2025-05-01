@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Button from './Button'
-import { prefetchData } from '@/services/test'
-import { prefetchSearch } from '@/services/search'
+import { prefetchData } from '@/services/auth/test'
+import { prefetchSearch } from '@/services/auth/search'
 
 export default async function Home() {
   await prefetchData()

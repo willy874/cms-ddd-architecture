@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { AxiosHeaders, AxiosRequestConfig } from 'axios'
+import axios, { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse, isAxiosError, Method } from 'axios'
+import { isServer } from '@tanstack/react-query'
+import { ApiFetcherArgs, InitClientArgs, initContract } from '@ts-rest/core'
 
 export function nextRequestToAxiosConfig(req: NextRequest): AxiosRequestConfig {
   const { method, headers, body, url } = req
@@ -12,7 +14,7 @@ export function nextRequestToAxiosConfig(req: NextRequest): AxiosRequestConfig {
   }
 }
 
-export const flattenAxiosConfigHeaders = (method: string, headers: AxiosRequestConfig['headers']): Record<string, string> => {
+const flattenAxiosConfigHeaders = (method: string, headers: AxiosRequestConfig['headers']): Record<string, string> => {
   if (!headers) {
     return {}
   }
@@ -32,3 +34,60 @@ export const flattenAxiosConfigHeaders = (method: string, headers: AxiosRequestC
     ),
   }
 }
+
+export const createServerAxios = () => {
+  const instance = axios.create({
+    baseURL: 'http://localhost:8765',
+  })
+  return instance
+}
+
+export const createClientAxios = () => {
+  const instance = axios.create({})
+  return instance
+}
+
+export const http = () => {
+  const instance = isServer ? createServerAxios() : createClientAxios()
+  return {
+    request: (config: AxiosRequestConfig) => {
+      return instance.request(config)
+    },
+  }
+}
+
+export const contract = initContract()
+
+const restApi = async ({ path, method, headers, body }: ApiFetcherArgs) => {
+  try {
+    const result = await http().request({
+      method: method as Method,
+      url: path,
+      headers,
+      data: body,
+    })
+    return {
+      status: result.status,
+      body: result.data,
+      headers: new Headers(flattenAxiosConfigHeaders(method, result.headers)),
+    }
+  }
+  catch (e: Error | AxiosError | unknown) {
+    if (isAxiosError(e)) {
+      const error = e as AxiosError
+      const response = error.response as AxiosResponse
+      return {
+        status: response.status,
+        body: response.data,
+        headers: new Headers(flattenAxiosConfigHeaders(method, response.headers)),
+      }
+    }
+    throw e
+  }
+}
+
+export const defaultOptions = {
+  baseUrl: '',
+  api: restApi,
+  validateResponse: true,
+} as const satisfies InitClientArgs

@@ -1,6 +1,6 @@
 'use client'
-import { fetchTest, useTestQuery } from '@/services/test'
-import { fetchSearch, useSearchQuery } from '@/services/search'
+import { fetchTest, useTestQuery } from '@/services/auth/test'
+import { fetchSearch, useSearchQuery } from '@/services/auth/search'
 
 export default function Button() {
   useTestQuery()
