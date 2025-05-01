@@ -1,5 +1,5 @@
 import { QueryFunctionContext, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { getQueryClient } from '@/shared/client'
+import { getQueryClient } from '@/shared/quertClient'
 import { authClient as client } from '@/resources'
 
 export const SEARCH_QUERY_KEY = ['search'] as const

@@ -1,5 +1,4 @@
-import { http } from '@/resources/common'
-import { nextRequestToAxiosConfig } from '@/shared/http'
+import { http, nextRequestToAxiosConfig } from '@/shared/http'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
