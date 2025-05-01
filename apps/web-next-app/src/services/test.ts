@@ -1,6 +1,6 @@
 import { QueryFunctionContext, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { authClient as client } from '@/resources/contract'
 import { getQueryClient } from '@/shared/client'
+import { authClient as client } from '@/resources'
 
 export const TEST_QUERY_KEY = ['test'] as const
 
