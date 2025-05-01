@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import { API_SERVER_URL } from '@/constants/env'
 import { setToken } from './cookie'
-import { cookies } from 'next/headers'
 
 interface RefreshEvent {
   error: AxiosError
@@ -29,6 +28,7 @@ const fetchRefreshToken = async (info: {
 
 export const onTokenExpired = (error: AxiosError<{ message: string }>) => {
   return new Promise(async (resolve, reject) => {
+    const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('access_token')?.value
     const refreshToken = cookieStore.get('refresh_token')?.value

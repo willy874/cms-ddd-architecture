@@ -1,6 +1,5 @@
 import { IS_PRODUCTION } from '@/constants/env'
 import { isServer } from '@tanstack/react-query'
-import { cookies } from 'next/headers'
 
 interface SetTokenParams {
   accessToken: string
@@ -11,6 +10,7 @@ export async function setToken({ accessToken, refreshToken }: SetTokenParams) {
   if (!isServer) {
     throw new Error('setToken can only be called on the server side')
   }
+  const { cookies } = await import('next/headers')
   const cookieStore = await cookies()
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,

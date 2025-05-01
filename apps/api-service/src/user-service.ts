@@ -5,7 +5,7 @@ import { RoleModule } from './services/role'
 import { UserModule } from './services/user'
 import { loadEnv } from '@packages/shared'
 import { initMessageQueueService } from './shared/queue'
-import { MessageQueueModule } from './shared/queue'
+// import { MessageQueueModule } from './shared/queue'
 
 const init = pipe(
   initMessageQueueService(),
@@ -16,7 +16,7 @@ async function bootstrap() {
   const app = await NestFactory.create({
     module: class UserAppModule {},
     imports: [
-      MessageQueueModule,
+      // MessageQueueModule,
       PermissionModule.register(),
       RoleModule.register(),
       UserModule.register(),

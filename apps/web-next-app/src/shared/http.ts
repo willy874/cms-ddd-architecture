@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server'
-import { cookies } from 'next/headers'
-import axios, { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse, isAxiosError, Method } from 'axios'
+import axios, { AxiosHeaders, AxiosRequestConfig, AxiosResponse, isAxiosError, Method } from 'axios'
 import { isServer } from '@tanstack/react-query'
 import { ApiFetcherArgs, InitClientArgs, initContract } from '@ts-rest/core'
 import { z } from 'zod'
@@ -44,6 +43,7 @@ const createServerAxios = () => {
     baseURL: API_SERVER_URL,
   })
   instance.interceptors.request.use(async (config) => {
+    const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('access_token')?.value
     if (accessToken) {
@@ -128,14 +128,15 @@ const restApi = async ({ path, method, headers, body }: ApiFetcherArgs) => {
       headers: new Headers(flattenAxiosConfigHeaders(method, result.headers)),
     }
   }
-  catch (e: Error | AxiosError | unknown) {
+  catch (e: unknown) {
     if (isAxiosError(e)) {
-      const error = e as AxiosError
-      const response = error.response as AxiosResponse
-      return {
-        status: response.status,
-        body: response.data,
-        headers: new Headers(flattenAxiosConfigHeaders(method, response.headers)),
+      const { response } = e
+      if (response) {
+        return {
+          status: response.status,
+          body: response.data,
+          headers: new Headers(flattenAxiosConfigHeaders(method, response.headers)),
+        }
       }
     }
     throw e

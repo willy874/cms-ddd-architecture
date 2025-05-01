@@ -3,7 +3,17 @@ import Button from './Button'
 import { prefetchData } from '@/services/auth/test'
 import { prefetchSearch } from '@/services/auth/search'
 
-export default async function Home() {
+type PageProps = {
+  params: Promise<{
+    [key: string]: string | string[] | undefined
+  }>
+  searchParams: Promise<{
+    [key: string]: string | string[] | undefined
+  }>
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default async function Home(_props: PageProps) {
   await prefetchData()
   await prefetchSearch()
   return (
