@@ -14,20 +14,17 @@ export const roles = mysqlTable('roles', {
 })
 
 export const userRelations = relations(users, ({ many }) => ({
-  roles: many(roles),
+  userRoles: many(userRoles),
 }))
 
-export const userRoles = mysqlTable(
-  'user_roles',
-  {
-    userId: int('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    roleId: int('role_id')
-      .notNull()
-      .references(() => roles.id, { onDelete: 'cascade' }),
-  },
-)
+export const userRoles = mysqlTable('user_roles', {
+  userId: int('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  roleId: int('role_id')
+    .notNull()
+    .references(() => roles.id, { onDelete: 'cascade' }),
+})
 
 // --- Permissions Table ---
 export const permissions = mysqlTable('permissions', {
@@ -36,9 +33,9 @@ export const permissions = mysqlTable('permissions', {
 })
 
 export const roleRelations = relations(roles, ({ many }) => ({
-  permissions: many(permissions),
+  userRoles: many(userRoles),
+  rolePermissions: many(rolePermissions),
 }))
-
 export const rolePermissions = mysqlTable(
   'role_permissions',
   {
@@ -48,5 +45,8 @@ export const rolePermissions = mysqlTable(
     permissionId: int('permission_id')
       .notNull()
       .references(() => permissions.id, { onDelete: 'cascade' }),
-  },
-)
+  })
+
+export const permissionRelations = relations(permissions, ({ many }) => ({
+  rolePermissions: many(rolePermissions),
+}))
