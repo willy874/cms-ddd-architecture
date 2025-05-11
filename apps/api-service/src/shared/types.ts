@@ -14,6 +14,10 @@ export interface QueryParams {
   exclude?: string | string[]
 }
 
+export interface QueryOptions {
+  selects?: string[]
+}
+
 // export interface SearchRule {}
 
 export interface SearchQueryParams extends QueryParams {

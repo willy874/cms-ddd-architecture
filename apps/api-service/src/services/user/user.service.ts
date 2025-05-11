@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { CacheService } from '@/shared/cache'
 import { QueryPageResult, QueryParams } from '@/shared/types'
-import { User } from '@/models'
 import { UpdateUserDto, CreateUserDto } from '@/repositories/dtos'
 import { USER_REPOSITORY } from '@/repositories/providers'
 import { IUserRepository } from '@/repositories/interfaces'
@@ -42,8 +41,14 @@ export class UserService {
     return JSON.parse(data) as QueryPageResult
   }
 
-  pageQuery(params: QueryParams): Promise<QueryPageResult> {
-    return this.pageQuery(params)
+  async pageQuery(params: QueryParams): Promise<QueryPageResult> {
+    const [data, total] = await this.userRepository.searchQuery(params)
+    return {
+      list: data,
+      page: params.page || 1,
+      pageSize: params.pageSize || 10,
+      total,
+    }
   }
 
   insertUser(payload: CreateUserDto) {
@@ -68,9 +73,5 @@ export class UserService {
 
   getUserByName(username: string) {
     return this.userRepository.getUserByName(username)
-  }
-
-  searchQuery(params: QueryParams): Promise<[User[], number]> {
-    return this.userRepository.searchQuery(params)
   }
 }

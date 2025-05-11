@@ -5,6 +5,7 @@ import { DATABASE_PROVIDER, DatabaseRepository, createSearchQuery } from '@/shar
 import { rolesTable, usersTable } from '@/models/drizzle-orm'
 import { UpdateUserDto, CreateUserDto } from '../dtos'
 import { IUserRepository } from '../interfaces'
+import { UserDatabaseQueryDTO } from '../interfaces/user.repository'
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -73,7 +74,7 @@ export class UserRepository implements IUserRepository {
     return this.db.delete(usersTable).where(eq(usersTable.id, id))
   }
 
-  async searchQuery(params: QueryParams): Promise<[typeof usersTable.$inferSelect[], number]> {
+  async searchQuery(params: QueryParams): Promise<[UserDatabaseQueryDTO[], number]> {
     const {
       page = 1,
       pageSize = 10,
@@ -85,7 +86,10 @@ export class UserRepository implements IUserRepository {
     })
     const where = createWhere(params)
     const [data, total] = await Promise.all([
-      this.db.select().from(usersTable)
+      this.db.select({
+        id: usersTable.id,
+        username: usersTable.username,
+      }).from(usersTable)
         .where(where)
         .limit(pageSize)
         .offset((page - 1) * pageSize),

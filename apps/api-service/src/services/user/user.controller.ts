@@ -6,44 +6,19 @@ import { CreateUserDto, UpdateUserDto } from '@/repositories/dtos'
 import { LoginDto } from '@/repositories/dtos'
 import { UserService } from './user.service'
 
-const asArray = <T>(value?: T | T[]) => Array.isArray(value) ? [...value] : (value ? [value] : [])
-
-const mergeArray = <T>(value: T | T[], defaultValue: T[]) => Array.isArray(value) ? [...value] : defaultValue
-
 @Controller('users')
 export class UserController {
   constructor(
     private userService: UserService,
   ) {}
 
-  @Get('/query')
+  @Get('/')
   async getPageUsers(
     @Query() query: QueryParams,
   ) {
-    query.exclude = mergeArray(asArray(query.exclude), ['password'])
     return {
       code: 200,
       data: await this.userService.pageQuery(query),
-    }
-  }
-
-  @Get('/query/:token')
-  async getUsersByToken(
-    @Param('token') token: string,
-  ) {
-    return {
-      code: 200,
-      data: await this.userService.queryByToken(token),
-    }
-  }
-
-  @Post('/query')
-  async queryUsers(@Body() body: QueryParams) {
-    body.exclude = mergeArray(asArray(body.exclude), ['password'])
-    const data = await this.userService.createCache(body, p => this.userService.pageQuery(p))
-    return {
-      code: 200,
-      data,
     }
   }
 
