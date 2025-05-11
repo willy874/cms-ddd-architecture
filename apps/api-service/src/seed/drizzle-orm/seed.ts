@@ -1,4 +1,4 @@
-import { users, roles, permissions, userRoles, rolePermissions } from '@/models/drizzle-orm/schemas'
+import { users, roles, permissions, userRoles, rolePermissions } from '../../models/drizzle-orm/schemas'
 import { db } from './client' // 你連線的 drizzle db 實例
 import { hash } from '@packages/shared'
 

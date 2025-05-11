@@ -1,6 +1,6 @@
 // src/models/drizzle-orm/client.ts
 import { drizzle } from 'drizzle-orm/mysql2'
-import mysql from 'mysql2/promise'
+import { createPool } from 'mysql2/promise'
 import { loadEnv } from '@packages/shared'
 // import * as schemas from '../../models/drizzle-orm/schemas'
 
@@ -14,7 +14,7 @@ const env = {
   database: process.env.DATABASE_NAME!,
 }
 
-const pool = mysql.createPool({
+const pool = createPool({
   host: env.host,
   user: env.user,
   password: env.password,
