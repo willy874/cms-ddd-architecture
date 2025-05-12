@@ -19,6 +19,7 @@ async function bootstrap() {
     },
   })
   await app.listen(process.env.AUTH_API_PORT ?? 3000)
+  console.log(`Auth service is running on: http://${process.env.AUTH_API_HOST}:${process.env.AUTH_API_PORT}`)
 }
 
 bootstrap()

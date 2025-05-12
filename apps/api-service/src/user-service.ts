@@ -24,6 +24,7 @@ async function bootstrap() {
   })
   init(app)
   await app.listen(process.env.USER_API_PORT ?? 3000)
+  console.log(`User service is running on: http://${process.env.USER_API_HOST}:${process.env.USER_API_PORT}`)
 }
 
 bootstrap()

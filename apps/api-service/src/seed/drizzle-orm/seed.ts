@@ -1,5 +1,5 @@
 import { users, roles, permissions, userRoles, rolePermissions } from '../../models/drizzle-orm/schemas'
-import { db } from './client' // 你連線的 drizzle db 實例
+import { db, pool } from './client'
 import { hash } from '@packages/shared'
 
 async function seed() {
@@ -64,7 +64,11 @@ async function seed() {
   console.log('✅ Seed 完成')
 }
 
-seed().catch((err) => {
-  console.error('❌ Seed 失敗', err)
-  process.exit(1)
-})
+seed()
+  .then(() => {
+    pool.end()
+  })
+  .catch((err) => {
+    console.error('❌ Seed 失敗', err)
+    process.exit(1)
+  })

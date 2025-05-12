@@ -1,5 +1,6 @@
 import { Provider } from '@nestjs/common'
 import { UserRepository } from './user.repository'
+import { RoleRepository } from './role.repository'
 import { PermissionRepository } from './permission.repository'
 
 export const USER_REPOSITORY = 'USER_REPOSITORY'
@@ -20,5 +21,5 @@ export const ROLE_REPOSITORY = 'ROLE_REPOSITORY'
 
 export const RoleRepositoryProvider: Provider = {
   provide: ROLE_REPOSITORY,
-  useClass: UserRepository,
+  useClass: RoleRepository,
 }
