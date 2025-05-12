@@ -3,8 +3,10 @@ import { IRoleRepository } from '../interfaces'
 import { Role } from '@/models/typeorm'
 import { Inject } from '@nestjs/common'
 import { DATABASE_PROVIDER } from '@/shared/database/drizzle-orm'
-import { DatabaseRepository } from '@/shared/database/typeorm'
+import { createSearchQuery, DatabaseRepository } from '@/shared/database/typeorm'
 import { CreateRoleDto, UpdateRoleDto } from '../dtos'
+import { QueryParams } from '@/shared/types'
+import { RoleDatabaseQueryDTO } from '../interfaces/role.repository'
 
 export class RoleRepository implements IRoleRepository {
   private roleRepository: Repository<Role>
@@ -14,9 +16,8 @@ export class RoleRepository implements IRoleRepository {
     this.roleRepository = this.db.getRepository(Role)
   }
 
-  async findByName(name: string): Promise<Role | null> {
-    return this.roleRepository.findOne({
-      where: { name },
+  async all(): Promise<Role[]> {
+    return this.roleRepository.find({
       relations: ['permissions'],
     })
   }
@@ -24,12 +25,6 @@ export class RoleRepository implements IRoleRepository {
   async findById(id: number): Promise<Role | null> {
     return this.roleRepository.findOne({
       where: { id },
-      relations: ['permissions'],
-    })
-  }
-
-  async all(): Promise<Role[]> {
-    return this.roleRepository.find({
       relations: ['permissions'],
     })
   }
@@ -46,5 +41,19 @@ export class RoleRepository implements IRoleRepository {
 
   async delete(id: number): Promise<void> {
     await this.roleRepository.delete(id)
+  }
+
+  async searchQuery(params: QueryParams): Promise<[RoleDatabaseQueryDTO[], number]> {
+    return createSearchQuery(this.roleRepository, {
+      ...params,
+      filter: ['id', 'name'],
+    })
+  }
+
+  async findByName(name: string): Promise<Role | null> {
+    return this.roleRepository.findOne({
+      where: { name },
+      relations: ['permissions'],
+    })
   }
 }

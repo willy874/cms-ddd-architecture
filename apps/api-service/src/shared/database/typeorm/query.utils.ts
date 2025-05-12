@@ -82,7 +82,7 @@ export function pageBy<T extends ObjectLiteral>(page?: number, pageSize?: number
   }
 }
 
-export async function createSearchQuery<Entity extends ObjectLiteral>(repository: Repository<Entity>, params: QueryParams): Promise<[Entity[], number]> {
+export async function createSearchQuery<Entity extends ObjectLiteral, Ext extends (keyof Entity) & string = string, Exc extends (keyof Entity) & string = never>(repository: Repository<Entity>, params: QueryParams<Ext, Exc>): Promise<[(Pick<Omit<Entity, Exc>, Extract<keyof Omit<Entity, Exc>, Ext>>)[], number]> {
   const { page, pageSize, filter, exclude, search, sort } = params
   const queryPipe = createQueryPipe(repository)
   const result = await queryPipe(

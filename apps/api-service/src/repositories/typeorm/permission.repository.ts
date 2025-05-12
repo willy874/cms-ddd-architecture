@@ -2,9 +2,11 @@ import { Repository } from 'typeorm'
 import { IPermissionRepository } from '../interfaces'
 import { Permission, Role } from '@/models/typeorm'
 import { Inject } from '@nestjs/common'
-import { DATABASE_PROVIDER } from '@/shared/database/typeorm'
+import { createSearchQuery, DATABASE_PROVIDER } from '@/shared/database/typeorm'
 import { DatabaseRepository } from '@/shared/database/typeorm'
 import { CreatePermissionDto, UpdatePermissionDto } from '../dtos'
+import { QueryParams } from '@/shared/types'
+import { PermissionDatabaseQueryDTO } from '../interfaces/permission.repository'
 
 export class PermissionRepository implements IPermissionRepository {
   private permissionRepository: Repository<Permission>
@@ -14,9 +16,8 @@ export class PermissionRepository implements IPermissionRepository {
     this.permissionRepository = this.db.getRepository(Permission)
   }
 
-  async findByName(name: string): Promise<Permission | null> {
-    return this.permissionRepository.findOne({
-      where: { name },
+  async all(): Promise<Permission[]> {
+    return this.permissionRepository.find({
       relations: ['roles'],
     })
   }
@@ -28,8 +29,9 @@ export class PermissionRepository implements IPermissionRepository {
     })
   }
 
-  async all(): Promise<Permission[]> {
-    return this.permissionRepository.find({
+  async findByName(name: string): Promise<Permission | null> {
+    return this.permissionRepository.findOne({
+      where: { name },
       relations: ['roles'],
     })
   }
@@ -64,6 +66,13 @@ export class PermissionRepository implements IPermissionRepository {
     return this.permissionRepository.find({
       where: { roles: role },
       relations: ['roles'],
+    })
+  }
+
+  searchQuery(params: QueryParams): Promise<[PermissionDatabaseQueryDTO[], number]> {
+    return createSearchQuery(this.permissionRepository, {
+      ...params,
+      filter: ['id', 'name'],
     })
   }
 }

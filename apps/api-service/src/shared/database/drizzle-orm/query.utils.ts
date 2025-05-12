@@ -1,4 +1,4 @@
-import { QueryParams } from '@/shared/types'
+import { WhereParams } from '@/shared/types'
 import { and, asc, desc, ilike, sql } from 'drizzle-orm'
 import type { Column, SQL } from 'drizzle-orm'
 import { pipe } from 'rxjs'
@@ -67,7 +67,7 @@ export function sortBy(sort: string | string[] | undefined, table: TableWithColu
   }
 }
 
-export function createSearchQuery(tables: TableWithColumns): (params: Omit<QueryParams, 'page' | 'pageSize'>) => SQL | undefined {
+export function createSearchQuery(tables: TableWithColumns): (params: WhereParams) => SQL | undefined {
   return (params) => {
     const { search, filter, exclude, sort } = params
     const fn: (p: SQL[]) => SQL[] = pipe(

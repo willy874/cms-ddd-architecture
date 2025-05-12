@@ -5,9 +5,10 @@ import { DATABASE_PROVIDER, DatabaseRepository, createSearchQuery } from '@/shar
 import { User } from '@/models/typeorm/user.entity'
 import { Role } from '@/models/typeorm/role.entity'
 import { UpdateUserDto, CreateUserDto } from '../dtos'
+import { IUserRepository, UserDatabaseQueryDTO } from '../interfaces/user.repository'
 
 @Injectable()
-export class UserRepository {
+export class UserRepository implements IUserRepository {
   private userRepository: Repository<User>
   private roleRepository: Repository<Role>
   constructor(
@@ -40,16 +41,6 @@ export class UserRepository {
     return this.userRepository.findOne({ where: { id } })
   }
 
-  async pageQuery(params: QueryParams): Promise<QueryPageResult> {
-    const [list, total] = await createSearchQuery(this.userRepository, params)
-    return {
-      list,
-      total,
-      page: 1,
-      pageSize: 10,
-    }
-  }
-
   async insertUser(payload: CreateUserDto) {
     const { roles: roleNames, ...rest } = payload
     const roles = await this.getRolesByName(roleNames)
@@ -64,5 +55,26 @@ export class UserRepository {
 
   async deleteUser(id: number) {
     return await this.userRepository.delete(id)
+  }
+
+  async pageQuery(params: QueryParams): Promise<QueryPageResult> {
+    const [list, total] = await createSearchQuery(this.userRepository, {
+      ...params,
+      filter: ['id', 'username'],
+    })
+    return {
+      list,
+      total,
+      page: 1,
+      pageSize: 10,
+    }
+  }
+
+  async searchQuery(params: QueryParams): Promise<[UserDatabaseQueryDTO[], number]> {
+    const [data, total] = await createSearchQuery(this.userRepository, {
+      ...params,
+      filter: ['id', 'username'],
+    })
+    return [data, total] as const
   }
 }
