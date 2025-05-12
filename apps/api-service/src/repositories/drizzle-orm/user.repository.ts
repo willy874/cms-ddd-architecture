@@ -79,17 +79,15 @@ export class UserRepository implements IUserRepository {
       page = 1,
       pageSize = 10,
     } = params
-    const createWhere = createSearchQuery({
+    const tables = {
       id: usersTable.id,
       username: usersTable.username,
-      password: usersTable.password,
-    })
+    }
+    const createWhere = createSearchQuery(tables)
     const where = createWhere(params)
     const [data, total] = await Promise.all([
-      this.db.select({
-        id: usersTable.id,
-        username: usersTable.username,
-      }).from(usersTable)
+      this.db.select(tables)
+        .from(usersTable)
         .where(where)
         .limit(pageSize)
         .offset((page - 1) * pageSize),

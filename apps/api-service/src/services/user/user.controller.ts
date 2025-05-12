@@ -13,9 +13,7 @@ export class UserController {
   ) {}
 
   @Get('/')
-  async getPageUsers(
-    @Query() query: QueryParams,
-  ) {
+  async getPageUsers(@Query() query: QueryParams) {
     return {
       code: 200,
       data: await this.userService.pageQuery(query),

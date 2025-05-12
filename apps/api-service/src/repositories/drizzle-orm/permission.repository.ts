@@ -1,10 +1,12 @@
 import { Inject } from '@nestjs/common'
-import { eq } from 'drizzle-orm'
-import { DATABASE_PROVIDER, DatabaseRepository } from '@/shared/database/drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
+import { createSearchQuery, DATABASE_PROVIDER, DatabaseRepository } from '@/shared/database/drizzle-orm'
 import { Permission, permissionsTable } from '@/models/drizzle-orm'
 import { CreatePermissionDto, UpdatePermissionDto } from '../dtos'
 import { IPermissionRepository } from '../interfaces'
 import { PickKey } from '../interfaces/utils'
+import { QueryParams } from '@/shared/types'
+import { PermissionDatabaseQueryDTO } from '../interfaces/permission.repository'
 
 export class PermissionRepository implements IPermissionRepository {
   constructor(
@@ -61,5 +63,31 @@ export class PermissionRepository implements IPermissionRepository {
       .delete(permissionsTable)
       .where(eq(permissionsTable.id, id))
       .execute()
+  }
+
+  async searchQuery(params: QueryParams): Promise<[PermissionDatabaseQueryDTO[], number]> {
+    const {
+      page = 1,
+      pageSize = 10,
+    } = params
+    const tables = {
+      id: permissionsTable.id,
+      name: permissionsTable.name,
+    }
+    const createWhere = createSearchQuery(tables)
+    const where = createWhere(params)
+    const [data, total] = await Promise.all([
+      this.db.select(tables)
+        .from(permissionsTable)
+        .where(where)
+        .limit(pageSize)
+        .offset((page - 1) * pageSize),
+      this.db
+        .select({ count: sql<number>`count(*)` })
+        .from(permissionsTable)
+        .where(where),
+    ])
+
+    return [data, total[0]?.count ?? 0]
   }
 }

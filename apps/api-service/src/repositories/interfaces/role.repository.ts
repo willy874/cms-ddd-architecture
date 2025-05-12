@@ -1,5 +1,11 @@
 import { Role } from '@/models'
 import { PickKey } from './utils'
+import { QueryParams } from '@/shared/types'
+
+export interface RoleDatabaseQueryDTO {
+  id: Role['id']
+  name: Role['name']
+}
 
 export abstract class IRoleRepository {
   abstract all(): Promise<Role[]>
@@ -7,4 +13,5 @@ export abstract class IRoleRepository {
   abstract create(role: unknown): Promise<PickKey<Role, 'id'>>
   abstract update(id: number, role: unknown): Promise<unknown>
   abstract delete(id: number): Promise<unknown>
+  abstract searchQuery(params: QueryParams): Promise<[RoleDatabaseQueryDTO[], number]>
 }

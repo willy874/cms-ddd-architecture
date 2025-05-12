@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { ROLE_REPOSITORY } from '@/repositories/providers'
 import { IRoleRepository } from '@/repositories/interfaces'
 import { CreateRoleDto, UpdateRoleDto } from '@/repositories/dtos'
+import { QueryPageResult, QueryParams } from '@/shared/types'
 
 @Injectable()
 export class RoleService {
@@ -9,8 +10,18 @@ export class RoleService {
     @Inject(ROLE_REPOSITORY) private roleRepository: IRoleRepository,
   ) {}
 
-  async searchQuery() {
+  async all() {
     return this.roleRepository.all()
+  }
+
+  async searchQuery(params: QueryParams): Promise<QueryPageResult> {
+    const [data, total] = await this.roleRepository.searchQuery(params)
+    return {
+      list: data,
+      page: params.page || 1,
+      pageSize: params.pageSize || 10,
+      total,
+    }
   }
 
   getRoleById(id: number) {
