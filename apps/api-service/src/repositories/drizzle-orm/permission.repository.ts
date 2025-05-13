@@ -13,14 +13,6 @@ export class PermissionRepository implements IPermissionRepository {
     @Inject(DATABASE_PROVIDER) private db: DatabaseRepository,
   ) {}
 
-  async findByName(name: string): Promise<Permission | null> {
-    const [result] = await this.db
-      .select()
-      .from(permissionsTable)
-      .where(eq(permissionsTable.name, name))
-    return result || null
-  }
-
   async findById(id: number): Promise<Permission | null> {
     const [result] = await this.db
       .select()
@@ -40,7 +32,6 @@ export class PermissionRepository implements IPermissionRepository {
       .insert(permissionsTable)
       .values(permission)
       .$returningId()
-
     return newPermission
   }
 

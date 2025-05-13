@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { and, eq, sql } from 'drizzle-orm'
 import { QueryPageResult, QueryParams } from '@/shared/types'
 import { DATABASE_PROVIDER, DatabaseRepository, createSearchQuery } from '@/shared/database/drizzle-orm'
-import { rolesTable, usersTable } from '@/models/drizzle-orm'
+import { usersTable } from '@/models/drizzle-orm'
 import { UpdateUserDto, CreateUserDto } from '../dtos'
 import { IUserRepository } from '../interfaces'
 import { UserDatabaseQueryDTO } from '../interfaces/user.repository'
@@ -12,21 +12,6 @@ export class UserRepository implements IUserRepository {
   constructor(
     @Inject(DATABASE_PROVIDER) private db: DatabaseRepository,
   ) {}
-
-  private async getRolesByNames(names?: string[]) {
-    if (!names) {
-      return []
-    }
-    if (names.length === 0) {
-      return []
-    }
-    const roles = await this.db.select().from(rolesTable).where(
-      and(
-        eq(rolesTable.name, names[0]),
-      )
-    )
-    return roles
-  }
 
   async getUserByNameAndPassword(dto: { username: string, password: string }) {
     const [user] = await this.db.select().from(usersTable).where(

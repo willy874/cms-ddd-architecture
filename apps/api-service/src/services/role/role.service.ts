@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { ROLE_REPOSITORY } from '@/repositories/providers'
-import { IRoleRepository } from '@/repositories/interfaces'
+import { PERMISSION_REPOSITORY, ROLE_REPOSITORY } from '@/repositories/providers'
+import { IRoleRepository, IPermissionRepository } from '@/repositories/interfaces'
 import { CreateRoleDto, UpdateRoleDto } from '@/repositories/dtos'
 import { QueryPageResult, QueryParams } from '@/shared/types'
 
@@ -8,6 +8,7 @@ import { QueryPageResult, QueryParams } from '@/shared/types'
 export class RoleService {
   constructor(
     @Inject(ROLE_REPOSITORY) private roleRepository: IRoleRepository,
+    @Inject(PERMISSION_REPOSITORY) private permissionRepository: IPermissionRepository,
   ) {}
 
   async all() {
@@ -28,8 +29,8 @@ export class RoleService {
     return this.roleRepository.findById(id)
   }
 
-  insertRole(payload: CreateRoleDto) {
-    return this.roleRepository.create({ ...payload })
+  async insertRole(payload: CreateRoleDto) {
+    return await this.roleRepository.create({ ...payload })
   }
 
   updateRole(id: number, payload: UpdateRoleDto) {
