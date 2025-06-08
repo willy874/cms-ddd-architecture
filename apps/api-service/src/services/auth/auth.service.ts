@@ -11,25 +11,25 @@ import { parseJson, cloneJson } from '@/shared/utils/json'
 const MAXIMUM_LOGIN_COUNT = Infinity
 
 interface SessionCache {
-  id: string;
-  user: UserInfo;
+  id: string
+  user: UserInfo
   tokens: ({
-    accessTokenId: string;
-    refreshTokenId: string;
-    expiredTime: number;
-  })[],
+    accessTokenId: string
+    refreshTokenId: string
+    expiredTime: number
+  })[]
 }
 
 interface AccessCache {
-  accessTokenId: string;
-  refreshTokenId: string;
-  sessionCacheId: string;
+  accessTokenId: string
+  refreshTokenId: string
+  sessionCacheId: string
 }
 
 interface RefreshCache {
-  accessToken: string;
-  refreshTokenId: string;
-  sessionCacheId: string;
+  accessToken: string
+  refreshTokenId: string
+  sessionCacheId: string
 }
 
 @Injectable()
@@ -218,20 +218,22 @@ export class AuthService {
     }
     if (sessionCache.tokens.length === 0) {
       this.cacheService.del(sessionCache.id)
-    } else {
+    }
+    else {
       const maxLongTime = Math.max(...sessionCache.tokens.map(t => t.expiredTime))
       const maxExpiredTime = Math.max(0, maxLongTime - Date.now())
       if (maxExpiredTime === 0) {
         Promise.all([
           this.cacheService.del(sessionCache.id),
-          ...sessionCache.tokens.map(t => {
+          ...sessionCache.tokens.map((t) => {
             return Promise.all([
               this.cacheService.del(t.accessTokenId),
-              this.cacheService.del(t.refreshTokenId)
+              this.cacheService.del(t.refreshTokenId),
             ])
-          })
+          }),
         ])
-      } else {
+      }
+      else {
         await this.updateSessionCache(sessionCache)
       }
     }

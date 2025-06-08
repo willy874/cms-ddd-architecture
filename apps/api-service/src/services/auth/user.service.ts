@@ -8,8 +8,8 @@ import { RegisterDto } from './register.dto'
 const UserSchema = z.record(z.unknown())
 
 export interface UserInfo {
-  id: number;
-  [k: string]: unknown;
+  id: number
+  [k: string]: unknown
 }
 
 const HttpResultSchema = z.object({

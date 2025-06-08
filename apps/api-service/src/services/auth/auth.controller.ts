@@ -67,7 +67,7 @@ export class AuthController {
     if (err || !user) {
       throw new InvalidTokenException()
     }
-    return { 
+    return {
       code: 200,
       data: user,
     }
