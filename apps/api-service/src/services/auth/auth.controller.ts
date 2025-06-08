@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Get, HttpCode, Headers, UseGuards, HttpException, HttpStatus } from '@nestjs/common'
 import { to } from 'await-to-js'
-import { TOKEN_TYPE, hash } from '@packages/shared'
+import { TOKEN_TYPE } from '@packages/shared'
 import { ZodValidationPipe } from '@/shared/utils/validation'
 import { AuthorizationHeaderRequiredException, InvalidTokenException, LoginFailException } from '@/shared/errors'
 import { AuthService } from './auth.service'
@@ -18,12 +18,12 @@ export class AuthController {
   ) {
     const user = await this.authService.loginCheck({
       username: body.username,
-      password: hash(body.password),
+      password: body.password,
     })
     if (!user) {
       throw new LoginFailException()
     }
-    const result = await this.authService.generateTokens(user.id)
+    const result = await this.authService.signin(user)
     return {
       code: 200,
       data: {
@@ -61,17 +61,15 @@ export class AuthController {
 
   @Get('/me')
   @UseGuards(AuthGuard)
-  async me(
-    @Headers('authorization') authorization: string
-  ) {
+  async me(@Headers('authorization') authorization: string) {
     const [, token] = authorization.split(' ')
-    const payload = await this.authService.getUserPayloadByToken(token)
-    if (!payload) {
+    const [err, user] = await to(this.authService.getUserInfoByAccessToken(token))
+    if (err || !user) {
       throw new InvalidTokenException()
     }
-    return {
+    return { 
       code: 200,
-      data: payload,
+      data: user,
     }
   }
 
@@ -83,22 +81,20 @@ export class AuthController {
     if (!authorization) {
       throw new AuthorizationHeaderRequiredException()
     }
-    const [, token] = authorization.split(' ')
-    const payload = await this.authService.getTokenPayloadByToken(token)
-    if (!payload) {
+    if (!refreshToken) {
       throw new InvalidTokenException()
     }
-    if (payload.refreshToken !== refreshToken) {
+    const [type, token] = authorization.split(' ')
+    if (type !== TOKEN_TYPE) {
       throw new InvalidTokenException()
     }
-    const result = await this.authService.generateTokens(payload.uid)
-    this.authService.removeToken(refreshToken)
+    const [err, tokenResult] = await to(this.authService.refreshTokens(token, refreshToken))
+    if (err || !tokenResult) {
+      throw new InvalidTokenException()
+    }
     return {
       code: 200,
-      data: {
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      },
+      data: tokenResult,
     }
   }
 
@@ -110,7 +106,7 @@ export class AuthController {
       throw new AuthorizationHeaderRequiredException()
     }
     const [, token] = authorization.split(' ')
-    await this.authService.removeToken(token)
+    await this.authService.removeSessionByAccessToken(token)
     return {
       code: 200,
       message: 'Logout successfully.',

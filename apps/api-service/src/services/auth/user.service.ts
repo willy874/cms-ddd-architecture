@@ -5,10 +5,7 @@ import { getEnvironment } from '@packages/shared'
 import { LoginDto } from './login.dto'
 import { RegisterDto } from './register.dto'
 
-const UserSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-})
+const UserSchema = z.record(z.unknown())
 
 const HttpResultSchema = z.object({
   code: z.number(),
@@ -54,7 +51,10 @@ export class AuthUserService {
     }
     try {
       const result = HttpResultSchema.parse(response)
-      return result.data
+      return result.data as {
+        id: number
+        [key: string]: unknown
+      }
     }
     catch (error) {
       if (error instanceof z.ZodError) {

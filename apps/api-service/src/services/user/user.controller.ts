@@ -28,7 +28,7 @@ export class UserController {
       code: 200,
       data: await this.userService.getUserByNameAndPassword({
         username: query.username,
-        password: query.password,
+        password: hash(query.password),
       }),
     }
   }
