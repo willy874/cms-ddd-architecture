@@ -7,6 +7,11 @@ import { RegisterDto } from './register.dto'
 
 const UserSchema = z.record(z.unknown())
 
+export interface UserInfo {
+  id: number;
+  [k: string]: unknown;
+}
+
 const HttpResultSchema = z.object({
   code: z.number(),
   data: UserSchema,
@@ -67,7 +72,7 @@ export class AuthUserService {
   async getUserById(id: number) {
     const { data } = await this.http.get(`/${id}`)
     const res = HttpResultSchema.parse(JSON.parse(data))
-    return res.data
+    return res.data as UserInfo
   }
 
   async insertUser(dto: RegisterDto) {

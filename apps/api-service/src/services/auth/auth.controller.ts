@@ -88,7 +88,7 @@ export class AuthController {
     if (type !== TOKEN_TYPE) {
       throw new InvalidTokenException()
     }
-    const [err, tokenResult] = await to(this.authService.refreshTokens(token, refreshToken))
+    const [err, tokenResult] = await to(this.authService.refreshToken(token, refreshToken))
     if (err || !tokenResult) {
       throw new InvalidTokenException()
     }
@@ -106,7 +106,7 @@ export class AuthController {
       throw new AuthorizationHeaderRequiredException()
     }
     const [, token] = authorization.split(' ')
-    await this.authService.removeSessionByAccessToken(token)
+    await this.authService.signout(token)
     return {
       code: 200,
       message: 'Logout successfully.',

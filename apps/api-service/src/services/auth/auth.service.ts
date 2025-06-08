@@ -2,37 +2,32 @@ import { to } from 'await-to-js'
 import { v4 as uuid_v4 } from 'uuid'
 import { Injectable } from '@nestjs/common'
 import { CacheService } from '@/shared/cache'
-import { AuthUserService } from './user.service'
+import { AuthUserService, UserInfo } from './user.service'
 import { RegisterDto } from './register.dto'
-import { TokenService } from './token.service'
+import { ACCESS_TOKEN_EXPIRED_TIME, REFRESH_TOKEN_EXPIRED_TIME, TokenService } from './token.service'
 import { LoginDto } from './login.dto'
-import { parseJson } from '@/shared/utils/json'
-import { Jwt } from '@packages/shared'
+import { parseJson, cloneJson } from '@/shared/utils/json'
 
-const REFRESH_TOKEN_EXPIRED_TIME = 60 * 60 * 24 * 7 // 7 days
-
-interface UserInfo {
-  id: number;
-  [k: string]: unknown;
-}
+const MAXIMUM_LOGIN_COUNT = Infinity
 
 interface SessionCache {
   id: string;
   user: UserInfo;
   tokens: ({
-    expiredTime: number;
-    refreshTokenId: string;
     accessTokenId: string;
+    refreshTokenId: string;
+    expiredTime: number;
   })[],
 }
 
 interface AccessCache {
   accessTokenId: string;
   refreshTokenId: string;
-  user: UserInfo;
+  sessionCacheId: string;
 }
 
 interface RefreshCache {
+  accessToken: string;
   refreshTokenId: string;
   sessionCacheId: string;
 }
@@ -53,78 +48,23 @@ export class AuthService {
     return this.userService.insertUser(dto)
   }
 
-  async getAccessCacheByToken(token: string) {
-    const [err_1, payload] = await to(this.tokenService.parseAccessToken(token))
-    if (err_1 || !payload || !payload.jti) {
-      return null
-    }
-    const [err_2, cacheString] = await to(this.cacheService.get(payload.jti))
-    if (err_2 || !cacheString) {
-      return null
-    }
-    try {
-      return parseJson<AccessCache>(cacheString)
-    } catch (err_3) {
-      return null
-    }
+  private async getAccessCacheById(id: string) {
+    return parseJson<AccessCache>(await this.cacheService.get(id || ''))
   }
 
-  async getAccessCacheById(id: string) {
-    const [err_1, accessCacheString] = await to(this.cacheService.get(id))
-    if (err_1 || !accessCacheString) {
-      return null
-    }
-    try {
-      return parseJson<AccessCache>(accessCacheString)
-    } catch (err_2) {
-      return null
-    }
+  private async getRefreshCacheById(id: string) {
+    return parseJson<RefreshCache>(await this.cacheService.get(id))
   }
 
-  async getRefreshCacheById(id: string) {
-    const [err_1, refreshCacheString] = await to(this.cacheService.get(id))
-    if (err_1 || !refreshCacheString) {
-      return null
-    }
-    try {
-      return parseJson<RefreshCache>(refreshCacheString)
-    } catch (err_2) {
-      return null
-    }
+  private async getSessionCacheById(id: string) {
+    return parseJson<SessionCache>(await this.cacheService.get(id))
   }
 
-  async getUserInfoByAccessToken(token: string) {
-    const [err_1, payload] = await to(this.getAccessCacheByToken(token))
-    if (err_1 || !payload) {
-      return null
-    }
-    return payload.user as unknown
-  }
-
-  async getSessionCacheById(id: string) {
-    const [err_1, sessionCacheString] = await to(this.cacheService.get(id))
-    if (err_1 || !sessionCacheString) {
-      return null
-    }
-    try {
-      return parseJson<SessionCache>(sessionCacheString)
-    } catch (err_2) {
-      return null
-    }
-  }
-
-  async generateSession(user: UserInfo): Promise<SessionCache> {
+  private async generateSession(user: UserInfo): Promise<SessionCache> {
     const sessionCacheId = `user:${user.id}`
-    const [err_1, sessionCacheString] = await to(this.cacheService.get(sessionCacheId))
-    if (err_1) {
-      throw new Error('Get user cache failed: ' + err_1.message)
-    }
-    if (sessionCacheString) {
-      try {
-        return JSON.parse(sessionCacheString)
-      } catch (err_2) {
-        throw new Error('Parse user cache failed: ' + err_2.message)
-      }
+    const sessionCache = await this.getSessionCacheById(sessionCacheId)
+    if (sessionCache) {
+      return sessionCache
     }
     return {
       id: sessionCacheId,
@@ -133,169 +73,181 @@ export class AuthService {
     }
   }
 
-  async generateAccessToken(accessCache: AccessCache) {
-    const [err_1, accessToken] = await to(this.tokenService.createAccessToken({
+  private async generateAccessToken(accessCache: AccessCache) {
+    const accessToken = await this.tokenService.createAccessToken({
       jti: accessCache.accessTokenId,
-    }))
-    if (err_1) {
-      throw new Error('Generate access token failed: ' + err_1.message)
-    }
-    const [err_2] = await to(this.cacheService.set(accessCache.accessTokenId, JSON.stringify(accessCache)))
-    if (err_2) {
-      throw new Error('Set access token in cache failed: ' + err_2.message)
-    }
+    })
+    await this.cacheService.set(accessCache.accessTokenId, JSON.stringify(accessCache), ACCESS_TOKEN_EXPIRED_TIME)
     return accessToken
   }
 
-  async generateRefreshToken(refreshCache: RefreshCache) {
-    const [err_1, refreshToken] = await to(this.tokenService.createRefreshToken({
+  private async generateRefreshToken(refreshCache: RefreshCache) {
+    const refreshToken = await this.tokenService.createRefreshToken({
       jti: refreshCache.refreshTokenId,
-    }))
-    if (err_1) {
-      throw new Error('Generate refresh token failed: ' + err_1.message)
-    }
-    const [err_2] = await to(this.cacheService.set(refreshCache.refreshTokenId, JSON.stringify(refreshCache)))
-    if (err_2) {
-      throw new Error('Set refresh token in cache failed: ' + err_2.message)
-    }
+    })
+    await this.cacheService.set(refreshCache.refreshTokenId, JSON.stringify(refreshCache), REFRESH_TOKEN_EXPIRED_TIME)
     return refreshToken
+  }
+
+  private async updateSessionCache(sessionCache: SessionCache) {
+    return await this.cacheService.set(
+      sessionCache.id,
+      JSON.stringify(sessionCache),
+      REFRESH_TOKEN_EXPIRED_TIME
+    )
+  }
+
+  private async getCacheByAccessToken(accessToken: string) {
+    const payload = await this.tokenService.parseAccessToken(accessToken)
+    if (!payload || !payload.jti) {
+      throw new Error('Invalid access token')
+    }
+    const accessCache = await this.getAccessCacheById(payload.jti)
+    if (!accessCache || !accessCache.sessionCacheId) {
+      throw new Error('Invalid access token')
+    }
+    const sessionCache = await this.getSessionCacheById(accessCache.sessionCacheId)
+    if (!sessionCache) {
+      throw new Error('Session cache not found')
+    }
+    return { sessionCache, accessCache }
+  }
+
+  private async getCacheByRefreshToken(refreshToken: string) {
+    const payload = await this.tokenService.parseRefreshToken(refreshToken)
+    if (!payload || !payload.jti) {
+      throw new Error('Invalid refresh token')
+    }
+    const refreshCache = await this.getRefreshCacheById(payload.jti)
+    if (!refreshCache) {
+      throw new Error('Invalid refresh token')
+    }
+    const sessionCache = await this.getSessionCacheById(refreshCache.sessionCacheId)
+    if (!sessionCache) {
+      throw new Error('Session cache not found')
+    }
+    return { sessionCache, refreshCache }
   }
 
   async signin(user: UserInfo) {
     const accessTokenId = uuid_v4()
     const refreshTokenId = uuid_v4()
-    const [err_2, sessionCache] = await to(this.generateSession(user))
-    if (err_2) {
-      throw new Error('Generate user cache failed: ' + err_2.message)
-    }
+    const sessionCache = await this.generateSession(user)
+    const accessToken = await this.generateAccessToken({
+      accessTokenId,
+      refreshTokenId,
+      sessionCacheId: sessionCache.id,
+    })
+    const refreshToken = await this.generateRefreshToken({
+      accessToken,
+      refreshTokenId,
+      sessionCacheId: sessionCache.id,
+    })
     sessionCache.tokens.push({
       expiredTime: Date.now() + REFRESH_TOKEN_EXPIRED_TIME,
       refreshTokenId,
       accessTokenId,
     })
-    const [err_4, result] = await to(Promise.all([
-      this.generateAccessToken({
-        accessTokenId,
-        refreshTokenId,
-        user: sessionCache.user,
-      }),
-      this.generateRefreshToken({
-        refreshTokenId,
-        sessionCacheId: sessionCache.id,
-      }),
-      this.cacheService.set(
-        sessionCache.id,
-        JSON.stringify(sessionCache),
-        REFRESH_TOKEN_EXPIRED_TIME
-      )
-    ]))
-    if (err_4) {
-      Promise.all([
-        this.cacheService.del(accessTokenId),
-        this.cacheService.del(refreshTokenId),
-      ])
-      throw new Error('Set user cache failed: ' + err_4.message)
+    while (sessionCache.tokens.length > MAXIMUM_LOGIN_COUNT) {
+      const info = sessionCache.tokens.shift()
+      if (info) {
+        await Promise.all([
+          this.cacheService.del(info.accessTokenId),
+          this.cacheService.del(info.refreshTokenId),
+        ])
+      }
     }
-    const [accessToken, refreshToken] = result
+    await this.updateSessionCache(sessionCache)
     return {
       accessToken,
       refreshToken,
     }
   }
 
-  async refreshTokens(accessToken: string, refreshToken: string) {
-    const [err_1, payload] = await to(this.tokenService.parseRefreshToken(refreshToken))
-    if (err_1 || !payload || !payload.jti) {
-      if (err_1 instanceof Jwt.ExpiredError) {
-        throw new Error('Refresh token expired')
-      }
-      throw new Error('Invalid refresh token')
+  async getUserInfoByAccessToken(token: string) {
+    const { sessionCache } = await this.getCacheByAccessToken(token)
+    return sessionCache.user as unknown
+  }
+
+  async refreshToken(accessToken: string, refreshToken: string) {
+    const { sessionCache, refreshCache } = await this.getCacheByRefreshToken(refreshToken)
+    if (refreshCache.accessToken !== accessToken) {
+      throw new Error('Access token does not match the refresh token')
     }
-    const [err_2, refreshCache] = await to(this.getRefreshCacheById(payload.jti))
-    if (err_2 || !refreshCache) {
-      throw new Error('Invalid refresh token')
-    }
-    const [err_3, sessionCache] = await to(this.getSessionCacheById(refreshCache.sessionCacheId))
-    if (err_3 || !sessionCache) {
-      throw new Error('Session cache not found')
-    }
-    const index = sessionCache.tokens.findIndex(t => t.refreshTokenId === payload.jti)
-    const tokenInfo = sessionCache.tokens[index]
-    if (!tokenInfo) {
+    const index = sessionCache.tokens.findIndex(t => t.refreshTokenId === refreshCache.refreshTokenId)
+    if (index >= 0) {
       throw new Error('Refresh token not found in session cache')
     }
-    this.cacheService.del(tokenInfo.accessTokenId)
-    this.cacheService.del(tokenInfo.refreshTokenId)
-    const accessTokenId = uuid_v4()
-    const refreshTokenId = uuid_v4()
-    sessionCache.tokens[index].accessTokenId = accessTokenId
-    sessionCache.tokens[index].refreshTokenId = refreshTokenId
-    const [err_4, tokenResult] = await to(Promise.all([
-      this.generateAccessToken({
-        accessTokenId,
-        refreshTokenId,
-        user: sessionCache.user,
-      }),
-      this.generateRefreshToken({
-        refreshTokenId,
-        sessionCacheId: sessionCache.id,
-      })
-    ]))
-    if (err_4) {
-      this.cacheService.del(accessTokenId)
-      this.cacheService.del(refreshTokenId)
-      throw new Error('Generate new access token failed: ' + err_4.message)
+    const tokenInfo = cloneJson(sessionCache.tokens[index])
+    const newTokenInfo = {
+      accessTokenId: uuid_v4(),
+      refreshTokenId: uuid_v4(),
+      expiredTime: Date.now() + REFRESH_TOKEN_EXPIRED_TIME,
     }
-    const [newAccessToken, newRefreshToken] = tokenResult
-    const [err_5] = await to(this.cacheService.set(sessionCache.id, JSON.stringify(sessionCache), Date.now() + REFRESH_TOKEN_EXPIRED_TIME))
-    if (err_5) {
-      this.cacheService.del(accessTokenId)
-      this.cacheService.del(refreshTokenId)
-      throw new Error('Update session cache failed: ' + err_5.message)
+    await Promise.all([
+      this.cacheService.del(tokenInfo.accessTokenId),
+      this.cacheService.del(tokenInfo.refreshTokenId),
+    ])
+    const newAccessToken = await this.generateAccessToken({
+      accessTokenId: newTokenInfo.accessTokenId,
+      refreshTokenId: newTokenInfo.refreshTokenId,
+      sessionCacheId: sessionCache.id,
+    })
+    const newRefreshToken = await this.generateRefreshToken({
+      accessToken: newAccessToken,
+      refreshTokenId: newTokenInfo.refreshTokenId,
+      sessionCacheId: sessionCache.id,
+    })
+    const [err, newUserInfo] = await to(this.userService.getUserById(sessionCache.user.id))
+    if (err || !newUserInfo) {
+      throw new Error('User is not found')
     }
+    sessionCache.user = newUserInfo
+    sessionCache.tokens[index] = newTokenInfo
+    await this.updateSessionCache(sessionCache)
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
     }
   }
 
-  async removeSessionByAccessToken(token: string) {
-    const [err_1, accessCache] = await to(this.getAccessCacheByToken(token))
-    if (err_1 || !accessCache) {
+  async clearSessionCache(id: string) {
+    const [err, sessionCache] = await to(this.getSessionCacheById(id))
+    if (err || !sessionCache) {
       return
     }
-    const sessionCacheId = `user:${accessCache.user.id}`
-    const [err_2, userPayloadCache] = await to(this.getSessionCacheById(sessionCacheId))
-    if (err_2 || !userPayloadCache) {
-      return
-    }
-    const tokenInfo = userPayloadCache.tokens.find(t => t.refreshTokenId === accessCache.refreshTokenId)
-    if (tokenInfo) {
-      Promise.all([
-        this.cacheService.del(accessCache.accessTokenId),
-        this.cacheService.del(accessCache.refreshTokenId),
-      ])
-      userPayloadCache.tokens = userPayloadCache.tokens.filter(t => t.refreshTokenId !== accessCache.refreshTokenId)
-      if (userPayloadCache.tokens.length === 0) {
-        this.cacheService.del(userPayloadCache.id)
+    if (sessionCache.tokens.length === 0) {
+      this.cacheService.del(sessionCache.id)
+    } else {
+      const maxLongTime = Math.max(...sessionCache.tokens.map(t => t.expiredTime))
+      const maxExpiredTime = Math.max(0, maxLongTime - Date.now())
+      if (maxExpiredTime === 0) {
+        Promise.all([
+          this.cacheService.del(sessionCache.id),
+          ...sessionCache.tokens.map(t => {
+            return Promise.all([
+              this.cacheService.del(t.accessTokenId),
+              this.cacheService.del(t.refreshTokenId)
+            ])
+          })
+        ])
       } else {
-        const maxLongTime = Math.max(...userPayloadCache.tokens.map(t => t.expiredTime))
-        const restTime = Math.max(0, maxLongTime - Date.now())
-        if (restTime === 0) {
-          Promise.all([
-            this.cacheService.del(userPayloadCache.id),
-            ...userPayloadCache.tokens.map(t => {
-              return Promise.all([
-                this.cacheService.del(t.accessTokenId),
-                this.cacheService.del(t.refreshTokenId)
-              ])
-            })
-          ])
-          
-        } else {
-          await this.cacheService.set(userPayloadCache.id, JSON.stringify(userPayloadCache), restTime)
-        }
+        await this.updateSessionCache(sessionCache)
       }
     }
+  }
+
+  async signout(token: string) {
+    const { sessionCache, accessCache } = await this.getCacheByAccessToken(token)
+    const tokenInfo = sessionCache.tokens.find(t => t.refreshTokenId === accessCache.refreshTokenId)
+    sessionCache.tokens = sessionCache.tokens.filter(t => t.accessTokenId !== accessCache.accessTokenId)
+    await this.updateSessionCache(sessionCache)
+    if (tokenInfo) {
+      await Promise.all([
+        this.cacheService.del(tokenInfo.accessTokenId),
+        this.cacheService.del(tokenInfo.refreshTokenId),
+      ])
+    }
+    this.clearSessionCache(sessionCache.id)
   }
 }

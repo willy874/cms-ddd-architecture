@@ -2,6 +2,10 @@ import { ACCESS_SECRET, QUERY_SECRET, REFRESH_SECRET } from '@/shared/constants'
 import { Jwt } from '@/shared/utils/crypto'
 import { Injectable } from '@nestjs/common'
 
+export const ACCESS_TOKEN_EXPIRED_TIME = 60 * 60 // 1 hours
+
+export const REFRESH_TOKEN_EXPIRED_TIME = 60 * 60 * 24 * 7 // 7 days
+
 export interface JWTPayload {
   iss?: string
   sub?: string
@@ -23,28 +27,12 @@ export class TokenService {
     return this.accessJwtService.sign(payload, '1h')
   }
 
-  isAccessTokenExpired(token: string) {
-    return this.accessJwtService.isExpired(token)
-  }
-
-  isAccessTokenValid(token: string) {
-    return this.accessJwtService.verify(token)
-  }
-
   parseAccessToken(token: string) {
     return this.accessJwtService.parse(token) as Promise<JWTPayload>
   }
 
   createRefreshToken(payload: JWTPayload) {
     return this.refreshJwtService.sign(payload, '1d')
-  }
-
-  isRefreshTokenExpired(token: string) {
-    return this.refreshJwtService.isExpired(token)
-  }
-
-  isRefreshTokenValid(token: string) {
-    return this.refreshJwtService.verify(token)
   }
 
   parseRefreshToken(token: string) {
