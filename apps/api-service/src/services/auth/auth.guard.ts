@@ -1,16 +1,13 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { to } from 'await-to-js'
 import type { Request } from 'express'
-import { AuthorizationHeaderRequiredException, InvalidTokenException, RedisException, TokenExpiredException, TokenNotInfoException } from '@/shared/errors'
-import { CACHE_PROVIDER, CacheService } from '@/shared/cache'
+import { AuthorizationHeaderRequiredException, InvalidTokenException, TokenExpiredException } from '@/shared/errors'
 import { TokenService } from './token.service'
+import { Jwt, TOKEN_TYPE } from '@packages/shared'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-    @Inject(CACHE_PROVIDER) private cacheService: CacheService,
-    private tokenService: TokenService,
-  ) {}
+  constructor(private tokenService: TokenService) {}
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>()
@@ -19,22 +16,15 @@ export class AuthGuard implements CanActivate {
       throw new AuthorizationHeaderRequiredException()
     }
     const [type, token] = authorization.split(' ')
-    if (type !== 'Bearer') {
+    if (type !== TOKEN_TYPE) {
       throw new InvalidTokenException()
     }
-    const [jwtExpiredError, isExpired] = await to(this.tokenService.isAccessTokenExpired(token))
-    if (jwtExpiredError) {
+    const [jwtError] = await to(this.tokenService.parseAccessToken(token))
+    if (jwtError) {
+      if (jwtError instanceof Jwt.ExpiredError) {
+        throw new TokenExpiredException()
+      }
       throw new InvalidTokenException()
-    }
-    if (isExpired) {
-      throw new TokenExpiredException()
-    }
-    const [redisError, info] = await to(this.cacheService.get(token))
-    if (redisError) {
-      throw new RedisException()
-    }
-    if (!info) {
-      throw new TokenNotInfoException()
     }
     return true
   }
