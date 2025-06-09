@@ -15,7 +15,8 @@
     "@packages/shared": "workspace:*",
     "await-to-js": "3.0.0",
     "express": "4.21.2",
-    "http-proxy-middleware": "3.0.3"
+    "http-proxy-middleware": "3.0.3",
+    "ioredis": "5.5.0"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "5.1.1",
